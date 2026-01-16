@@ -1,0 +1,57 @@
+import SwiftUI
+import SwiftData
+
+struct ContentView: View {
+    @State private var selectedTab: Tab = .dashboard
+    
+    enum Tab: String, CaseIterable {
+        case dashboard
+        case map
+        case tools
+        
+        var title: String {
+            switch self {
+            case .dashboard: "Dashboard"
+            case .map: "Map"
+            case .tools: "Tools"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .dashboard: "gauge.with.dots.needle.bottom.50percent"
+            case .map: "network"
+            case .tools: "wrench.and.screwdriver"
+            }
+        }
+    }
+    
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            DashboardView()
+                .tabItem {
+                    Label(Tab.dashboard.title, systemImage: Tab.dashboard.icon)
+                }
+                .tag(Tab.dashboard)
+            
+            NetworkMapView()
+                .tabItem {
+                    Label(Tab.map.title, systemImage: Tab.map.icon)
+                }
+                .tag(Tab.map)
+            
+            ToolsView()
+                .tabItem {
+                    Label(Tab.tools.title, systemImage: Tab.tools.icon)
+                }
+                .tag(Tab.tools)
+        }
+        .tint(Theme.Colors.accent)
+        .accessibilityIdentifier("screen_main")
+    }
+}
+
+#Preview {
+    ContentView()
+        .modelContainer(for: [], inMemory: true)
+}

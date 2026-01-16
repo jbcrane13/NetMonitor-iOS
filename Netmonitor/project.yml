@@ -1,0 +1,60 @@
+name: Netmonitor
+options:
+  bundleIdPrefix: com.blakemiller
+  deploymentTarget:
+    iOS: "18.0"
+  xcodeVersion: "16.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_FILE: Netmonitor/Info.plist
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+
+targets:
+  Netmonitor:
+    type: application
+    platform: iOS
+    sources:
+      - path: Netmonitor
+        excludes:
+          - "**/.gitkeep"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor
+        INFOPLIST_FILE: Netmonitor/Info.plist
+    info:
+      path: Netmonitor/Info.plist
+      properties:
+        CFBundleName: NetMonitor
+        CFBundleDisplayName: NetMonitor
+        UILaunchScreen:
+          UIColorName: LaunchScreenBackground
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSLocalNetworkUsageDescription: NetMonitor needs local network access to discover devices on your network, connect to the NetMonitor Mac companion app, and perform network diagnostics.
+        NSLocationWhenInUseUsageDescription: NetMonitor needs location access to display your current WiFi network name (SSID). Your location is never stored or shared.
+        NSBonjourServices:
+          - _netmon._tcp
+          - _services._dns-sd._udp
+        UIBackgroundModes:
+          - fetch
+          - processing
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.blakemiller.netmonitor.refresh
+          - com.blakemiller.netmonitor.sync

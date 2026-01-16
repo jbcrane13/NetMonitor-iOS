@@ -1,0 +1,520 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0998BA84147CA6DB0A71C79F /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 294323B8D7590D23A94BAF7D /* Enums.swift */; };
+		1F59747566D30EC237A3525D /* WakeOnLANService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */; };
+		20C3BA6DE62F5ACDA3B453B4 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB129EC3165CBDEDE8804667 /* Theme.swift */; };
+		26A8AD63310A016D0E197E7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */; };
+		29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */; };
+		2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33559F156548EF73D7F1450 /* DashboardView.swift */; };
+		32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */; };
+		4E4E74A8FDC010A0D5D7F016 /* PortScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D0639915AD65E638EEDD4F /* PortScannerService.swift */; };
+		506524F1FFC2B56EAFC59961 /* PublicIPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C207EB5D98191A0B7F0C582B /* PublicIPService.swift */; };
+		5660E8DE88C207CD78745048 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD98A9090968B419D3C50A7B /* ContentView.swift */; };
+		5B9B202652127DB6F3B99D1F /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */; };
+		5FAA81F8BE68F5E188691505 /* ToolModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */; };
+		661489E4BA376D9671E26FD4 /* WiFiInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20B3812E7C48E706707F58D /* WiFiInfoService.swift */; };
+		7FA5EC92D12D53FC0787088C /* ToolsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DD181BC184D12F5543624 /* ToolsViewModel.swift */; };
+		853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57264957B282936BB6CC799 /* DNSLookupService.swift */; };
+		93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02055F2010A87B108B40DBFF /* StatusBadge.swift */; };
+		9931234D8F8D2221970329E2 /* PingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666B7D3676F199D98F8CDAE6 /* PingService.swift */; };
+		A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66834196F05AEFC207F67B35 /* NetworkMapView.swift */; };
+		AB95EB4D3560B73FBB78E6DD /* MonitoringTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E923657203E10C881ED154E /* MonitoringTarget.swift */; };
+		ABC118726ED04F028A998A90 /* NetworkMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */; };
+		AD941ED8C66CDA2BD700D464 /* NetworkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 387E8A5019BF41DED96B6607 /* NetworkModels.swift */; };
+		B93B4C2F2439E56ECB464C84 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6AFFA75177ABCBE889D3BB /* MetricCard.swift */; };
+		BD46AC401EB70A0DB80DF33E /* ToolResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E84D20209C2F8E01041E94F /* ToolResult.swift */; };
+		BFA8EBCD5DE8EB0F356495A0 /* GatewayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */; };
+		C168B2E0690BF1558729567D /* DeviceDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */; };
+		C1C4F42F718B71BE5DD9C1CC /* NetmonitorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7652D24B8136AB72C321388E /* NetmonitorApp.swift */; };
+		C617227F80117A77B1A24CAB /* NetworkMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */; };
+		CD9620FF9979D47B492D819A /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7002A651D1A034719D2422FD /* ToolsView.swift */; };
+		CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */; };
+		F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */; };
+		F718105BDBE5F0B48DA691C4 /* LocalDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02BE60C3159EA13BBE3A88BA /* LocalDevice.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		02055F2010A87B108B40DBFF /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		02BE60C3159EA13BBE3A88BA /* LocalDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDevice.swift; sourceTree = "<group>"; };
+		068D4AB44B05423AD51452A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		294323B8D7590D23A94BAF7D /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		387E8A5019BF41DED96B6607 /* NetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModels.swift; sourceTree = "<group>"; };
+		3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANService.swift; sourceTree = "<group>"; };
+		475DD181BC184D12F5543624 /* ToolsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModel.swift; sourceTree = "<group>"; };
+		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
+		58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
+		5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapViewModel.swift; sourceTree = "<group>"; };
+		666B7D3676F199D98F8CDAE6 /* PingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingService.swift; sourceTree = "<group>"; };
+		66834196F05AEFC207F67B35 /* NetworkMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapView.swift; sourceTree = "<group>"; };
+		7002A651D1A034719D2422FD /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
+		7652D24B8136AB72C321388E /* NetmonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetmonitorApp.swift; sourceTree = "<group>"; };
+		7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiscoveryService.swift; sourceTree = "<group>"; };
+		88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
+		954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolModels.swift; sourceTree = "<group>"; };
+		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E923657203E10C881ED154E /* MonitoringTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringTarget.swift; sourceTree = "<group>"; };
+		A33559F156548EF73D7F1450 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewayService.swift; sourceTree = "<group>"; };
+		A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
+		ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		AD98A9090968B419D3C50A7B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedMac.swift; sourceTree = "<group>"; };
+		C207EB5D98191A0B7F0C582B /* PublicIPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicIPService.swift; sourceTree = "<group>"; };
+		C20B3812E7C48E706707F58D /* WiFiInfoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiInfoService.swift; sourceTree = "<group>"; };
+		C2D0639915AD65E638EEDD4F /* PortScannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerService.swift; sourceTree = "<group>"; };
+		D57264957B282936BB6CC799 /* DNSLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupService.swift; sourceTree = "<group>"; };
+		DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		EA6AFFA75177ABCBE889D3BB /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		FB129EC3165CBDEDE8804667 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		15F7ADC82B886D7F63C47C7D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				294323B8D7590D23A94BAF7D /* Enums.swift */,
+				02BE60C3159EA13BBE3A88BA /* LocalDevice.swift */,
+				9E923657203E10C881ED154E /* MonitoringTarget.swift */,
+				387E8A5019BF41DED96B6607 /* NetworkModels.swift */,
+				ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */,
+				954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */,
+				4E84D20209C2F8E01041E94F /* ToolResult.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1D1C206E6B19E36DC2E20830 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E0DB342806E632283625FA7 /* Netmonitor.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		297C70D64E1D8B8B47D66ABA = {
+			isa = PBXGroup;
+			children = (
+				756FF34A53661EDBD0F0B89B /* Netmonitor */,
+				1D1C206E6B19E36DC2E20830 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		56462C8C87EC20502B449722 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				A33559F156548EF73D7F1450 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		61614411DD14F09A6843A569 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		62360F94B964DE4BD1725F6E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */,
+				EA6AFFA75177ABCBE889D3BB /* MetricCard.swift */,
+				02055F2010A87B108B40DBFF /* StatusBadge.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		7423D8055120261D7C3325D7 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */,
+				5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */,
+				475DD181BC184D12F5543624 /* ToolsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		7541FD45A73B92AA3E625563 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */,
+				FB129EC3165CBDEDE8804667 /* Theme.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		756FF34A53661EDBD0F0B89B /* Netmonitor */ = {
+			isa = PBXGroup;
+			children = (
+				15F7ADC82B886D7F63C47C7D /* Models */,
+				61614411DD14F09A6843A569 /* Resources */,
+				7F584797DFC51E19130C9DF0 /* Services */,
+				7541FD45A73B92AA3E625563 /* Utilities */,
+				7423D8055120261D7C3325D7 /* ViewModels */,
+				75FA39780B83DE8E07129B30 /* Views */,
+				A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */,
+				AD98A9090968B419D3C50A7B /* ContentView.swift */,
+				068D4AB44B05423AD51452A7 /* Info.plist */,
+				7652D24B8136AB72C321388E /* NetmonitorApp.swift */,
+			);
+			path = Netmonitor;
+			sourceTree = "<group>";
+		};
+		75FA39780B83DE8E07129B30 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				62360F94B964DE4BD1725F6E /* Components */,
+				56462C8C87EC20502B449722 /* Dashboard */,
+				9F34762630D56D16DA0D4E18 /* NetworkMap */,
+				CF5F029C595B322BB6B53A3E /* Settings */,
+				BDEA5678731A7CABD62E9CE4 /* Tools */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		7F584797DFC51E19130C9DF0 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */,
+				7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */,
+				D57264957B282936BB6CC799 /* DNSLookupService.swift */,
+				A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */,
+				58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */,
+				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
+				C2D0639915AD65E638EEDD4F /* PortScannerService.swift */,
+				C207EB5D98191A0B7F0C582B /* PublicIPService.swift */,
+				3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */,
+				C20B3812E7C48E706707F58D /* WiFiInfoService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		9F34762630D56D16DA0D4E18 /* NetworkMap */ = {
+			isa = PBXGroup;
+			children = (
+				66834196F05AEFC207F67B35 /* NetworkMapView.swift */,
+			);
+			path = NetworkMap;
+			sourceTree = "<group>";
+		};
+		BDEA5678731A7CABD62E9CE4 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				7002A651D1A034719D2422FD /* ToolsView.swift */,
+			);
+			path = Tools;
+			sourceTree = "<group>";
+		};
+		CF5F029C595B322BB6B53A3E /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1CB53BBB8E31ABF6DEF09F03 /* Netmonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8D86D396D2B0294D4ACD40B /* Build configuration list for PBXNativeTarget "Netmonitor" */;
+			buildPhases = (
+				329EEED4CB8D1C011DB5EAE4 /* Sources */,
+				02F9C43A2EC41A7B590A510D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Netmonitor;
+			packageProductDependencies = (
+			);
+			productName = Netmonitor;
+			productReference = 9E0DB342806E632283625FA7 /* Netmonitor.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		72E9F0E06BBA2321E9E45823 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					1CB53BBB8E31ABF6DEF09F03 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 11EF077DE92FBD795A028699 /* Build configuration list for PBXProject "Netmonitor" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 297C70D64E1D8B8B47D66ABA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1CB53BBB8E31ABF6DEF09F03 /* Netmonitor */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		02F9C43A2EC41A7B590A510D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26A8AD63310A016D0E197E7B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		329EEED4CB8D1C011DB5EAE4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */,
+				5660E8DE88C207CD78745048 /* ContentView.swift in Sources */,
+				853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */,
+				2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */,
+				5B9B202652127DB6F3B99D1F /* DashboardViewModel.swift in Sources */,
+				C168B2E0690BF1558729567D /* DeviceDiscoveryService.swift in Sources */,
+				0998BA84147CA6DB0A71C79F /* Enums.swift in Sources */,
+				BFA8EBCD5DE8EB0F356495A0 /* GatewayService.swift in Sources */,
+				CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */,
+				32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */,
+				F718105BDBE5F0B48DA691C4 /* LocalDevice.swift in Sources */,
+				B93B4C2F2439E56ECB464C84 /* MetricCard.swift in Sources */,
+				AB95EB4D3560B73FBB78E6DD /* MonitoringTarget.swift in Sources */,
+				C1C4F42F718B71BE5DD9C1CC /* NetmonitorApp.swift in Sources */,
+				A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */,
+				ABC118726ED04F028A998A90 /* NetworkMapViewModel.swift in Sources */,
+				AD941ED8C66CDA2BD700D464 /* NetworkModels.swift in Sources */,
+				C617227F80117A77B1A24CAB /* NetworkMonitorService.swift in Sources */,
+				F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */,
+				9931234D8F8D2221970329E2 /* PingService.swift in Sources */,
+				4E4E74A8FDC010A0D5D7F016 /* PortScannerService.swift in Sources */,
+				506524F1FFC2B56EAFC59961 /* PublicIPService.swift in Sources */,
+				93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */,
+				20C3BA6DE62F5ACDA3B453B4 /* Theme.swift in Sources */,
+				5FAA81F8BE68F5E188691505 /* ToolModels.swift in Sources */,
+				BD46AC401EB70A0DB80DF33E /* ToolResult.swift in Sources */,
+				CD9620FF9979D47B492D819A /* ToolsView.swift in Sources */,
+				7FA5EC92D12D53FC0787088C /* ToolsViewModel.swift in Sources */,
+				1F59747566D30EC237A3525D /* WakeOnLANService.swift in Sources */,
+				661489E4BA376D9671E26FD4 /* WiFiInfoService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		13330E27260E9395C43C3333 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Netmonitor/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		42D8337EF83F35669B6D0216 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Netmonitor/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F980B3EFF12C234036DAC100 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Netmonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		FD51E8C351031155B2807F78 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Netmonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		11EF077DE92FBD795A028699 /* Build configuration list for PBXProject "Netmonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42D8337EF83F35669B6D0216 /* Debug */,
+				13330E27260E9395C43C3333 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F8D86D396D2B0294D4ACD40B /* Build configuration list for PBXNativeTarget "Netmonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FD51E8C351031155B2807F78 /* Debug */,
+				F980B3EFF12C234036DAC100 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 72E9F0E06BBA2321E9E45823 /* Project object */;
+}
