@@ -9,18 +9,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 cd Netmonitor && xcodegen generate
 
 # Build the app
-xcodebuild build -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild build -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 
 # Run unit tests
-xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 
 # Run a single test
-xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 16' \
+xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -only-testing:NetmonitorTests/SomeTestClass/testMethodName
 
 # Build with coverage
 xcodebuild test -scheme Netmonitor -enableCodeCoverage YES \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
 ## Architecture
