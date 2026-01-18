@@ -26,10 +26,10 @@ enum Theme {
         static let textSecondary = Color.white.opacity(0.6)
         static let textTertiary = Color.white.opacity(0.4)
         
-        // Glass card colors
-        static let glassBackground = Color.white.opacity(0.1)
-        static let glassBorder = Color.white.opacity(0.2)
-        static let glassHighlight = Color.white.opacity(0.3)
+        // Glass card colors - subtle tint for true glass effect
+        static let glassBackground = Color(hex: "22D3EE").opacity(0.05) // cyan tint
+        static let glassBorder = Color.white.opacity(0.15)
+        static let glassHighlight = Color.white.opacity(0.1)
         
         // Status colors
         static let online = success

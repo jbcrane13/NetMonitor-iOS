@@ -27,6 +27,7 @@ targets:
       - path: Netmonitor
         excludes:
           - "**/.gitkeep"
+          - "**/CLAUDE.md"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor

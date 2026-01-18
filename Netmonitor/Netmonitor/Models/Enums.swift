@@ -53,6 +53,40 @@ enum DeviceType: String, Codable, CaseIterable, Sendable {
     }
 }
 
+enum StatusType: String, CaseIterable, Sendable {
+    case online
+    case offline
+    case idle
+    case unknown
+
+    var color: Color {
+        switch self {
+        case .online: Theme.Colors.online
+        case .offline: Theme.Colors.offline
+        case .idle: Theme.Colors.idle
+        case .unknown: Theme.Colors.textTertiary
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .online: "Online"
+        case .offline: "Offline"
+        case .idle: "Idle"
+        case .unknown: "Unknown"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .online: "checkmark.circle.fill"
+        case .offline: "xmark.circle.fill"
+        case .idle: "moon.circle.fill"
+        case .unknown: "questionmark.circle.fill"
+        }
+    }
+}
+
 enum DeviceStatus: String, Codable, CaseIterable, Sendable {
     case online
     case offline

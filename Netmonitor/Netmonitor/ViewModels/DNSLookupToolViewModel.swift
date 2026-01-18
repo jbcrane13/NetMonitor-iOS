@@ -1,0 +1,56 @@
+import Foundation
+
+/// ViewModel for the DNS Lookup tool view
+@MainActor
+@Observable
+final class DNSLookupToolViewModel {
+    // MARK: - Input Properties
+
+    var domain: String = ""
+    var recordType: DNSRecordType = .a
+
+    // MARK: - State Properties
+
+    var isLoading: Bool = false
+    var result: DNSQueryResult?
+    var errorMessage: String?
+
+    // MARK: - Dependencies
+
+    private let dnsService = DNSLookupService()
+
+    // MARK: - Computed Properties
+
+    var canStartLookup: Bool {
+        !domain.trimmingCharacters(in: .whitespaces).isEmpty && !isLoading
+    }
+
+    var recordTypes: [DNSRecordType] {
+        [.a, .aaaa, .mx, .txt, .cname, .ns]
+    }
+
+    // MARK: - Actions
+
+    func lookup() async {
+        guard canStartLookup else { return }
+
+        isLoading = true
+        errorMessage = nil
+
+        result = await dnsService.lookup(
+            domain: domain.trimmingCharacters(in: .whitespaces),
+            recordType: recordType
+        )
+
+        if result == nil {
+            errorMessage = dnsService.lastError ?? "Lookup failed"
+        }
+
+        isLoading = false
+    }
+
+    func clearResults() {
+        result = nil
+        errorMessage = nil
+    }
+}

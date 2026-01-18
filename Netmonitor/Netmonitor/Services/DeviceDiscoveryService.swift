@@ -25,7 +25,7 @@ final class DeviceDiscoveryService {
             lastScanDate = Date()
         }
         
-        let baseIP = subnet ?? detectSubnet() ?? "192.168.1"
+        let baseIP = subnet ?? NetworkUtilities.detectSubnet() ?? "192.168.1"
         let totalHosts = 254
         var scannedCount = 0
         
@@ -115,36 +115,6 @@ final class DeviceDiscoveryService {
         )
     }
     
-    private func detectSubnet() -> String? {
-        var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else {
-            return nil
-        }
-        defer { freeifaddrs(ifaddr) }
-        
-        for ptr in sequence(first: firstAddr, next: { $0.pointee.ifa_next }) {
-            let interface = ptr.pointee
-            let addrFamily = interface.ifa_addr.pointee.sa_family
-            
-            if addrFamily == UInt8(AF_INET) {
-                let name = String(cString: interface.ifa_name)
-                if name == "en0" {
-                    var addr = interface.ifa_addr.pointee
-                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-                    getnameinfo(&addr, socklen_t(interface.ifa_addr.pointee.sa_len),
-                               &hostname, socklen_t(hostname.count),
-                               nil, 0, NI_NUMERICHOST)
-                    
-                    let ipAddress = String(cString: hostname)
-                    let components = ipAddress.split(separator: ".")
-                    if components.count == 4 {
-                        return "\(components[0]).\(components[1]).\(components[2])"
-                    }
-                }
-            }
-        }
-        return nil
-    }
 }
 
 struct DiscoveredDevice: Identifiable, Sendable {
@@ -169,10 +139,3 @@ private extension String {
     }
 }
 
-private actor ResumeState {
-    private(set) var hasResumed = false
-    
-    func setResumed() {
-        hasResumed = true
-    }
-}

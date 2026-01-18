@@ -155,10 +155,3 @@ actor PingService {
     }
 }
 
-private actor ResumeState {
-    private(set) var hasResumed = false
-    
-    func setResumed() {
-        hasResumed = true
-    }
-}

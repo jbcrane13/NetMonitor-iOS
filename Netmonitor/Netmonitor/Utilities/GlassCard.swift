@@ -12,18 +12,18 @@ struct GlassCardModifier: ViewModifier {
             .padding(padding)
             .background(
                 ZStack {
-                    // Base glass material
+                    // Base transparent fill
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(.ultraThinMaterial)
-                    
-                    // Color overlay for depth
+                        .fill(Color.white.opacity(0.08))
+
+                    // Subtle color tint for glass depth
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(Theme.Colors.glassBackground)
-                    
-                    // Top shine effect
+
+                    // Top shine effect - subtle highlight
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(Theme.Gradients.cardShine)
-                        .opacity(0.5)
+                        .opacity(0.3)
                 }
             )
             .overlay(
