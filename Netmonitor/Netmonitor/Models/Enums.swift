@@ -224,24 +224,30 @@ enum DNSRecordType: String, Codable, CaseIterable, Sendable {
 
 enum PortScanPreset: String, CaseIterable, Sendable {
     case common
+    case wellKnown
+    case extended
     case web
     case database
     case mail
     case custom
-    
+
     var displayName: String {
         switch self {
         case .common: "Common Ports"
+        case .wellKnown: "Well-Known (1-1024)"
+        case .extended: "Extended (1-10000)"
         case .web: "Web Ports"
         case .database: "Database Ports"
         case .mail: "Mail Ports"
         case .custom: "Custom Range"
         }
     }
-    
+
     var ports: [Int] {
         switch self {
-        case .common: [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3389, 5900, 8080]
+        case .common: [20, 21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 993, 995, 3306, 3389, 5432, 5900, 8080, 8443]
+        case .wellKnown: Array(1...1024)
+        case .extended: Array(1...10000)
         case .web: [80, 443, 8080, 8443, 3000, 5000, 8000]
         case .database: [1433, 1521, 3306, 5432, 6379, 27017]
         case .mail: [25, 110, 143, 465, 587, 993, 995]

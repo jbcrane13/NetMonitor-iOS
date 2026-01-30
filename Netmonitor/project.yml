@@ -28,6 +28,7 @@ targets:
         excludes:
           - "**/.gitkeep"
           - "**/CLAUDE.md"
+          - "**/AGENTS.md"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor

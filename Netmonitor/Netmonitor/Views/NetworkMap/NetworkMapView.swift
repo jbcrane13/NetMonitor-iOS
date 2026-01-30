@@ -7,8 +7,8 @@ struct NetworkMapView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 TopologyView(viewModel: viewModel)
-                    .frame(height: 300)
-                
+                    .frame(height: Theme.Layout.topologyHeight)
+
                 DeviceListSection(viewModel: viewModel)
             }
             .themedBackground()
@@ -64,7 +64,7 @@ struct TopologyView: View {
     }
     
     private func connectionLines(center: CGPoint, radius: CGFloat) -> some View {
-        let displayDevices = Array(viewModel.discoveredDevices.prefix(8))
+        let displayDevices = Array(viewModel.discoveredDevices.prefix(Theme.Layout.maxTopologyDevices))
         return ForEach(Array(displayDevices.enumerated()), id: \.element.id) { index, _ in
             let angle = angleForIndex(index, total: displayDevices.count)
             let position = positionForAngle(angle, center: center, radius: radius)
@@ -78,7 +78,7 @@ struct TopologyView: View {
     }
     
     private func deviceNodes(center: CGPoint, radius: CGFloat) -> some View {
-        let displayDevices = Array(viewModel.discoveredDevices.prefix(8))
+        let displayDevices = Array(viewModel.discoveredDevices.prefix(Theme.Layout.maxTopologyDevices))
         return ForEach(Array(displayDevices.enumerated()), id: \.element.id) { index, device in
             let angle = angleForIndex(index, total: displayDevices.count)
             let position = positionForAngle(angle, center: center, radius: radius)
@@ -316,13 +316,14 @@ struct DeviceRow: View {
     }
     
     private var latencyBadge: some View {
-        Text(device.latencyText)
+        let color = Theme.Colors.latencyColor(ms: device.latency)
+        return Text(device.latencyText)
             .font(.caption)
             .fontWeight(.semibold)
-            .foregroundStyle(Theme.Colors.success)
+            .foregroundStyle(color)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(Theme.Colors.success.opacity(0.2))
+            .background(color.opacity(0.2))
             .clipShape(Capsule())
     }
     

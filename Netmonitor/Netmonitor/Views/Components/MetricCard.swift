@@ -106,7 +106,7 @@ struct LargeMetricCard: View {
                 VStack(spacing: 4) {
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text(value)
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.system(size: Theme.Layout.heroFontSize, weight: .bold, design: .rounded))
                             .foregroundStyle(Theme.Colors.textPrimary)
                         
                         if let unit {
@@ -125,40 +125,6 @@ struct LargeMetricCard: View {
         }
         .accessibilityIdentifier("largeMetricCard_\(label.lowercased().replacingOccurrences(of: " ", with: "_"))")
         .accessibilityLabel("\(label): \(value) \(unit ?? "")")
-    }
-}
-
-// MARK: - Metric Row
-/// A horizontal row displaying label and value
-struct MetricRow: View {
-    let label: String
-    let value: String
-    var icon: String? = nil
-    var valueColor: Color = Theme.Colors.textPrimary
-    var isMonospaced: Bool = false
-    
-    var body: some View {
-        HStack {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.system(size: Theme.Layout.smallIconSize))
-                    .foregroundStyle(Theme.Colors.textSecondary)
-                    .frame(width: 20)
-            }
-            
-            Text(label)
-                .font(.subheadline)
-                .foregroundStyle(Theme.Colors.textSecondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(isMonospaced ? .system(.subheadline, design: .monospaced) : .subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(valueColor)
-        }
-        .accessibilityIdentifier("metricRow_\(label.lowercased().replacingOccurrences(of: " ", with: "_"))")
-        .accessibilityLabel("\(label): \(value)")
     }
 }
 
@@ -228,11 +194,11 @@ struct MetricRow: View {
                 
                 GlassCard {
                     VStack(spacing: 12) {
-                        MetricRow(label: "IP Address", value: "192.168.1.100", icon: "network", isMonospaced: true)
+                        ToolResultRow(label: "IP Address", value: "192.168.1.100", icon: "network", isMonospaced: true)
                         Divider().background(Theme.Colors.glassBorder)
-                        MetricRow(label: "MAC Address", value: "AA:BB:CC:DD:EE:FF", icon: "barcode", isMonospaced: true)
+                        ToolResultRow(label: "MAC Address", value: "AA:BB:CC:DD:EE:FF", icon: "barcode", isMonospaced: true)
                         Divider().background(Theme.Colors.glassBorder)
-                        MetricRow(label: "Status", value: "Online", icon: "circle.fill", valueColor: Theme.Colors.success)
+                        ToolResultRow(label: "Status", value: "Online", icon: "circle.fill", valueColor: Theme.Colors.success)
                     }
                 }
             }

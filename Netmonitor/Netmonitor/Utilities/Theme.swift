@@ -35,8 +35,20 @@ enum Theme {
         static let online = success
         static let offline = error
         static let idle = Color.gray
+
+        // MARK: - Latency Color Helper
+        /// Returns appropriate color based on latency value
+        /// - Parameter ms: Latency in milliseconds
+        /// - Returns: Green (<50ms), Warning (50-150ms), Error (>150ms)
+        static func latencyColor(ms: Double) -> Color {
+            switch ms {
+            case ..<50: return success
+            case 50..<150: return warning
+            default: return error
+            }
+        }
     }
-    
+
     // MARK: - Gradients
     enum Gradients {
         static let background = LinearGradient(
@@ -63,15 +75,30 @@ enum Theme {
         static let cardCornerRadius: CGFloat = 20
         static let buttonCornerRadius: CGFloat = 12
         static let smallCornerRadius: CGFloat = 8
-        
+
         static let cardPadding: CGFloat = 16
         static let screenPadding: CGFloat = 16
         static let itemSpacing: CGFloat = 12
         static let sectionSpacing: CGFloat = 20
-        
+
         static let iconSize: CGFloat = 24
         static let largeIconSize: CGFloat = 32
         static let smallIconSize: CGFloat = 16
+
+        // Component-specific constants
+        static let topologyHeight: CGFloat = 300
+        static let maxTopologyDevices: Int = 8
+        static let signalBarWidth: CGFloat = 4
+        static let heroFontSize: CGFloat = 36
+        static let resultColumnSmall: CGFloat = 30
+        static let resultColumnMedium: CGFloat = 50
+        static let resultColumnLarge: CGFloat = 60
+    }
+
+    // MARK: - Thresholds
+    enum Thresholds {
+        static let latencyGood: Double = 50
+        static let latencyWarning: Double = 150
     }
     
     // MARK: - Shadows

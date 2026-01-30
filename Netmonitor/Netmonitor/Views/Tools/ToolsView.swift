@@ -83,13 +83,26 @@ struct QuickActionsSection: View {
                     }
                 }
 
-                QuickActionButton(
-                    title: "Speed Test",
-                    icon: "speedometer",
-                    color: Theme.Colors.success,
-                    isLoading: false
-                ) {
+                NavigationLink(value: ToolDestination.speedTest) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "speedometer")
+                            .font(.title2)
+                            .foregroundStyle(Theme.Colors.success)
+
+                        Text("Speed Test")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .glassCard(cornerRadius: 16, padding: 0)
                 }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("quickAction_speed_test")
 
                 QuickActionButton(
                     title: "Ping Gateway",
@@ -180,7 +193,7 @@ struct ToolsGridSection: View {
 }
 
 struct ToolItem: Identifiable {
-    let id = UUID()
+    var id: String { name }
     let name: String
     let icon: String
     let color: Color

@@ -46,9 +46,9 @@ struct PortScannerToolView: View {
 
                 Spacer()
 
-                Picker("Range", selection: $viewModel.portRange) {
-                    ForEach(PortScannerToolViewModel.PortRange.allCases.filter { $0 != .custom }, id: \.self) { range in
-                        Text(range.rawValue).tag(range)
+                Picker("Range", selection: $viewModel.portPreset) {
+                    ForEach(PortScanPreset.allCases.filter { $0 != .custom }, id: \.self) { preset in
+                        Text(preset.displayName).tag(preset)
                     }
                 }
                 .pickerStyle(.menu)
@@ -80,23 +80,9 @@ struct PortScannerToolView: View {
             .accessibilityIdentifier("portScanner_button_run")
 
             if !viewModel.results.isEmpty && !viewModel.isRunning {
-                Button {
+                ToolClearButton(accessibilityID: "portScanner_button_clear") {
                     viewModel.clearResults()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .fill(.ultraThinMaterial)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                        )
                 }
-                .accessibilityIdentifier("portScanner_button_clear")
             }
         }
     }
@@ -198,7 +184,7 @@ private struct PortResultRow: View {
                 .font(.system(.subheadline, design: .monospaced))
                 .fontWeight(.bold)
                 .foregroundStyle(Theme.Colors.textPrimary)
-                .frame(width: 60, alignment: .leading)
+                .frame(width: Theme.Layout.resultColumnLarge, alignment: .leading)
 
             // Service info
             VStack(alignment: .leading, spacing: 2) {

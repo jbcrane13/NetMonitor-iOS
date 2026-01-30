@@ -2,7 +2,7 @@ import SwiftUI
 
 /// A single statistic with label, value, and optional icon
 struct ToolStatistic: Identifiable {
-    let id = UUID()
+    var id: String { label }
     let label: String
     let value: String
     var icon: String? = nil

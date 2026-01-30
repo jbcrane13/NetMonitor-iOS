@@ -80,23 +80,9 @@ struct DNSLookupToolView: View {
             .accessibilityIdentifier("dnsLookup_button_run")
 
             if viewModel.result != nil {
-                Button {
+                ToolClearButton(accessibilityID: "dnsLookup_button_clear") {
                     viewModel.clearResults()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .fill(.ultraThinMaterial)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                        )
                 }
-                .accessibilityIdentifier("dnsLookup_button_clear")
             }
         }
     }
@@ -131,19 +117,22 @@ struct DNSLookupToolView: View {
                             label: "Domain",
                             value: result.domain,
                             icon: "globe",
-                            isMonospaced: true
+                            isMonospaced: true,
+                            selectable: true
                         )
                         Divider().background(Theme.Colors.glassBorder)
                         ToolResultRow(
                             label: "Server",
                             value: result.server,
-                            icon: "server.rack"
+                            icon: "server.rack",
+                            selectable: true
                         )
                         Divider().background(Theme.Colors.glassBorder)
                         ToolResultRow(
                             label: "Query Time",
                             value: result.queryTimeText,
-                            icon: "clock"
+                            icon: "clock",
+                            selectable: true
                         )
                     }
                 }
@@ -195,7 +184,7 @@ private struct DNSRecordRow: View {
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundStyle(Theme.Colors.textPrimary)
-                .frame(width: 50)
+                .frame(width: Theme.Layout.resultColumnMedium)
                 .padding(.vertical, 4)
                 .background(
                     RoundedRectangle(cornerRadius: 4)

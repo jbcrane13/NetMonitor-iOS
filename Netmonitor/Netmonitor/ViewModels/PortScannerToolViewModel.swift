@@ -7,7 +7,7 @@ final class PortScannerToolViewModel {
     // MARK: - Input Properties
 
     var host: String = ""
-    var portRange: PortRange = .common
+    var portPreset: PortScanPreset = .common
 
     // MARK: - State Properties
 
@@ -15,28 +15,6 @@ final class PortScannerToolViewModel {
     var results: [PortScanResult] = []
     var errorMessage: String?
     var scannedCount: Int = 0
-
-    // MARK: - Configuration
-
-    enum PortRange: String, CaseIterable {
-        case common = "Common Ports"
-        case wellKnown = "Well-Known (1-1024)"
-        case extended = "Extended (1-10000)"
-        case custom = "Custom"
-
-        var ports: [Int] {
-            switch self {
-            case .common:
-                return [20, 21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 993, 995, 3306, 3389, 5432, 5900, 8080, 8443]
-            case .wellKnown:
-                return Array(1...1024)
-            case .extended:
-                return Array(1...10000)
-            case .custom:
-                return []
-            }
-        }
-    }
 
     // MARK: - Dependencies
 
@@ -54,7 +32,7 @@ final class PortScannerToolViewModel {
     }
 
     var totalPorts: Int {
-        portRange.ports.count
+        portPreset.ports.count
     }
 
     var progress: Double {
@@ -74,7 +52,7 @@ final class PortScannerToolViewModel {
         scanTask = Task {
             let stream = await portScannerService.scan(
                 host: host.trimmingCharacters(in: .whitespaces),
-                ports: portRange.ports
+                ports: portPreset.ports
             )
 
             for await result in stream {

@@ -123,38 +123,51 @@ final class BonjourDiscoveryService {
                 domain: service.domain,
                 interface: nil
             )
-            
+
             let connection = NWConnection(to: endpoint, using: .tcp)
-            
+            let resumeState = ResumeState()
+
             connection.stateUpdateHandler = { state in
-                switch state {
-                case .ready:
-                    if let innerEndpoint = connection.currentPath?.remoteEndpoint,
-                       case let .hostPort(host, port) = innerEndpoint {
-                        let resolved = BonjourService(
-                            name: service.name,
-                            type: service.type,
-                            domain: service.domain,
-                            hostName: "\(host)",
-                            port: Int(port.rawValue)
-                        )
-                        connection.cancel()
-                        continuation.resume(returning: resolved)
-                    } else {
-                        connection.cancel()
+                Task {
+                    switch state {
+                    case .ready:
+                        guard await !resumeState.hasResumed else { return }
+                        await resumeState.setResumed()
+
+                        if let innerEndpoint = connection.currentPath?.remoteEndpoint,
+                           case let .hostPort(host, port) = innerEndpoint {
+                            let resolved = BonjourService(
+                                name: service.name,
+                                type: service.type,
+                                domain: service.domain,
+                                hostName: "\(host)",
+                                port: Int(port.rawValue)
+                            )
+                            connection.cancel()
+                            continuation.resume(returning: resolved)
+                        } else {
+                            connection.cancel()
+                            continuation.resume(returning: nil)
+                        }
+                    case .failed, .cancelled:
+                        guard await !resumeState.hasResumed else { return }
+                        await resumeState.setResumed()
                         continuation.resume(returning: nil)
+                    default:
+                        break
                     }
-                case .failed, .cancelled:
-                    continuation.resume(returning: nil)
-                default:
-                    break
                 }
             }
-            
+
             connection.start(queue: .global())
-            
+
             DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
-                connection.cancel()
+                Task {
+                    guard await !resumeState.hasResumed else { return }
+                    await resumeState.setResumed()
+                    connection.cancel()
+                    continuation.resume(returning: nil)
+                }
             }
         }
     }

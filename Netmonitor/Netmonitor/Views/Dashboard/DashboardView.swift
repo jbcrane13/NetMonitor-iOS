@@ -66,7 +66,7 @@ struct ConnectionStatusHeader: View {
             
             StatusBadge(status: viewModel.isConnected ? .online : .offline, size: .small)
         }
-        .padding(.top, 8)
+        .padding(.top, Theme.Layout.smallCornerRadius)
         .accessibilityIdentifier("dashboard_header_connectionStatus")
     }
 }
@@ -134,18 +134,18 @@ struct WiFiCard: View {
                 
                 if let wifi = viewModel.currentWiFi {
                     VStack(spacing: 8) {
-                        MetricRow(label: "Network", value: wifi.ssid, icon: "network")
+                        ToolResultRow(label: "Network", value: wifi.ssid, icon: "network")
                         if let dbm = wifi.signalDBm {
-                            MetricRow(label: "Signal", value: "\(dbm) dBm", icon: "antenna.radiowaves.left.and.right")
+                            ToolResultRow(label: "Signal", value: "\(dbm) dBm", icon: "antenna.radiowaves.left.and.right")
                         }
                         if let channel = wifi.channel, let band = wifi.band {
-                            MetricRow(label: "Channel", value: "\(channel) (\(band.rawValue))", icon: "dot.radiowaves.right")
+                            ToolResultRow(label: "Channel", value: "\(channel) (\(band.rawValue))", icon: "dot.radiowaves.right")
                         }
                         if let security = wifi.securityType {
-                            MetricRow(label: "Security", value: security, icon: "lock.shield")
+                            ToolResultRow(label: "Security", value: security, icon: "lock.shield")
                         }
                         if let bssid = wifi.bssid {
-                            MetricRow(label: "BSSID", value: bssid, icon: "barcode", isMonospaced: true)
+                            ToolResultRow(label: "BSSID", value: bssid, icon: "barcode", isMonospaced: true)
                         }
                     }
                 } else if viewModel.needsLocationPermission {
@@ -192,7 +192,7 @@ struct SignalStrengthIndicator: View {
             ForEach(0..<maxBars, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 2)
                     .fill(index < strength ? Theme.Colors.success : Theme.Colors.textTertiary)
-                    .frame(width: 4, height: CGFloat(8 + index * 4))
+                    .frame(width: Theme.Layout.signalBarWidth, height: CGFloat(8 + index * 4))
             }
         }
         .accessibilityIdentifier("signalStrength_\(strength)")
@@ -213,26 +213,28 @@ struct GatewayCard: View {
                         .font(.headline)
                         .foregroundStyle(Theme.Colors.textPrimary)
                     Spacer()
-                    if let latency = viewModel.gateway?.latencyText {
-                        Text(latency)
+                    if let latencyText = viewModel.gateway?.latencyText,
+                       let latencyMs = viewModel.gateway?.latency {
+                        let color = Theme.Colors.latencyColor(ms: latencyMs)
+                        Text(latencyText)
                             .font(.caption)
                             .fontWeight(.semibold)
-                            .foregroundStyle(Theme.Colors.success)
+                            .foregroundStyle(color)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Theme.Colors.success.opacity(0.2))
+                            .background(color.opacity(0.2))
                             .clipShape(Capsule())
                     }
                 }
                 
                 if let gateway = viewModel.gateway {
                     VStack(spacing: 8) {
-                        MetricRow(label: "IP Address", value: gateway.ipAddress, icon: "number", isMonospaced: true)
+                        ToolResultRow(label: "IP Address", value: gateway.ipAddress, icon: "number", isMonospaced: true)
                         if let mac = gateway.macAddress {
-                            MetricRow(label: "MAC Address", value: mac, icon: "barcode", isMonospaced: true)
+                            ToolResultRow(label: "MAC Address", value: mac, icon: "barcode", isMonospaced: true)
                         }
                         if let vendor = gateway.vendor {
-                            MetricRow(label: "Vendor", value: vendor, icon: "building.2")
+                            ToolResultRow(label: "Vendor", value: vendor, icon: "building.2")
                         }
                     }
                 } else {
@@ -271,15 +273,15 @@ struct ISPCard: View {
                 
                 if let isp = viewModel.ispInfo {
                     VStack(spacing: 8) {
-                        MetricRow(label: "Public IP", value: isp.publicIP, icon: "globe", isMonospaced: true)
+                        ToolResultRow(label: "Public IP", value: isp.publicIP, icon: "globe", isMonospaced: true)
                         if let ispName = isp.ispName {
-                            MetricRow(label: "ISP", value: ispName, icon: "building")
+                            ToolResultRow(label: "ISP", value: ispName, icon: "building")
                         }
                         if let asn = isp.asn {
-                            MetricRow(label: "ASN", value: asn, icon: "number", isMonospaced: true)
+                            ToolResultRow(label: "ASN", value: asn, icon: "number", isMonospaced: true)
                         }
                         if let location = isp.locationText {
-                            MetricRow(label: "Location", value: location, icon: "location")
+                            ToolResultRow(label: "Location", value: location, icon: "location")
                         }
                     }
                 } else {
@@ -347,18 +349,6 @@ struct LocalDevicesCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityIdentifier("dashboard_card_localDevices")
-    }
-}
-
-struct SettingsView: View {
-    var body: some View {
-        Text("Settings")
-            .font(.largeTitle)
-            .foregroundStyle(Theme.Colors.textPrimary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .themedBackground()
-            .navigationTitle("Settings")
-            .accessibilityIdentifier("screen_settings")
     }
 }
 

@@ -1,18 +1,20 @@
 import SwiftUI
 
-/// A row displaying a label-value pair for tool results
+/// A unified row displaying a label-value pair
+/// Used for both tool results and metric displays
 struct ToolResultRow: View {
     let label: String
     let value: String
     var icon: String? = nil
     var valueColor: Color = Theme.Colors.textPrimary
     var isMonospaced: Bool = false
+    var selectable: Bool = false
 
     var body: some View {
         HStack {
             if let icon {
                 Image(systemName: icon)
-                    .font(.body)
+                    .font(.system(size: Theme.Layout.smallIconSize))
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .frame(width: 20)
             }
@@ -23,11 +25,20 @@ struct ToolResultRow: View {
 
             Spacer()
 
-            Text(value)
-                .font(isMonospaced ? .system(.subheadline, design: .monospaced) : .subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(valueColor)
-                .textSelection(.enabled)
+            Group {
+                if selectable {
+                    Text(value)
+                        .font(isMonospaced ? .system(.subheadline, design: .monospaced) : .subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(valueColor)
+                        .textSelection(.enabled)
+                } else {
+                    Text(value)
+                        .font(isMonospaced ? .system(.subheadline, design: .monospaced) : .subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(valueColor)
+                }
+            }
         }
         .accessibilityIdentifier("toolResult_row_\(label.lowercased().replacingOccurrences(of: " ", with: "_"))")
         .accessibilityLabel("\(label): \(value)")
@@ -47,7 +58,8 @@ struct ToolResultRow: View {
                     label: "IP Address",
                     value: "192.168.1.1",
                     icon: "network",
-                    isMonospaced: true
+                    isMonospaced: true,
+                    selectable: true
                 )
 
                 Divider().background(Theme.Colors.glassBorder)
@@ -55,7 +67,8 @@ struct ToolResultRow: View {
                 ToolResultRow(
                     label: "Response Time",
                     value: "45 ms",
-                    icon: "clock"
+                    icon: "clock",
+                    selectable: true
                 )
 
                 Divider().background(Theme.Colors.glassBorder)
@@ -64,7 +77,8 @@ struct ToolResultRow: View {
                     label: "Status",
                     value: "Success",
                     icon: "checkmark.circle",
-                    valueColor: Theme.Colors.success
+                    valueColor: Theme.Colors.success,
+                    selectable: true
                 )
 
                 Divider().background(Theme.Colors.glassBorder)
@@ -73,7 +87,8 @@ struct ToolResultRow: View {
                     label: "Error",
                     value: "Connection timeout",
                     icon: "xmark.circle",
-                    valueColor: Theme.Colors.error
+                    valueColor: Theme.Colors.error,
+                    selectable: true
                 )
             }
         }

@@ -85,23 +85,9 @@ struct PingToolView: View {
             .accessibilityIdentifier("pingTool_button_run")
 
             if !viewModel.results.isEmpty && !viewModel.isRunning {
-                Button {
+                ToolClearButton(accessibilityID: "pingTool_button_clear") {
                     viewModel.clearResults()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .fill(.ultraThinMaterial)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                        )
                 }
-                .accessibilityIdentifier("pingTool_button_clear")
             }
         }
     }
@@ -207,7 +193,7 @@ private struct PingResultRow: View {
             Text("#\(result.sequence)")
                 .font(.system(.caption, design: .monospaced))
                 .foregroundStyle(Theme.Colors.textTertiary)
-                .frame(width: 30, alignment: .leading)
+                .frame(width: Theme.Layout.resultColumnSmall, alignment: .leading)
 
             // IP/Host info
             VStack(alignment: .leading, spacing: 2) {

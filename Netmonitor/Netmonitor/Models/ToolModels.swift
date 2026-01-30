@@ -8,15 +8,17 @@ struct PingResult: Identifiable, Sendable {
     let ttl: Int
     let time: Double
     let size: Int
+    let isTimeout: Bool
     let timestamp: Date
-    
+
     init(
         sequence: Int,
         host: String,
         ipAddress: String? = nil,
         ttl: Int,
         time: Double,
-        size: Int = 64
+        size: Int = 64,
+        isTimeout: Bool = false
     ) {
         self.sequence = sequence
         self.host = host
@@ -24,10 +26,14 @@ struct PingResult: Identifiable, Sendable {
         self.ttl = ttl
         self.time = time
         self.size = size
+        self.isTimeout = isTimeout
         self.timestamp = Date()
     }
-    
+
     var timeText: String {
+        if isTimeout {
+            return "timeout"
+        }
         if time < 1 {
             return String(format: "%.2f ms", time)
         }

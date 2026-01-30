@@ -61,23 +61,9 @@ struct WHOISToolView: View {
             .accessibilityIdentifier("whois_button_run")
 
             if viewModel.result != nil {
-                Button {
+                ToolClearButton(accessibilityID: "whois_button_clear") {
                     viewModel.clearResults()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .fill(.ultraThinMaterial)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                        )
                 }
-                .accessibilityIdentifier("whois_button_clear")
             }
         }
     }
@@ -112,7 +98,8 @@ struct WHOISToolView: View {
                             label: "Domain",
                             value: result.query,
                             icon: "globe",
-                            isMonospaced: true
+                            isMonospaced: true,
+                            selectable: true
                         )
 
                         if let registrar = result.registrar {
@@ -120,7 +107,8 @@ struct WHOISToolView: View {
                             ToolResultRow(
                                 label: "Registrar",
                                 value: registrar,
-                                icon: "building.2"
+                                icon: "building.2",
+                                selectable: true
                             )
                         }
                     }
@@ -143,7 +131,8 @@ struct WHOISToolView: View {
                                 ToolResultRow(
                                     label: "Created",
                                     value: creation.formatted(date: .abbreviated, time: .omitted),
-                                    icon: "calendar.badge.plus"
+                                    icon: "calendar.badge.plus",
+                                    selectable: true
                                 )
                             }
 
@@ -152,7 +141,8 @@ struct WHOISToolView: View {
                                 ToolResultRow(
                                     label: "Updated",
                                     value: updated.formatted(date: .abbreviated, time: .omitted),
-                                    icon: "calendar.badge.clock"
+                                    icon: "calendar.badge.clock",
+                                    selectable: true
                                 )
                             }
 
@@ -162,7 +152,8 @@ struct WHOISToolView: View {
                                     label: "Expires",
                                     value: expiration.formatted(date: .abbreviated, time: .omitted),
                                     icon: "calendar.badge.exclamationmark",
-                                    valueColor: expirationColor(result.daysUntilExpiration)
+                                    valueColor: expirationColor(result.daysUntilExpiration),
+                                    selectable: true
                                 )
                             }
                         }

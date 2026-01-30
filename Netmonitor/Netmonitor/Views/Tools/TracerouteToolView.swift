@@ -84,23 +84,9 @@ struct TracerouteToolView: View {
             .accessibilityIdentifier("tracerouteTool_button_run")
 
             if !viewModel.hops.isEmpty && !viewModel.isRunning {
-                Button {
+                ToolClearButton(accessibilityID: "tracerouteTool_button_clear") {
                     viewModel.clearResults()
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .fill(.ultraThinMaterial)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                        )
                 }
-                .accessibilityIdentifier("tracerouteTool_button_clear")
             }
         }
     }
@@ -206,8 +192,8 @@ private struct TracerouteHopRow: View {
             return Theme.Colors.textPrimary
         }
         switch avgTime {
-        case ..<50: return Theme.Colors.success
-        case 50..<150: return Theme.Colors.warning
+        case ..<Theme.Thresholds.latencyGood: return Theme.Colors.success
+        case Theme.Thresholds.latencyGood..<Theme.Thresholds.latencyWarning: return Theme.Colors.warning
         default: return Theme.Colors.error
         }
     }

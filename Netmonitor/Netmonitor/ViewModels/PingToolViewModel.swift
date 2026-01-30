@@ -50,7 +50,7 @@ final class PingToolViewModel {
             }
 
             // Calculate statistics after completion
-            statistics = await pingService.calculateStatistics(results)
+            statistics = await pingService.calculateStatistics(results, requestedCount: pingCount)
             isRunning = false
         }
     }

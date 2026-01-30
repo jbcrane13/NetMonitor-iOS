@@ -49,23 +49,9 @@ struct BonjourDiscoveryToolView: View {
                 .accessibilityIdentifier("bonjour_button_run")
 
                 if !viewModel.services.isEmpty && !viewModel.isDiscovering {
-                    Button {
+                    ToolClearButton(accessibilityID: "bonjour_button_clear") {
                         viewModel.clearResults()
-                    } label: {
-                        Image(systemName: "trash")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(Theme.Colors.textSecondary)
-                            .frame(width: 44, height: 44)
-                            .background(
-                                RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                    .fill(.ultraThinMaterial)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
-                                    .stroke(Theme.Colors.glassBorder, lineWidth: 1)
-                            )
                     }
-                    .accessibilityIdentifier("bonjour_button_clear")
                 }
             }
         }

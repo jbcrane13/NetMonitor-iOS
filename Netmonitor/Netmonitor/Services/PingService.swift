@@ -13,36 +13,35 @@ actor PingService {
             Task {
                 await self.setRunning(true)
                 defer { Task { await self.setRunning(false) } }
-                
+
                 let resolvedIP = await resolveHost(host)
-                
+
                 for seq in 1...count {
                     guard await self.isRunning else { break }
-                    
+
                     let start = Date()
                     let success = await connectTest(
                         host: resolvedIP ?? host,
                         timeout: timeout
                     )
                     let elapsed = Date().timeIntervalSince(start) * 1000
-                    
-                    if success {
-                        let result = PingResult(
-                            sequence: seq,
-                            host: host,
-                            ipAddress: resolvedIP,
-                            ttl: 64,
-                            time: elapsed,
-                            size: 64
-                        )
-                        continuation.yield(result)
-                    }
-                    
+
+                    let result = PingResult(
+                        sequence: seq,
+                        host: host,
+                        ipAddress: resolvedIP,
+                        ttl: success ? 64 : 0,
+                        time: elapsed,
+                        size: 64,
+                        isTimeout: !success
+                    )
+                    continuation.yield(result)
+
                     if seq < count {
                         try? await Task.sleep(for: .seconds(1))
                     }
                 }
-                
+
                 continuation.finish()
             }
         }
@@ -131,22 +130,30 @@ actor PingService {
                inet_pton(AF_INET6, string, &addr6) == 1
     }
     
-    func calculateStatistics(_ results: [PingResult]) -> PingStatistics? {
+    func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) -> PingStatistics? {
         guard !results.isEmpty else { return nil }
-        
-        let times = results.map(\.time)
+
+        let transmitted = requestedCount ?? results.count
+        let successfulResults = results.filter { !$0.isTimeout }
+        let received = successfulResults.count
+
+        let packetLoss = transmitted > 0
+            ? Double(transmitted - received) / Double(transmitted) * 100.0
+            : 0.0
+
+        let times = successfulResults.map(\.time)
         let minTime = times.min() ?? 0
         let maxTime = times.max() ?? 0
-        let avgTime = times.reduce(0, +) / Double(times.count)
-        
-        let variance = times.map { pow($0 - avgTime, 2) }.reduce(0, +) / Double(times.count)
+        let avgTime = times.isEmpty ? 0 : times.reduce(0, +) / Double(times.count)
+
+        let variance = times.isEmpty ? 0 : times.map { pow($0 - avgTime, 2) }.reduce(0, +) / Double(times.count)
         let stdDev = sqrt(variance)
-        
+
         return PingStatistics(
             host: results.first?.host ?? "",
-            transmitted: results.count,
-            received: results.count,
-            packetLoss: 0,
+            transmitted: transmitted,
+            received: received,
+            packetLoss: packetLoss,
             minTime: minTime,
             maxTime: maxTime,
             avgTime: avgTime,

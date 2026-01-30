@@ -16,8 +16,11 @@ struct ToolRunButton: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: Theme.Colors.textPrimary))
                         .scaleEffect(0.8)
+
+                    Image(systemName: stopIcon)
+                        .font(.body.weight(.semibold))
                 } else {
-                    Image(systemName: isRunning ? stopIcon : icon)
+                    Image(systemName: icon)
                         .font(.body.weight(.semibold))
                 }
 
