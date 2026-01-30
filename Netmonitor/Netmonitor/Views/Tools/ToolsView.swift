@@ -66,12 +66,12 @@ struct QuickActionsSection: View {
     let viewModel: ToolsViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
             Text("Quick Actions")
                 .font(.headline)
                 .foregroundStyle(Theme.Colors.textPrimary)
 
-            HStack(spacing: 12) {
+            HStack(spacing: Theme.Layout.itemSpacing) {
                 QuickActionButton(
                     title: "Scan Network",
                     icon: "network",
@@ -84,7 +84,7 @@ struct QuickActionsSection: View {
                 }
 
                 NavigationLink(value: ToolDestination.speedTest) {
-                    VStack(spacing: 8) {
+                    VStack(spacing: Theme.Layout.smallCornerRadius) {
                         Image(systemName: "speedometer")
                             .font(.title2)
                             .foregroundStyle(Theme.Colors.success)
@@ -129,7 +129,7 @@ struct QuickActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.Layout.smallCornerRadius) {
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: color))
@@ -172,17 +172,17 @@ struct ToolsGridSection: View {
     ]
 
     private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: Theme.Layout.itemSpacing),
+        GridItem(.flexible(), spacing: Theme.Layout.itemSpacing)
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
             Text("Network Tools")
                 .font(.headline)
                 .foregroundStyle(Theme.Colors.textPrimary)
 
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVGrid(columns: columns, spacing: Theme.Layout.itemSpacing) {
                 ForEach(tools) { tool in
                     ToolCard(tool: tool)
                 }
@@ -206,14 +206,14 @@ struct ToolCard: View {
 
     var body: some View {
         NavigationLink(value: tool.destination) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.Layout.smallCornerRadius) {
                 HStack {
                     Image(systemName: tool.icon)
                         .font(.title3)
                         .foregroundStyle(tool.color)
                         .frame(width: 36, height: 36)
                         .background(tool.color.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.Layout.smallCornerRadius))
 
                     Spacer()
 
@@ -244,7 +244,7 @@ struct RecentActivitySection: View {
     let viewModel: ToolsViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
             HStack {
                 Text("Recent Activity")
                     .font(.headline)
@@ -285,7 +285,7 @@ struct RecentActivitySection: View {
 
     private var emptyState: some View {
         GlassCard {
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.Layout.smallCornerRadius) {
                 Image(systemName: "clock")
                     .font(.title)
                     .foregroundStyle(Theme.Colors.textTertiary)
@@ -306,7 +306,7 @@ struct ActivityRow: View {
     let activity: ToolActivityItem
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Layout.itemSpacing) {
             Circle()
                 .fill(activity.success ? Theme.Colors.success : Theme.Colors.error)
                 .frame(width: 8, height: 8)

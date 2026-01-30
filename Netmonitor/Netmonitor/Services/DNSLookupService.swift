@@ -53,7 +53,7 @@ final class DNSLookupService {
     private func performAddressLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
             var hints = addrinfo()
-            hints.ai_family = AF_UNSPEC
+            hints.ai_family = type == .a ? AF_INET : AF_INET6
             hints.ai_socktype = SOCK_STREAM
 
             var result: UnsafeMutablePointer<addrinfo>?

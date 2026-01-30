@@ -6,8 +6,9 @@ import Network
 final class BonjourDiscoveryService {
     private(set) var discoveredServices: [BonjourService] = []
     private(set) var isDiscovering: Bool = false
-    
+
     private var browser: NWBrowser?
+    private var typeBrowsers: [NWBrowser] = []
     private let queue = DispatchQueue(label: "com.netmonitor.bonjour")
     
     private let commonServiceTypes = [
@@ -65,10 +66,19 @@ final class BonjourDiscoveryService {
         }
         
         browser?.start(queue: queue)
-        
+
         if serviceType == nil {
             for type in commonServiceTypes {
                 browseServiceType(type)
+            }
+
+            DispatchQueue.global().asyncAfter(deadline: .now() + 10) { [weak self] in
+                Task { @MainActor [weak self] in
+                    for typeBrowser in self?.typeBrowsers ?? [] {
+                        typeBrowser.cancel()
+                    }
+                    self?.typeBrowsers.removeAll()
+                }
             }
         }
     }
@@ -76,6 +86,12 @@ final class BonjourDiscoveryService {
     func stopDiscovery() {
         browser?.cancel()
         browser = nil
+
+        for typeBrowser in typeBrowsers {
+            typeBrowser.cancel()
+        }
+        typeBrowsers.removeAll()
+
         isDiscovering = false
     }
     
@@ -83,20 +99,17 @@ final class BonjourDiscoveryService {
         let descriptor = NWBrowser.Descriptor.bonjour(type: type, domain: "local.")
         let parameters = NWParameters()
         parameters.includePeerToPeer = true
-        
+
         let typeBrowser = NWBrowser(for: descriptor, using: parameters)
-        
+
         typeBrowser.browseResultsChangedHandler = { [weak self] results, _ in
             Task { @MainActor [weak self] in
                 self?.handleResults(results)
             }
         }
-        
+
         typeBrowser.start(queue: queue)
-        
-        DispatchQueue.global().asyncAfter(deadline: .now() + 10) {
-            typeBrowser.cancel()
-        }
+        typeBrowsers.append(typeBrowser)
     }
     
     private func handleResults(_ results: Set<NWBrowser.Result>) {

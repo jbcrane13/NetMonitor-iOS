@@ -227,7 +227,10 @@ actor TracerouteService {
         var addr = sockaddr_in()
         addr.sin_family = sa_family_t(AF_INET)
         addr.sin_port = port.bigEndian
-        inet_pton(AF_INET, host, &addr.sin_addr)
+        guard inet_pton(AF_INET, host, &addr.sin_addr) == 1 else {
+            close(fd)
+            return .error
+        }
 
         // Initiate non-blocking connect
         let connectResult = withUnsafePointer(to: &addr) { ptr in
@@ -239,7 +242,7 @@ actor TracerouteService {
         if connectResult == 0 {
             // Immediate connect (unlikely but possible on localhost)
             let elapsed = ContinuousClock.now - startTime
-            let rtt = Double(elapsed.components.attoseconds) / 1e15
+            let rtt = Double(elapsed.components.seconds) * 1000.0 + Double(elapsed.components.attoseconds) / 1e15
             close(fd)
             return .connected(rtt)
         }
@@ -255,7 +258,7 @@ actor TracerouteService {
         let pollResult = poll(&pollFd, 1, timeoutMs)
 
         let elapsed = ContinuousClock.now - startTime
-        let rtt = Double(elapsed.components.attoseconds) / 1e15
+        let rtt = Double(elapsed.components.seconds) * 1000.0 + Double(elapsed.components.attoseconds) / 1e15
 
         if pollResult <= 0 {
             // Timeout or error

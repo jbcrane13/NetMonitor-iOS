@@ -277,13 +277,13 @@ struct DeviceRow: View {
     var isSelected: Bool = false
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Layout.itemSpacing) {
             deviceIcon
             deviceDetails
             Spacer()
             latencyBadge
         }
-        .padding(12)
+        .padding(Theme.Layout.itemSpacing)
         .background(rowBackground)
         .overlay(rowBorder)
         .accessibilityIdentifier("deviceRow_\(device.ipAddress.replacingOccurrences(of: ".", with: "_"))")
@@ -328,12 +328,12 @@ struct DeviceRow: View {
     }
     
     private var rowBackground: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
             .fill(isSelected ? Theme.Colors.accent.opacity(0.1) : Theme.Colors.glassBackground)
     }
-    
+
     private var rowBorder: some View {
-        RoundedRectangle(cornerRadius: 12)
+        RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
             .stroke(isSelected ? Theme.Colors.accent.opacity(0.5) : Color.clear, lineWidth: 1)
     }
 }

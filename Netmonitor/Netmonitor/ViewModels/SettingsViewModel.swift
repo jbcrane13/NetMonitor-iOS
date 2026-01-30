@@ -40,6 +40,44 @@ final class SettingsViewModel {
         set { defaults.set(newValue, forKey: "showDetailedResults") }
     }
 
+    // MARK: - Monitoring Settings
+    var autoRefreshInterval: Int {
+        get { defaults.object(forKey: "autoRefreshInterval") as? Int ?? 60 }
+        set { defaults.set(newValue, forKey: "autoRefreshInterval") }
+    }
+
+    var backgroundRefreshEnabled: Bool {
+        get { defaults.object(forKey: "backgroundRefreshEnabled") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "backgroundRefreshEnabled") }
+    }
+
+    // MARK: - Notification Settings
+    var targetDownAlertEnabled: Bool {
+        get { defaults.object(forKey: "targetDownAlertEnabled") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "targetDownAlertEnabled") }
+    }
+
+    var highLatencyThreshold: Int {
+        get { defaults.object(forKey: "highLatencyThreshold") as? Int ?? 100 }
+        set { defaults.set(newValue, forKey: "highLatencyThreshold") }
+    }
+
+    var newDeviceAlertEnabled: Bool {
+        get { defaults.object(forKey: "newDeviceAlertEnabled") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "newDeviceAlertEnabled") }
+    }
+
+    // MARK: - Appearance Settings
+    var selectedTheme: String {
+        get { defaults.string(forKey: "selectedTheme") ?? "system" }
+        set { defaults.set(newValue, forKey: "selectedTheme") }
+    }
+
+    var selectedAccentColor: String {
+        get { defaults.string(forKey: "selectedAccentColor") ?? "cyan" }
+        set { defaults.set(newValue, forKey: "selectedAccentColor") }
+    }
+
     // MARK: - App Info
     var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"

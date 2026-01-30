@@ -8,7 +8,7 @@ struct EmptyStateView: View {
     var action: EmptyStateAction?
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: Theme.Layout.cardPadding) {
             // Icon
             Image(systemName: icon)
                 .font(.largeTitle)
@@ -16,7 +16,7 @@ struct EmptyStateView: View {
                 .foregroundStyle(Theme.Colors.textTertiary)
 
             // Text content
-            VStack(spacing: 8) {
+            VStack(spacing: Theme.Layout.smallCornerRadius) {
                 Text(title)
                     .font(.headline)
                     .foregroundStyle(Theme.Colors.textPrimary)
@@ -41,7 +41,7 @@ struct EmptyStateView: View {
                             .fontWeight(.semibold)
                     }
                     .foregroundStyle(Theme.Colors.accent)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, Theme.Layout.sectionSpacing)
                     .padding(.vertical, 10)
                     .background(
                         RoundedRectangle(cornerRadius: 10)

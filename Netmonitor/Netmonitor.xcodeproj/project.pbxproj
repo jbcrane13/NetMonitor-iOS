@@ -48,6 +48,7 @@
 		9215237969D7CDABFA5CD4A2 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07EA322CAD921F569DD291C /* EmptyStateView.swift */; };
 		93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02055F2010A87B108B40DBFF /* StatusBadge.swift */; };
 		9931234D8F8D2221970329E2 /* PingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666B7D3676F199D98F8CDAE6 /* PingService.swift */; };
+		A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */; };
 		A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D89D07B0E8D95EB1314E86 /* SettingsView.swift */; };
 		A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66834196F05AEFC207F67B35 /* NetworkMapView.swift */; };
 		AB95EB4D3560B73FBB78E6DD /* MonitoringTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E923657203E10C881ED154E /* MonitoringTarget.swift */; };
@@ -117,6 +118,7 @@
 		79084B57EDBD23729D7FE79C /* WakeOnLANServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANServiceTests.swift; sourceTree = "<group>"; };
 		7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDiscoveryService.swift; sourceTree = "<group>"; };
 		7CC30DB1C8834D21D07E32BC /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
+		7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcknowledgementsView.swift; sourceTree = "<group>"; };
 		87D89D07B0E8D95EB1314E86 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		87FFC87A4EBFEAB564F0178D /* WHOISService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISService.swift; sourceTree = "<group>"; };
 		88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 		CF5F029C595B322BB6B53A3E /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */,
 				87D89D07B0E8D95EB1314E86 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -442,6 +445,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */,
 				29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */,
 				0C7129BD9C6F7B71D7B217DC /* BonjourDiscoveryToolView.swift in Sources */,
 				15E4B5C7ED0C12C04F3BF9A3 /* BonjourDiscoveryToolViewModel.swift in Sources */,

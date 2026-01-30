@@ -59,6 +59,88 @@ struct SettingsView: View {
             }
             .listRowBackground(Theme.Colors.glassBackground)
 
+            // MARK: - Monitoring Settings Section
+            Section {
+                Picker("Auto-Refresh Interval", selection: $viewModel.autoRefreshInterval) {
+                    Text("30 seconds").tag(30)
+                    Text("1 minute").tag(60)
+                    Text("5 minutes").tag(300)
+                    Text("15 minutes").tag(900)
+                    Text("Manual").tag(0)
+                }
+                .foregroundStyle(Theme.Colors.textPrimary)
+                .accessibilityIdentifier("settings_picker_autoRefreshInterval")
+
+                Toggle(isOn: $viewModel.backgroundRefreshEnabled) {
+                    Text("Background Refresh")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_backgroundRefresh")
+            } header: {
+                Text("Monitoring")
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .listRowBackground(Theme.Colors.glassBackground)
+
+            // MARK: - Notification Settings Section
+            Section {
+                Toggle(isOn: $viewModel.targetDownAlertEnabled) {
+                    Text("Target Down Alert")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_targetDownAlert")
+
+                HStack {
+                    Text("High Latency Threshold")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    Spacer()
+                    Stepper("\(viewModel.highLatencyThreshold)ms",
+                            value: $viewModel.highLatencyThreshold,
+                            in: 50...500,
+                            step: 50)
+                        .foregroundStyle(Theme.Colors.accent)
+                }
+                .accessibilityIdentifier("settings_stepper_highLatencyThreshold")
+
+                Toggle(isOn: $viewModel.newDeviceAlertEnabled) {
+                    Text("New Device Detected Alert")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_newDeviceAlert")
+            } header: {
+                Text("Notifications")
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .listRowBackground(Theme.Colors.glassBackground)
+
+            // MARK: - Appearance Section
+            Section {
+                Picker("Theme", selection: $viewModel.selectedTheme) {
+                    Text("System").tag("system")
+                    Text("Light").tag("light")
+                    Text("Dark").tag("dark")
+                }
+                .foregroundStyle(Theme.Colors.textPrimary)
+                .accessibilityIdentifier("settings_picker_theme")
+
+                Picker("Accent Color", selection: $viewModel.selectedAccentColor) {
+                    Text("Cyan").tag("cyan")
+                    Text("Blue").tag("blue")
+                    Text("Green").tag("green")
+                    Text("Purple").tag("purple")
+                    Text("Orange").tag("orange")
+                }
+                .foregroundStyle(Theme.Colors.textPrimary)
+                .accessibilityIdentifier("settings_picker_accentColor")
+            } header: {
+                Text("Appearance")
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .listRowBackground(Theme.Colors.glassBackground)
+
             // MARK: - Data & Privacy Section
             Section {
                 Picker("Data Retention", selection: $viewModel.dataRetentionDays) {
@@ -126,6 +208,41 @@ struct SettingsView: View {
                         .monospacedDigit()
                 }
                 .accessibilityIdentifier("settings_row_iosVersion")
+
+                NavigationLink {
+                    AcknowledgementsView()
+                } label: {
+                    Text("Acknowledgements")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .accessibilityIdentifier("settings_link_acknowledgements")
+
+                Link(destination: URL(string: "mailto:support@netmonitor.app")!) {
+                    HStack {
+                        Text("Contact Support")
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        Spacer()
+                        Image(systemName: "envelope")
+                            .foregroundStyle(Theme.Colors.accent)
+                    }
+                }
+                .accessibilityIdentifier("settings_link_support")
+
+                Button {
+                    // Rate App action - will open App Store review page
+                    if let url = URL(string: "itms-apps://itunes.apple.com/app/id") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack {
+                        Text("Rate App")
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        Spacer()
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(Theme.Colors.accent)
+                    }
+                }
+                .accessibilityIdentifier("settings_button_rateApp")
             } header: {
                 Text("About")
                     .foregroundStyle(Theme.Colors.textSecondary)

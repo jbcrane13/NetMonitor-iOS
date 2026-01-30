@@ -25,7 +25,7 @@ struct PingToolView: View {
     // MARK: - Input Section
 
     private var inputSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
             Text("Target")
                 .font(.headline)
                 .foregroundStyle(Theme.Colors.textPrimary)
@@ -67,7 +67,7 @@ struct PingToolView: View {
     // MARK: - Control Section
 
     private var controlSection: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Layout.itemSpacing) {
             ToolRunButton(
                 title: "Start Ping",
                 icon: "play.fill",
@@ -97,7 +97,7 @@ struct PingToolView: View {
     @ViewBuilder
     private var resultsSection: some View {
         if !viewModel.results.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Text("Results")
                         .font(.headline)
@@ -188,7 +188,7 @@ private struct PingResultRow: View {
     let result: PingResult
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: Theme.Layout.itemSpacing) {
             // Sequence number
             Text("#\(result.sequence)")
                 .font(.system(.caption, design: .monospaced))
@@ -203,7 +203,7 @@ private struct PingResultRow: View {
                         .foregroundStyle(Theme.Colors.textPrimary)
                 }
 
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.Layout.smallCornerRadius) {
                     Label("\(result.size) bytes", systemImage: "doc")
                     Label("TTL \(result.ttl)", systemImage: "clock")
                 }
@@ -223,11 +223,7 @@ private struct PingResultRow: View {
     }
 
     private func timeColor(for time: Double) -> Color {
-        switch time {
-        case ..<20: return Theme.Colors.success
-        case 20..<100: return Theme.Colors.warning
-        default: return Theme.Colors.error
-        }
+        Theme.Colors.latencyColor(ms: time)
     }
 }
 

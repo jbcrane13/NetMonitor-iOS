@@ -32,7 +32,7 @@ struct MetricCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.Layout.smallCornerRadius) {
                 HStack {
                     Image(systemName: icon)
                         .font(.system(size: Theme.Layout.iconSize))
@@ -90,7 +90,7 @@ struct LargeMetricCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(spacing: 12) {
+            VStack(spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: icon)
                         .font(.system(size: Theme.Layout.largeIconSize))

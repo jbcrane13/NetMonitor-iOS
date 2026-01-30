@@ -76,7 +76,7 @@ struct SessionCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: "clock.fill")
                         .foregroundStyle(Theme.Colors.accent)
@@ -119,7 +119,7 @@ struct WiFiCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: viewModel.connectionType.iconName)
                         .foregroundStyle(viewModel.isConnected ? Theme.Colors.success : Theme.Colors.error)
@@ -133,7 +133,7 @@ struct WiFiCard: View {
                 }
                 
                 if let wifi = viewModel.currentWiFi {
-                    VStack(spacing: 8) {
+                    VStack(spacing: Theme.Layout.smallCornerRadius) {
                         ToolResultRow(label: "Network", value: wifi.ssid, icon: "network")
                         if let dbm = wifi.signalDBm {
                             ToolResultRow(label: "Signal", value: "\(dbm) dBm", icon: "antenna.radiowaves.left.and.right")
@@ -160,7 +160,7 @@ struct WiFiCard: View {
     }
     
     private var locationPermissionView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: Theme.Layout.smallCornerRadius) {
             Text("Location permission required to show WiFi details")
                 .font(.caption)
                 .foregroundStyle(Theme.Colors.textSecondary)
@@ -205,7 +205,7 @@ struct GatewayCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: "server.rack")
                         .foregroundStyle(Theme.Colors.info)
@@ -228,7 +228,7 @@ struct GatewayCard: View {
                 }
                 
                 if let gateway = viewModel.gateway {
-                    VStack(spacing: 8) {
+                    VStack(spacing: Theme.Layout.smallCornerRadius) {
                         ToolResultRow(label: "IP Address", value: gateway.ipAddress, icon: "number", isMonospaced: true)
                         if let mac = gateway.macAddress {
                             ToolResultRow(label: "MAC Address", value: mac, icon: "barcode", isMonospaced: true)
@@ -256,7 +256,7 @@ struct ISPCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: "globe")
                         .foregroundStyle(Theme.Colors.accent)
@@ -272,7 +272,7 @@ struct ISPCard: View {
                 }
                 
                 if let isp = viewModel.ispInfo {
-                    VStack(spacing: 8) {
+                    VStack(spacing: Theme.Layout.smallCornerRadius) {
                         ToolResultRow(label: "Public IP", value: isp.publicIP, icon: "globe", isMonospaced: true)
                         if let ispName = isp.ispName {
                             ToolResultRow(label: "ISP", value: ispName, icon: "building")
@@ -303,7 +303,7 @@ struct LocalDevicesCard: View {
     
     var body: some View {
         GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
                 HStack {
                     Image(systemName: "desktopcomputer")
                         .foregroundStyle(Theme.Colors.accent)

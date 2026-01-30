@@ -48,7 +48,7 @@ actor PingService {
     }
     
     func stop() {
-        Task { await setRunning(false) }
+        isRunning = false
     }
     
     private func setRunning(_ value: Bool) {
