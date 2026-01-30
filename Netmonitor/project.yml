@@ -60,3 +60,27 @@ targets:
         BGTaskSchedulerPermittedIdentifiers:
           - com.blakemiller.netmonitor.refresh
           - com.blakemiller.netmonitor.sync
+
+  NetmonitorTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: NetmonitorTests
+        excludes:
+          - "**/.gitkeep"
+    dependencies:
+      - target: Netmonitor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Netmonitor:
+    build:
+      targets:
+        Netmonitor: all
+        NetmonitorTests: [test]
+    test:
+      targets:
+        - NetmonitorTests
