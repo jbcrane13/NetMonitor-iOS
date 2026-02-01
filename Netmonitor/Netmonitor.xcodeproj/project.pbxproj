@@ -22,6 +22,7 @@
 		2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33559F156548EF73D7F1450 /* DashboardView.swift */; };
 		3265D18FD8004ECCE5E32DA6 /* WakeOnLANToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22BEC63DF690D795CAF710F /* WakeOnLANToolViewModel.swift */; };
 		32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */; };
+		341861FBF4ED5B251ECE85D7 /* NetmonitorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA5689ECA1CC6BB1FA7CBECA /* NetmonitorUITests.swift */; };
 		3BE8993F1F9B0295A1871DDF /* PortScannerToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0B9A9C61281712842689A6 /* PortScannerToolViewModel.swift */; };
 		3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A684E333115E6A9D9307FB /* ServiceProtocols.swift */; };
 		419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */; };
@@ -90,6 +91,13 @@
 			remoteGlobalIDString = 026FFA41F548DE0442193D0B;
 			remoteInfo = NetmonitorWidget;
 		};
+		A9EE9743291A115B3B4D908C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 72E9F0E06BBA2321E9E45823 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1CB53BBB8E31ABF6DEF09F03;
+			remoteInfo = Netmonitor;
+		};
 		DCFEA064B24BF7864F5E7569 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 72E9F0E06BBA2321E9E45823 /* Project object */;
@@ -138,6 +146,7 @@
 		4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskService.swift; sourceTree = "<group>"; };
 		4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolView.swift; sourceTree = "<group>"; };
 		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
+		5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NetmonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
 		58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
 		5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapViewModel.swift; sourceTree = "<group>"; };
@@ -171,6 +180,7 @@
 		ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedMac.swift; sourceTree = "<group>"; };
 		B0A56CB9F9017D327E732650 /* DNSLookupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupServiceTests.swift; sourceTree = "<group>"; };
 		BA362BD9D2F3CA940C445512 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
+		BA5689ECA1CC6BB1FA7CBECA /* NetmonitorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetmonitorUITests.swift; sourceTree = "<group>"; };
 		C077105D18FDB45B925393C7 /* PingToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolView.swift; sourceTree = "<group>"; };
 		C207EB5D98191A0B7F0C582B /* PublicIPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicIPService.swift; sourceTree = "<group>"; };
 		C20B3812E7C48E706707F58D /* WiFiInfoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiInfoService.swift; sourceTree = "<group>"; };
@@ -214,6 +224,7 @@
 			children = (
 				9E0DB342806E632283625FA7 /* Netmonitor.app */,
 				ACE4DACE223112C3EC7310B5 /* NetmonitorTests.xctest */,
+				5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */,
 				8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */,
 			);
 			name = Products;
@@ -224,6 +235,7 @@
 			children = (
 				756FF34A53661EDBD0F0B89B /* Netmonitor */,
 				90188B6011C0D23757D7E68F /* NetmonitorTests */,
+				CFA83BF7917320779CC3205B /* NetmonitorUITests */,
 				8674D2D4D3E4C12484A85A1C /* NetmonitorWidget */,
 				1D1C206E6B19E36DC2E20830 /* Products */,
 			);
@@ -405,6 +417,14 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
+		CFA83BF7917320779CC3205B /* NetmonitorUITests */ = {
+			isa = PBXGroup;
+			children = (
+				BA5689ECA1CC6BB1FA7CBECA /* NetmonitorUITests.swift */,
+			);
+			path = NetmonitorUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -445,6 +465,24 @@
 			productReference = 9E0DB342806E632283625FA7 /* Netmonitor.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1F53142EC8B4DEC7B88428FC /* NetmonitorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CC895F814DE05D02107BF74 /* Build configuration list for PBXNativeTarget "NetmonitorUITests" */;
+			buildPhases = (
+				F28714E010D4F1493B8186C1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E2DEF3AF5029AE6AC4A884B4 /* PBXTargetDependency */,
+			);
+			name = NetmonitorUITests;
+			packageProductDependencies = (
+			);
+			productName = NetmonitorUITests;
+			productReference = 5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		815EE789D9D62C3D185884F9 /* NetmonitorTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97B8197AC71FF12A8F4308A0 /* Build configuration list for PBXNativeTarget "NetmonitorTests" */;
@@ -478,6 +516,10 @@
 					1CB53BBB8E31ABF6DEF09F03 = {
 						ProvisioningStyle = Automatic;
 					};
+					1F53142EC8B4DEC7B88428FC = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = 1CB53BBB8E31ABF6DEF09F03;
+					};
 					815EE789D9D62C3D185884F9 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -499,6 +541,7 @@
 			targets = (
 				1CB53BBB8E31ABF6DEF09F03 /* Netmonitor */,
 				815EE789D9D62C3D185884F9 /* NetmonitorTests */,
+				1F53142EC8B4DEC7B88428FC /* NetmonitorUITests */,
 				026FFA41F548DE0442193D0B /* NetmonitorWidget */,
 			);
 		};
@@ -608,6 +651,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F28714E010D4F1493B8186C1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				341861FBF4ED5B251ECE85D7 /* NetmonitorUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -620,6 +671,11 @@
 			isa = PBXTargetDependency;
 			target = 026FFA41F548DE0442193D0B /* NetmonitorWidget */;
 			targetProxy = 12C7E362C1AD576C09F5CA3F /* PBXContainerItemProxy */;
+		};
+		E2DEF3AF5029AE6AC4A884B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1CB53BBB8E31ABF6DEF09F03 /* Netmonitor */;
+			targetProxy = A9EE9743291A115B3B4D908C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -823,6 +879,40 @@
 			};
 			name = Release;
 		};
+		D550C439DA8F2D198800C506 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Netmonitor;
+			};
+			name = Debug;
+		};
+		F85518CB5EF7C9F91F84609D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Netmonitor;
+			};
+			name = Release;
+		};
 		F980B3EFF12C234036DAC100 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -863,6 +953,15 @@
 			buildConfigurations = (
 				42D8337EF83F35669B6D0216 /* Debug */,
 				13330E27260E9395C43C3333 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CC895F814DE05D02107BF74 /* Build configuration list for PBXNativeTarget "NetmonitorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D550C439DA8F2D198800C506 /* Debug */,
+				F85518CB5EF7C9F91F84609D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

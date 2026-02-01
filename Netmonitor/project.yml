@@ -101,6 +101,21 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor.tests
         GENERATE_INFOPLIST_FILE: YES
 
+  NetmonitorUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: NetmonitorUITests
+        excludes:
+          - "**/.gitkeep"
+    dependencies:
+      - target: Netmonitor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Netmonitor
+
 schemes:
   Netmonitor:
     build:
@@ -108,6 +123,8 @@ schemes:
         Netmonitor: all
         NetmonitorWidget: all
         NetmonitorTests: [test]
+        NetmonitorUITests: [test]
     test:
       targets:
         - NetmonitorTests
+        - NetmonitorUITests

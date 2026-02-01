@@ -37,6 +37,20 @@
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1F53142EC8B4DEC7B88428FC"
+               BuildableName = "NetmonitorUITests.xctest"
+               BlueprintName = "NetmonitorUITests"
+               ReferencedContainer = "container:Netmonitor.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
@@ -75,6 +89,17 @@
                BlueprintIdentifier = "815EE789D9D62C3D185884F9"
                BuildableName = "NetmonitorTests.xctest"
                BlueprintName = "NetmonitorTests"
+               ReferencedContainer = "container:Netmonitor.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1F53142EC8B4DEC7B88428FC"
+               BuildableName = "NetmonitorUITests.xctest"
+               BlueprintName = "NetmonitorUITests"
                ReferencedContainer = "container:Netmonitor.xcodeproj">
             </BuildableReference>
          </TestableReference>
