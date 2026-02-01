@@ -69,6 +69,7 @@
 		D7E8FBD05424FE8677213B74 /* TracerouteToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD13DBD10983D46386B3CB1 /* TracerouteToolView.swift */; };
 		DA041C1DB8E0898E61A69C24 /* SpeedTestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */; };
 		DF85EB51E2BA627806492418 /* ToolResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141BF850FCC550338D72B7AF /* ToolResultRow.swift */; };
+		E6B930D1B328C0A1E1B29BFA /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA362BD9D2F3CA940C445512 /* ModelTests.swift */; };
 		EC86D1E45F3607F5FD1BC075 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CC30DB1C8834D21D07E32BC /* NetworkError.swift */; };
 		F4027F034FAB6EA97490C118 /* TracerouteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FF2D8858DC7777706B50FF /* TracerouteService.swift */; };
 		F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */; };
@@ -136,6 +137,7 @@
 		AD98A9090968B419D3C50A7B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedMac.swift; sourceTree = "<group>"; };
 		B0A56CB9F9017D327E732650 /* DNSLookupServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupServiceTests.swift; sourceTree = "<group>"; };
+		BA362BD9D2F3CA940C445512 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		C077105D18FDB45B925393C7 /* PingToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolView.swift; sourceTree = "<group>"; };
 		C207EB5D98191A0B7F0C582B /* PublicIPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicIPService.swift; sourceTree = "<group>"; };
 		C20B3812E7C48E706707F58D /* WiFiInfoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiInfoService.swift; sourceTree = "<group>"; };
@@ -313,6 +315,7 @@
 			isa = PBXGroup;
 			children = (
 				B0A56CB9F9017D327E732650 /* DNSLookupServiceTests.swift */,
+				BA362BD9D2F3CA940C445512 /* ModelTests.swift */,
 				0C21CEEC269150806B5E9A01 /* NetworkMonitorServiceTests.swift */,
 				1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */,
 				79084B57EDBD23729D7FE79C /* WakeOnLANServiceTests.swift */,
@@ -514,6 +517,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A1E248E3CF96938E4ECDC31 /* DNSLookupServiceTests.swift in Sources */,
+				E6B930D1B328C0A1E1B29BFA /* ModelTests.swift in Sources */,
 				1A83022DFB5EFE416ADB56BF /* NetworkMonitorServiceTests.swift in Sources */,
 				419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */,
 				11D6D335DD833055D860BF49 /* WakeOnLANServiceTests.swift in Sources */,

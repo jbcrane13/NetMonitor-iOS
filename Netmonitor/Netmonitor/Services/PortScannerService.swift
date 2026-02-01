@@ -15,7 +15,7 @@ actor PortScannerService {
                 await self.setRunning(true)
                 defer { Task { await self.setRunning(false) } }
                 
-                await withTaskGroup(of: PortScanResult?.self) { group in
+                await withTaskGroup(of: PortScanResult.self) { group in
                     var pending = 0
                     var portIterator = ports.makeIterator()
                     
@@ -30,9 +30,7 @@ actor PortScannerService {
                         guard let result = await group.next() else { break }
                         pending -= 1
                         
-                        if let result = result {
-                            continuation.yield(result)
-                        }
+                        continuation.yield(result)
                     }
                 }
                 
@@ -49,7 +47,7 @@ actor PortScannerService {
         isRunning = value
     }
     
-    private func scanPort(host: String, port: Int, timeout: TimeInterval) async -> PortScanResult? {
+    private func scanPort(host: String, port: Int, timeout: TimeInterval) async -> PortScanResult {
         let start = Date()
         
         let endpoint = NWEndpoint.hostPort(
@@ -104,14 +102,12 @@ actor PortScannerService {
         
         let elapsed = Date().timeIntervalSince(start) * 1000
         
-        guard state == .open else { return nil }
-        
         return PortScanResult(
             port: port,
             state: state,
             serviceName: PortScanResult.commonServiceName(for: port),
             banner: nil,
-            responseTime: elapsed
+            responseTime: state == .open ? elapsed : nil
         )
     }
 }

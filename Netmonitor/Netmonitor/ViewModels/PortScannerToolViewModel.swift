@@ -56,8 +56,10 @@ final class PortScannerToolViewModel {
             )
 
             for await result in stream {
-                results.append(result)
                 scannedCount += 1
+                if result.state == .open {
+                    results.append(result)
+                }
             }
 
             // Sort by port number
