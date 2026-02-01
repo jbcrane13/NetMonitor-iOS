@@ -10,6 +10,7 @@ final class BonjourDiscoveryService {
     private var browser: NWBrowser?
     private var typeBrowsers: [NWBrowser] = []
     private let queue = DispatchQueue(label: "com.netmonitor.bonjour")
+    private var serviceContinuation: AsyncStream<BonjourService>.Continuation?
     
     private let commonServiceTypes = [
         "_http._tcp",
@@ -26,13 +27,36 @@ final class BonjourDiscoveryService {
         "_homekit._tcp",
         "_hap._tcp"
     ]
+
+    /// Returns an AsyncStream that yields newly discovered services as they are found.
+    func discoveryStream(serviceType: String? = nil) -> AsyncStream<BonjourService> {
+        stopDiscovery()
+
+        return AsyncStream { continuation in
+            self.serviceContinuation = continuation
+            self.isDiscovering = true
+            self.discoveredServices = []
+
+            continuation.onTermination = { @Sendable _ in
+                Task { @MainActor in
+                    self.stopDiscovery()
+                }
+            }
+
+            self.startBrowsing(serviceType: serviceType)
+        }
+    }
     
     func startDiscovery(serviceType: String? = nil) {
         stopDiscovery()
         
         isDiscovering = true
         discoveredServices = []
-        
+
+        startBrowsing(serviceType: serviceType)
+    }
+
+    private func startBrowsing(serviceType: String? = nil) {
         let descriptor: NWBrowser.Descriptor
         if let type = serviceType {
             descriptor = .bonjour(type: type, domain: "local.")
@@ -51,6 +75,8 @@ final class BonjourDiscoveryService {
                 case .failed(let error):
                     print("Browser failed: \(error)")
                     self?.isDiscovering = false
+                    self?.serviceContinuation?.finish()
+                    self?.serviceContinuation = nil
                 case .cancelled:
                     self?.isDiscovering = false
                 default:
@@ -92,6 +118,8 @@ final class BonjourDiscoveryService {
         }
         typeBrowsers.removeAll()
 
+        serviceContinuation?.finish()
+        serviceContinuation = nil
         isDiscovering = false
     }
     
@@ -123,6 +151,7 @@ final class BonjourDiscoveryService {
                 
                 if !discoveredServices.contains(where: { $0.name == name && $0.type == type }) {
                     discoveredServices.append(service)
+                    serviceContinuation?.yield(service)
                 }
             }
         }

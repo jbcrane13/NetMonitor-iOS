@@ -14,6 +14,7 @@ final class BonjourDiscoveryToolViewModel {
     // MARK: - Dependencies
 
     private let bonjourService = BonjourDiscoveryService()
+    private var discoveryTask: Task<Void, Never>?
 
     // MARK: - Computed Properties
 
@@ -28,21 +29,26 @@ final class BonjourDiscoveryToolViewModel {
     // MARK: - Actions
 
     func startDiscovery() {
+        stopDiscovery()
         isDiscovering = true
         hasDiscoveredOnce = true
         errorMessage = nil
-        bonjourService.startDiscovery()
+        services = []
 
-        // Update services from the service
-        Task {
-            while isDiscovering {
-                services = bonjourService.discoveredServices
-                try? await Task.sleep(for: .milliseconds(500))
+        discoveryTask = Task {
+            let stream = bonjourService.discoveryStream()
+
+            for await service in stream {
+                services.append(service)
             }
+
+            isDiscovering = false
         }
     }
 
     func stopDiscovery() {
+        discoveryTask?.cancel()
+        discoveryTask = nil
         bonjourService.stopDiscovery()
         isDiscovering = false
     }
