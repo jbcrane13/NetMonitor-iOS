@@ -43,6 +43,7 @@
 		6E219562B499458149411F24 /* WHOISService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FFC87A4EBFEAB564F0178D /* WHOISService.swift */; };
 		70419668B81796FE25832D0C /* WHOISToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00DDA09529821F58C318E6C6 /* WHOISToolViewModel.swift */; };
 		732AA69F1B1BC34179E36777 /* PortScannerToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F0806162B69692648E7C1 /* PortScannerToolView.swift */; };
+		768CD1ABF37484D6D02E319B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3330E2C0C120D6F9187854C1 /* NotificationService.swift */; };
 		7FA5EC92D12D53FC0787088C /* ToolsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DD181BC184D12F5543624 /* ToolsViewModel.swift */; };
 		82C3FF91DC826AA8C2829150 /* ToolInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9788D39F038C283A32FAA2 /* ToolInputField.swift */; };
 		853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57264957B282936BB6CC799 /* DNSLookupService.swift */; };
@@ -127,6 +128,7 @@
 		2696588C988FC5442F9C41C1 /* SpeedTestToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestToolView.swift; sourceTree = "<group>"; };
 		294323B8D7590D23A94BAF7D /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
 		2D56F218753419E73147F262 /* NetmonitorWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetmonitorWidget.swift; sourceTree = "<group>"; };
+		3330E2C0C120D6F9187854C1 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		37FADE1F9BC923A5CC643D35 /* DNSLookupToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupToolViewModel.swift; sourceTree = "<group>"; };
 		387E8A5019BF41DED96B6607 /* NetworkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkModels.swift; sourceTree = "<group>"; };
 		3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANService.swift; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 				D57264957B282936BB6CC799 /* DNSLookupService.swift */,
 				A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */,
 				58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */,
+				3330E2C0C120D6F9187854C1 /* NotificationService.swift */,
 				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
 				C2D0639915AD65E638EEDD4F /* PortScannerService.swift */,
 				C207EB5D98191A0B7F0C582B /* PublicIPService.swift */,
@@ -546,6 +549,7 @@
 				AD941ED8C66CDA2BD700D464 /* NetworkModels.swift in Sources */,
 				C617227F80117A77B1A24CAB /* NetworkMonitorService.swift in Sources */,
 				CD39589B010EE8B9672B8083 /* NetworkUtilities.swift in Sources */,
+				768CD1ABF37484D6D02E319B /* NotificationService.swift in Sources */,
 				F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */,
 				9931234D8F8D2221970329E2 /* PingService.swift in Sources */,
 				8D16761E2869FC3CAFDBE902 /* PingToolView.swift in Sources */,
