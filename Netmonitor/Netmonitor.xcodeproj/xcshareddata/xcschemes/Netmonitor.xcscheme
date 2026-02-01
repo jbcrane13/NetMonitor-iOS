@@ -35,6 +35,20 @@
                ReferencedContainer = "container:Netmonitor.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "026FFA41F548DE0442193D0B"
+               BuildableName = "NetmonitorWidget.appex"
+               BlueprintName = "NetmonitorWidget"
+               ReferencedContainer = "container:Netmonitor.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction

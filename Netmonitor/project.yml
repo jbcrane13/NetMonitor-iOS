@@ -60,6 +60,32 @@ targets:
         BGTaskSchedulerPermittedIdentifiers:
           - com.blakemiller.netmonitor.refresh
           - com.blakemiller.netmonitor.sync
+    dependencies:
+      - target: NetmonitorWidget
+        embed: true
+        codeSign: true
+
+  NetmonitorWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: NetmonitorWidget
+        excludes:
+          - "**/.gitkeep"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor.widget
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: NetMonitor Widget
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks"
+        SWIFT_EMIT_LOC_STRINGS: YES
+    info:
+      path: NetmonitorWidget/Info.plist
+      properties:
+        CFBundleDisplayName: NetMonitor Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
 
   NetmonitorTests:
     type: bundle.unit-test
@@ -80,6 +106,7 @@ schemes:
     build:
       targets:
         Netmonitor: all
+        NetmonitorWidget: all
         NetmonitorTests: [test]
     test:
       targets:
