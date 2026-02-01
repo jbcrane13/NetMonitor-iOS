@@ -1,20 +1,6 @@
 import Foundation
 import Network
 
-private actor WOLResumeState {
-    private var hasResumed = false
-    
-    func tryResume() -> Bool {
-        if hasResumed { return false }
-        hasResumed = true
-        return true
-    }
-    
-    func isResumed() -> Bool {
-        return hasResumed
-    }
-}
-
 @MainActor
 @Observable
 final class WakeOnLANService {
@@ -82,7 +68,7 @@ final class WakeOnLANService {
     }
     
     private func sendPacket(_ packet: Data, to address: String, port: UInt16) async -> Bool {
-        let resumeState = WOLResumeState()
+        let resumeState = ResumeState()
         
         return await withCheckedContinuation { continuation in
             let endpoint = NWEndpoint.hostPort(

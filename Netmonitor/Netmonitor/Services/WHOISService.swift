@@ -82,7 +82,7 @@ actor WHOISService {
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Error>) in
             // Use actor to safely manage single-resume state
-            let resumeState = ResumeState(continuation: continuation, connection: connection)
+            let resumeState = WHOISResumeState(continuation: continuation, connection: connection)
 
             connection.stateUpdateHandler = { state in
                 switch state {
@@ -106,8 +106,8 @@ actor WHOISService {
         }
     }
 
-    /// Actor to safely manage single-resume continuation state
-    private actor ResumeState {
+    /// Actor to safely manage single-resume continuation state for WHOIS queries
+    private actor WHOISResumeState {
         private var continuation: CheckedContinuation<String, Error>?
         private let connection: NWConnection
 
