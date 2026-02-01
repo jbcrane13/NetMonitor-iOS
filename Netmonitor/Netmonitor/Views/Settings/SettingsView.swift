@@ -3,9 +3,14 @@ import SwiftData
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var toolResults: [ToolResult]
+    @Query private var speedTestResults: [SpeedTestResult]
+    @Query private var devices: [LocalDevice]
     @State private var viewModel = SettingsViewModel()
     @State private var showingClearHistoryAlert = false
     @State private var showingClearCacheAlert = false
+    @State private var showingExportSheet = false
+    @State private var exportFileURL: URL?
 
     var body: some View {
         List {
@@ -138,6 +143,33 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings_picker_accentColor")
             } header: {
                 Text("Appearance")
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .listRowBackground(Theme.Colors.glassBackground)
+
+            // MARK: - Data Export Section
+            Section {
+                ForEach(ExportOption.allCases) { option in
+                    Menu {
+                        Button("Export as JSON") {
+                            exportData(option: option, format: .json)
+                        }
+                        Button("Export as CSV") {
+                            exportData(option: option, format: .csv)
+                        }
+                    } label: {
+                        HStack {
+                            Label(option.label, systemImage: option.icon)
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(Theme.Colors.accent)
+                        }
+                    }
+                    .accessibilityIdentifier("settings_export_\(option.rawValue)")
+                }
+            } header: {
+                Text("Data Export")
                     .foregroundStyle(Theme.Colors.textSecondary)
             }
             .listRowBackground(Theme.Colors.glassBackground)
@@ -287,7 +319,69 @@ struct SettingsView: View {
             Text("This will delete all stored data including tool results, speed tests, discovered devices, monitoring targets, and file caches. This action cannot be undone.")
         }
         .accessibilityIdentifier("screen_settings")
+        .sheet(isPresented: $showingExportSheet) {
+            if let url = exportFileURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
     }
+
+    private func exportData(option: ExportOption, format: DataExportService.ExportFormat) {
+        let data: Data?
+        let name: String
+
+        switch option {
+        case .toolResults:
+            data = DataExportService.exportToolResults(toolResults, format: format)
+            name = "netmonitor-tool-results"
+        case .speedTests:
+            data = DataExportService.exportSpeedTests(speedTestResults, format: format)
+            name = "netmonitor-speed-tests"
+        case .devices:
+            data = DataExportService.exportDevices(devices, format: format)
+            name = "netmonitor-devices"
+        }
+
+        guard let data,
+              let url = DataExportService.writeToTempFile(data: data, name: name, ext: format.fileExtension) else { return }
+
+        exportFileURL = url
+        showingExportSheet = true
+    }
+}
+
+private enum ExportOption: String, CaseIterable, Identifiable {
+    case toolResults
+    case speedTests
+    case devices
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .toolResults: "Tool Results"
+        case .speedTests: "Speed Tests"
+        case .devices: "Devices"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .toolResults: "wrench"
+        case .speedTests: "speedometer"
+        case .devices: "desktopcomputer"
+        }
+    }
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

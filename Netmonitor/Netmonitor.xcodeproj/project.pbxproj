@@ -33,6 +33,7 @@
 		5A543160E7F3FC84722106BA /* DNSLookupToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FADE1F9BC923A5CC643D35 /* DNSLookupToolViewModel.swift */; };
 		5B9B202652127DB6F3B99D1F /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */; };
 		5FAA81F8BE68F5E188691505 /* ToolModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */; };
+		5FE0072C887CBDE80906DE5D /* DataExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA287DBFBE09678EC985C93 /* DataExportService.swift */; };
 		63678DA20462B25232AB7CB0 /* WHOISToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F491EB25FB029F43E2903652 /* WHOISToolView.swift */; };
 		64F772407662E1179C6BFEC7 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F282C93176A947FBB4B39CA7 /* SettingsViewModel.swift */; };
 		661489E4BA376D9671E26FD4 /* WiFiInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20B3812E7C48E706707F58D /* WiFiInfoService.swift */; };
@@ -111,6 +112,7 @@
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
 		58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
 		5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapViewModel.swift; sourceTree = "<group>"; };
+		5FA287DBFBE09678EC985C93 /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
 		666B7D3676F199D98F8CDAE6 /* PingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingService.swift; sourceTree = "<group>"; };
 		66834196F05AEFC207F67B35 /* NetworkMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapView.swift; sourceTree = "<group>"; };
 		7002A651D1A034719D2422FD /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
@@ -295,6 +297,7 @@
 			isa = PBXGroup;
 			children = (
 				88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */,
+				5FA287DBFBE09678EC985C93 /* DataExportService.swift */,
 				7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */,
 				D57264957B282936BB6CC799 /* DNSLookupService.swift */,
 				A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */,
@@ -459,6 +462,7 @@
 				5A543160E7F3FC84722106BA /* DNSLookupToolViewModel.swift in Sources */,
 				2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */,
 				5B9B202652127DB6F3B99D1F /* DashboardViewModel.swift in Sources */,
+				5FE0072C887CBDE80906DE5D /* DataExportService.swift in Sources */,
 				C168B2E0690BF1558729567D /* DeviceDiscoveryService.swift in Sources */,
 				9215237969D7CDABFA5CD4A2 /* EmptyStateView.swift in Sources */,
 				0998BA84147CA6DB0A71C79F /* Enums.swift in Sources */,
