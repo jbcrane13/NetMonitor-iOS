@@ -17,7 +17,11 @@ final class WakeOnLANToolViewModel {
 
     // MARK: - Dependencies
 
-    private let wolService = WakeOnLANService()
+    private let wolService: any WakeOnLANServiceProtocol
+
+    init(wolService: any WakeOnLANServiceProtocol = WakeOnLANService()) {
+        self.wolService = wolService
+    }
 
     // MARK: - Computed Properties
 
@@ -60,7 +64,8 @@ final class WakeOnLANToolViewModel {
 
         let success = await wolService.wake(
             macAddress: macAddress.trimmingCharacters(in: .whitespaces),
-            broadcastAddress: broadcastAddress
+            broadcastAddress: broadcastAddress,
+            port: 9
         )
 
         lastResult = wolService.lastResult

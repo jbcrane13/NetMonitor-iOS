@@ -17,7 +17,11 @@ final class DNSLookupToolViewModel {
 
     // MARK: - Dependencies
 
-    private let dnsService = DNSLookupService()
+    private let dnsService: any DNSLookupServiceProtocol
+
+    init(dnsService: any DNSLookupServiceProtocol = DNSLookupService()) {
+        self.dnsService = dnsService
+    }
 
     // MARK: - Computed Properties
 
@@ -39,7 +43,8 @@ final class DNSLookupToolViewModel {
 
         result = await dnsService.lookup(
             domain: domain.trimmingCharacters(in: .whitespaces),
-            recordType: recordType
+            recordType: recordType,
+            server: nil
         )
 
         if result == nil {

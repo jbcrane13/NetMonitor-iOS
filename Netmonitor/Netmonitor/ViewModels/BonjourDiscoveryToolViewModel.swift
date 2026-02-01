@@ -13,8 +13,12 @@ final class BonjourDiscoveryToolViewModel {
 
     // MARK: - Dependencies
 
-    private let bonjourService = BonjourDiscoveryService()
+    private let bonjourService: any BonjourDiscoveryServiceProtocol
     private var discoveryTask: Task<Void, Never>?
+
+    init(bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()) {
+        self.bonjourService = bonjourService
+    }
 
     // MARK: - Computed Properties
 
@@ -36,7 +40,7 @@ final class BonjourDiscoveryToolViewModel {
         services = []
 
         discoveryTask = Task {
-            let stream = bonjourService.discoveryStream()
+            let stream = bonjourService.discoveryStream(serviceType: nil)
 
             for await service in stream {
                 services.append(service)

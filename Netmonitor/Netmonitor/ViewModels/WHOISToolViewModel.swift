@@ -16,7 +16,11 @@ final class WHOISToolViewModel {
 
     // MARK: - Dependencies
 
-    private let whoisService = WHOISService()
+    private let whoisService: any WHOISServiceProtocol
+
+    init(whoisService: any WHOISServiceProtocol = WHOISService()) {
+        self.whoisService = whoisService
+    }
 
     // MARK: - Computed Properties
 

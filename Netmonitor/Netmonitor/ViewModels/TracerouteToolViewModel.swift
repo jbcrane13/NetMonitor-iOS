@@ -21,8 +21,12 @@ final class TracerouteToolViewModel {
 
     // MARK: - Dependencies
 
-    private let tracerouteService = TracerouteService()
+    private let tracerouteService: any TracerouteServiceProtocol
     private var traceTask: Task<Void, Never>?
+
+    init(tracerouteService: any TracerouteServiceProtocol = TracerouteService()) {
+        self.tracerouteService = tracerouteService
+    }
 
     // MARK: - Computed Properties
 
@@ -45,7 +49,8 @@ final class TracerouteToolViewModel {
         traceTask = Task {
             let stream = await tracerouteService.trace(
                 host: host.trimmingCharacters(in: .whitespaces),
-                maxHops: maxHops
+                maxHops: maxHops,
+                timeout: nil
             )
 
             for await hop in stream {

@@ -19,8 +19,12 @@ final class PortScannerToolViewModel {
 
     // MARK: - Dependencies
 
-    private let portScannerService = PortScannerService()
+    private let portScannerService: any PortScannerServiceProtocol
     private var scanTask: Task<Void, Never>?
+
+    init(portScannerService: any PortScannerServiceProtocol = PortScannerService()) {
+        self.portScannerService = portScannerService
+    }
 
     // MARK: - Computed Properties
 
@@ -63,7 +67,8 @@ final class PortScannerToolViewModel {
         scanTask = Task {
             let stream = await portScannerService.scan(
                 host: host.trimmingCharacters(in: .whitespaces),
-                ports: ports
+                ports: ports,
+                timeout: 2
             )
 
             for await result in stream {

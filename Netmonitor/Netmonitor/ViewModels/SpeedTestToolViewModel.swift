@@ -17,8 +17,12 @@ final class SpeedTestToolViewModel {
 
     // MARK: - Dependencies
 
-    private let service = SpeedTestService()
+    private let service: any SpeedTestServiceProtocol
     private var testTask: Task<Void, Never>?
+
+    init(service: any SpeedTestServiceProtocol = SpeedTestService()) {
+        self.service = service
+    }
 
     // MARK: - Computed Properties
 

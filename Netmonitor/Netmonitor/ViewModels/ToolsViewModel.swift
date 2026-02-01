@@ -10,20 +10,20 @@ final class ToolsViewModel {
     private(set) var currentPingResults: [PingResult] = []
     private(set) var currentPortScanResults: [PortScanResult] = []
     
-    let pingService: PingService
-    let portScannerService: PortScannerService
-    let dnsLookupService: DNSLookupService
-    let wakeOnLANService: WakeOnLANService
-    let deviceDiscoveryService: DeviceDiscoveryService
-    let gatewayService: GatewayService
+    let pingService: any PingServiceProtocol
+    let portScannerService: any PortScannerServiceProtocol
+    let dnsLookupService: any DNSLookupServiceProtocol
+    let wakeOnLANService: any WakeOnLANServiceProtocol
+    let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
+    let gatewayService: any GatewayServiceProtocol
     
     init(
-        pingService: PingService = .init(),
-        portScannerService: PortScannerService = .init(),
-        dnsLookupService: DNSLookupService = .init(),
-        wakeOnLANService: WakeOnLANService = .init(),
-        deviceDiscoveryService: DeviceDiscoveryService = .init(),
-        gatewayService: GatewayService = .init()
+        pingService: any PingServiceProtocol = PingService(),
+        portScannerService: any PortScannerServiceProtocol = PortScannerService(),
+        dnsLookupService: any DNSLookupServiceProtocol = DNSLookupService(),
+        wakeOnLANService: any WakeOnLANServiceProtocol = WakeOnLANService(),
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService(),
+        gatewayService: any GatewayServiceProtocol = GatewayService()
     ) {
         self.pingService = pingService
         self.portScannerService = portScannerService
@@ -44,13 +44,13 @@ final class ToolsViewModel {
         
         defer { isPingRunning = false }
         
-        let stream = await pingService.ping(host: host, count: count)
+        let stream = await pingService.ping(host: host, count: count, timeout: 5)
         
         for await result in stream {
             currentPingResults.append(result)
         }
         
-        if let stats = await pingService.calculateStatistics(currentPingResults) {
+        if let stats = await pingService.calculateStatistics(currentPingResults, requestedCount: nil) {
             addActivity(
                 tool: "Ping",
                 target: host,
@@ -71,7 +71,7 @@ final class ToolsViewModel {
         
         defer { isPortScanRunning = false }
         
-        let stream = await portScannerService.scan(host: host, ports: ports)
+        let stream = await portScannerService.scan(host: host, ports: ports, timeout: 2)
         
         for await result in stream {
             if result.state == .open {
@@ -93,7 +93,7 @@ final class ToolsViewModel {
     }
     
     func runDNSLookup(domain: String) async -> DNSQueryResult? {
-        let result = await dnsLookupService.lookup(domain: domain)
+        let result = await dnsLookupService.lookup(domain: domain, recordType: .a, server: nil)
         
         if let result = result {
             addActivity(
@@ -115,7 +115,7 @@ final class ToolsViewModel {
     }
     
     func sendWakeOnLAN(macAddress: String) async -> Bool {
-        let success = await wakeOnLANService.wake(macAddress: macAddress)
+        let success = await wakeOnLANService.wake(macAddress: macAddress, broadcastAddress: "255.255.255.255", port: 9)
         
         addActivity(
             tool: "Wake on LAN",
@@ -128,7 +128,7 @@ final class ToolsViewModel {
     }
     
     func runNetworkScan() async {
-        await deviceDiscoveryService.scanNetwork()
+        await deviceDiscoveryService.scanNetwork(subnet: nil)
         
         addActivity(
             tool: "Network Scan",

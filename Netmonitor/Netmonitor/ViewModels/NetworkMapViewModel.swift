@@ -5,14 +5,14 @@ import Foundation
 final class NetworkMapViewModel {
     private(set) var selectedDeviceIP: String?
     
-    let deviceDiscoveryService: DeviceDiscoveryService
-    let gatewayService: GatewayService
-    let bonjourService: BonjourDiscoveryService
+    let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
+    let gatewayService: any GatewayServiceProtocol
+    let bonjourService: any BonjourDiscoveryServiceProtocol
     
     init(
-        deviceDiscoveryService: DeviceDiscoveryService = .init(),
-        gatewayService: GatewayService = .init(),
-        bonjourService: BonjourDiscoveryService = .init()
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService(),
+        gatewayService: any GatewayServiceProtocol = GatewayService(),
+        bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()
     ) {
         self.deviceDiscoveryService = deviceDiscoveryService
         self.gatewayService = gatewayService
@@ -44,7 +44,7 @@ final class NetworkMapViewModel {
     }
     
     func startScan() async {
-        await deviceDiscoveryService.scanNetwork()
+        await deviceDiscoveryService.scanNetwork(subnet: nil)
     }
     
     func stopScan() {
@@ -56,7 +56,7 @@ final class NetworkMapViewModel {
     }
     
     func startBonjourDiscovery() {
-        bonjourService.startDiscovery()
+        bonjourService.startDiscovery(serviceType: nil)
     }
     
     func stopBonjourDiscovery() {
@@ -64,10 +64,7 @@ final class NetworkMapViewModel {
     }
     
     func refresh() async {
-        async let gatewayTask: () = gatewayService.detectGateway()
-        async let scanTask: () = deviceDiscoveryService.scanNetwork()
-        
-        await gatewayTask
-        await scanTask
+        await gatewayService.detectGateway()
+        await deviceDiscoveryService.scanNetwork(subnet: nil)
     }
 }

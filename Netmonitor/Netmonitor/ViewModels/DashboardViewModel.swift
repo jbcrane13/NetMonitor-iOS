@@ -7,18 +7,18 @@ final class DashboardViewModel {
     private(set) var isRefreshing = false
     private(set) var sessionStartTime: Date
     
-    let networkMonitor: NetworkMonitorService
-    let wifiService: WiFiInfoService
-    let gatewayService: GatewayService
-    let publicIPService: PublicIPService
-    let deviceDiscoveryService: DeviceDiscoveryService
+    let networkMonitor: any NetworkMonitorServiceProtocol
+    let wifiService: any WiFiInfoServiceProtocol
+    let gatewayService: any GatewayServiceProtocol
+    let publicIPService: any PublicIPServiceProtocol
+    let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     
     init(
-        networkMonitor: NetworkMonitorService = .init(),
-        wifiService: WiFiInfoService = .init(),
-        gatewayService: GatewayService = .init(),
-        publicIPService: PublicIPService = .init(),
-        deviceDiscoveryService: DeviceDiscoveryService = .init()
+        networkMonitor: any NetworkMonitorServiceProtocol = NetworkMonitorService(),
+        wifiService: any WiFiInfoServiceProtocol = WiFiInfoService(),
+        gatewayService: any GatewayServiceProtocol = GatewayService(),
+        publicIPService: any PublicIPServiceProtocol = PublicIPService(),
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService()
     ) {
         self.networkMonitor = networkMonitor
         self.wifiService = wifiService
@@ -92,15 +92,12 @@ final class DashboardViewModel {
         
         wifiService.refreshWiFiInfo()
         
-        async let gatewayTask: () = gatewayService.detectGateway()
-        async let publicIPTask: () = publicIPService.fetchPublicIP(forceRefresh: true)
-        
-        await gatewayTask
-        await publicIPTask
+        await gatewayService.detectGateway()
+        await publicIPService.fetchPublicIP(forceRefresh: true)
     }
     
     func startDeviceScan() async {
-        await deviceDiscoveryService.scanNetwork()
+        await deviceDiscoveryService.scanNetwork(subnet: nil)
     }
     
     func stopDeviceScan() {

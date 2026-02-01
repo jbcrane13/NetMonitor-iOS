@@ -23,6 +23,7 @@
 		3265D18FD8004ECCE5E32DA6 /* WakeOnLANToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22BEC63DF690D795CAF710F /* WakeOnLANToolViewModel.swift */; };
 		32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */; };
 		3BE8993F1F9B0295A1871DDF /* PortScannerToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0B9A9C61281712842689A6 /* PortScannerToolViewModel.swift */; };
+		3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A684E333115E6A9D9307FB /* ServiceProtocols.swift */; };
 		419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */; };
 		44CCEC66245ABF29E99416B1 /* PingToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */; };
 		4E4E74A8FDC010A0D5D7F016 /* PortScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D0639915AD65E638EEDD4F /* PortScannerService.swift */; };
@@ -113,6 +114,7 @@
 		58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
 		5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapViewModel.swift; sourceTree = "<group>"; };
 		5FA287DBFBE09678EC985C93 /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
+		61A684E333115E6A9D9307FB /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
 		666B7D3676F199D98F8CDAE6 /* PingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingService.swift; sourceTree = "<group>"; };
 		66834196F05AEFC207F67B35 /* NetworkMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapView.swift; sourceTree = "<group>"; };
 		7002A651D1A034719D2422FD /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
@@ -305,6 +307,7 @@
 				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
 				C2D0639915AD65E638EEDD4F /* PortScannerService.swift */,
 				C207EB5D98191A0B7F0C582B /* PublicIPService.swift */,
+				61A684E333115E6A9D9307FB /* ServiceProtocols.swift */,
 				9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */,
 				52FF2D8858DC7777706B50FF /* TracerouteService.swift */,
 				3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */,
@@ -487,6 +490,7 @@
 				732AA69F1B1BC34179E36777 /* PortScannerToolView.swift in Sources */,
 				3BE8993F1F9B0295A1871DDF /* PortScannerToolViewModel.swift in Sources */,
 				506524F1FFC2B56EAFC59961 /* PublicIPService.swift in Sources */,
+				3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */,
 				A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */,
 				64F772407662E1179C6BFEC7 /* SettingsViewModel.swift in Sources */,
 				DA041C1DB8E0898E61A69C24 /* SpeedTestService.swift in Sources */,

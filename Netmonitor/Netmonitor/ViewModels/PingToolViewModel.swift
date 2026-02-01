@@ -22,8 +22,12 @@ final class PingToolViewModel {
 
     // MARK: - Dependencies
 
-    private let pingService = PingService()
+    private let pingService: any PingServiceProtocol
     private var pingTask: Task<Void, Never>?
+
+    init(pingService: any PingServiceProtocol = PingService()) {
+        self.pingService = pingService
+    }
 
     // MARK: - Computed Properties
 
@@ -42,7 +46,8 @@ final class PingToolViewModel {
         pingTask = Task {
             let stream = await pingService.ping(
                 host: host.trimmingCharacters(in: .whitespaces),
-                count: pingCount
+                count: pingCount,
+                timeout: 5
             )
 
             for await result in stream {
