@@ -8,6 +8,7 @@ final class PortScannerToolViewModel {
 
     var host: String = ""
     var portPreset: PortScanPreset = .common
+    var customRange: PortRange = PortRange()
 
     // MARK: - State Properties
 
@@ -24,15 +25,23 @@ final class PortScannerToolViewModel {
     // MARK: - Computed Properties
 
     var canStartScan: Bool {
-        !host.trimmingCharacters(in: .whitespaces).isEmpty && !isRunning
+        !host.trimmingCharacters(in: .whitespaces).isEmpty && !isRunning && totalPorts > 0
     }
 
     var openPorts: [PortScanResult] {
         results.filter { $0.state == .open }
     }
 
+    /// The effective list of ports to scan based on preset or custom range
+    var effectivePorts: [Int] {
+        if portPreset.isCustom {
+            return customRange.ports
+        }
+        return portPreset.ports
+    }
+
     var totalPorts: Int {
-        portPreset.ports.count
+        effectivePorts.count
     }
 
     var progress: Double {
@@ -49,10 +58,12 @@ final class PortScannerToolViewModel {
         isRunning = true
         scannedCount = 0
 
+        let ports = effectivePorts
+
         scanTask = Task {
             let stream = await portScannerService.scan(
                 host: host.trimmingCharacters(in: .whitespaces),
-                ports: portPreset.ports
+                ports: ports
             )
 
             for await result in stream {

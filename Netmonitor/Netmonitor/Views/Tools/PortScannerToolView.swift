@@ -47,7 +47,7 @@ struct PortScannerToolView: View {
                 Spacer()
 
                 Picker("Range", selection: $viewModel.portPreset) {
-                    ForEach(PortScanPreset.allCases.filter { $0 != .custom }, id: \.self) { preset in
+                    ForEach(PortScanPreset.allCases, id: \.self) { preset in
                         Text(preset.displayName).tag(preset)
                     }
                 }
@@ -56,6 +56,40 @@ struct PortScannerToolView: View {
                 .accessibilityIdentifier("portScanner_picker_range")
             }
             .padding(.horizontal, 4)
+
+            if viewModel.portPreset.isCustom {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Start")
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                        TextField("1", value: $viewModel.customRange.start, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .keyboardType(.numberPad)
+                            .accessibilityIdentifier("portScanner_input_startPort")
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("End")
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                        TextField("1024", value: $viewModel.customRange.end, format: .number)
+                            .textFieldStyle(.roundedBorder)
+                            .keyboardType(.numberPad)
+                            .accessibilityIdentifier("portScanner_input_endPort")
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Ports")
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                        Text("\(viewModel.customRange.count)")
+                            .font(.subheadline)
+                            .foregroundStyle(viewModel.customRange.isValid ? Theme.Colors.accent : Theme.Colors.error)
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
         }
     }
 

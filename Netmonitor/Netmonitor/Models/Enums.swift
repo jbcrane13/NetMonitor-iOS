@@ -245,13 +245,48 @@ enum PortScanPreset: String, CaseIterable, Sendable {
 
     var ports: [Int] {
         switch self {
-        case .common: [20, 21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 993, 995, 3306, 3389, 5432, 5900, 8080, 8443]
+        case .common: PortScanPreset.commonPorts
         case .wellKnown: Array(1...1024)
         case .extended: Array(1...10000)
-        case .web: [80, 443, 8080, 8443, 3000, 5000, 8000]
-        case .database: [1433, 1521, 3306, 5432, 6379, 27017]
-        case .mail: [25, 110, 143, 465, 587, 993, 995]
+        case .web: PortScanPreset.webPorts
+        case .database: PortScanPreset.databasePorts
+        case .mail: PortScanPreset.mailPorts
         case .custom: []
         }
+    }
+
+    /// Whether this preset requires user-provided port range input
+    var isCustom: Bool { self == .custom }
+
+    // MARK: - Shared Port Lists
+
+    static let commonPorts: [Int] = [20, 21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 993, 995, 3306, 3389, 5432, 5900, 8080, 8443]
+    static let webPorts: [Int] = [80, 443, 8080, 8443, 3000, 5000, 8000]
+    static let databasePorts: [Int] = [1433, 1521, 3306, 5432, 6379, 27017]
+    static let mailPorts: [Int] = [25, 110, 143, 465, 587, 993, 995]
+}
+
+/// Represents a custom port range for scanning
+struct PortRange: Sendable, Equatable {
+    var start: Int
+    var end: Int
+
+    init(start: Int = 1, end: Int = 1024) {
+        self.start = max(1, min(start, 65535))
+        self.end = max(1, min(end, 65535))
+    }
+
+    var isValid: Bool {
+        start >= 1 && end <= 65535 && start <= end
+    }
+
+    var ports: [Int] {
+        guard isValid else { return [] }
+        return Array(start...end)
+    }
+
+    var count: Int {
+        guard isValid else { return 0 }
+        return end - start + 1
     }
 }
