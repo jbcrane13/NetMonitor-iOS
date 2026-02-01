@@ -91,7 +91,18 @@ final class SettingsViewModel {
         ProcessInfo.processInfo.operatingSystemVersionString
     }
 
+    // MARK: - Cache Info
+
+    var cacheSize: String {
+        let size = calculateCacheSize()
+        return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+    }
+
+    private(set) var isClearingCache: Bool = false
+    private(set) var clearCacheSuccess: Bool = false
+
     // MARK: - Data Management
+
     func clearAllHistory(modelContext: ModelContext) {
         do {
             try modelContext.delete(model: ToolResult.self)
@@ -110,5 +121,85 @@ final class SettingsViewModel {
         } catch {
             print("Failed to save after clearing history: \(error)")
         }
+    }
+
+    func clearAllCachedData(modelContext: ModelContext) {
+        isClearingCache = true
+        clearCacheSuccess = false
+
+        // 1. Clear all SwiftData model stores
+        let modelTypes: [any PersistentModel.Type] = [
+            ToolResult.self,
+            SpeedTestResult.self,
+            LocalDevice.self,
+            MonitoringTarget.self,
+            PairedMac.self
+        ]
+
+        for modelType in modelTypes {
+            do {
+                try modelContext.delete(model: modelType)
+            } catch {
+                print("Failed to delete \(modelType): \(error)")
+            }
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save after clearing data: \(error)")
+        }
+
+        // 2. Clear URLCache
+        URLCache.shared.removeAllCachedResponses()
+
+        // 3. Clear tmp directory
+        clearDirectory(at: FileManager.default.temporaryDirectory)
+
+        // 4. Clear Caches directory
+        if let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            clearDirectory(at: cachesDir)
+        }
+
+        // 5. Clear UserDefaults cache-related keys (not settings)
+        // We keep user preferences but remove cached data keys if any
+
+        clearCacheSuccess = true
+        isClearingCache = false
+    }
+
+    private func clearDirectory(at url: URL) {
+        let fm = FileManager.default
+        guard let contents = try? fm.contentsOfDirectory(at: url, includingPropertiesForKeys: nil) else { return }
+        for file in contents {
+            try? fm.removeItem(at: file)
+        }
+    }
+
+    private func calculateCacheSize() -> Int64 {
+        var total: Int64 = 0
+        let fm = FileManager.default
+
+        // tmp directory
+        total += directorySize(at: fm.temporaryDirectory)
+
+        // Caches directory
+        if let cachesDir = fm.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            total += directorySize(at: cachesDir)
+        }
+
+        return total
+    }
+
+    private func directorySize(at url: URL) -> Int64 {
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                total += Int64(size)
+            }
+        }
+        return total
     }
 }

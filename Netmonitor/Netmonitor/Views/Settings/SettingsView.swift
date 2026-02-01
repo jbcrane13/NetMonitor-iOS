@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SettingsViewModel()
     @State private var showingClearHistoryAlert = false
+    @State private var showingClearCacheAlert = false
 
     var body: some View {
         List {
@@ -171,6 +172,22 @@ struct SettingsView: View {
                     }
                 }
                 .accessibilityIdentifier("settings_button_clearHistory")
+
+                Button {
+                    showingClearCacheAlert = true
+                } label: {
+                    HStack {
+                        Text("Clear All Cached Data")
+                            .foregroundStyle(Theme.Colors.error)
+                        Spacer()
+                        Text(viewModel.cacheSize)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                            .font(.caption)
+                        Image(systemName: "xmark.bin")
+                            .foregroundStyle(Theme.Colors.error)
+                    }
+                }
+                .accessibilityIdentifier("settings_button_clearCache")
             } header: {
                 Text("Data & Privacy")
                     .foregroundStyle(Theme.Colors.textSecondary)
@@ -260,6 +277,14 @@ struct SettingsView: View {
             }
         } message: {
             Text("This will permanently delete all tool results and speed test history. This action cannot be undone.")
+        }
+        .alert("Clear All Cached Data", isPresented: $showingClearCacheAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Clear All", role: .destructive) {
+                viewModel.clearAllCachedData(modelContext: modelContext)
+            }
+        } message: {
+            Text("This will delete all stored data including tool results, speed tests, discovered devices, monitoring targets, and file caches. This action cannot be undone.")
         }
         .accessibilityIdentifier("screen_settings")
     }
