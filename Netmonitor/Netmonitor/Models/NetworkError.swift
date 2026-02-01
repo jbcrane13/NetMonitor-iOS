@@ -7,6 +7,10 @@ enum NetworkError: LocalizedError {
     case noNetwork
     case invalidHost
     case permissionDenied
+    case dnsLookupFailed
+    case serverError
+    case invalidResponse
+    case cancelled
     case unknown(Error)
 
     var errorDescription: String? {
@@ -16,6 +20,10 @@ enum NetworkError: LocalizedError {
         case .noNetwork: "No network connection available"
         case .invalidHost: "Invalid hostname or IP address"
         case .permissionDenied: "Permission denied"
+        case .dnsLookupFailed: "DNS lookup failed"
+        case .serverError: "Server returned an error"
+        case .invalidResponse: "Invalid response from server"
+        case .cancelled: "Operation was cancelled"
         case .unknown(let error): error.localizedDescription
         }
     }
@@ -27,7 +35,22 @@ enum NetworkError: LocalizedError {
         case .noNetwork: "No network connection. Please check your internet connection."
         case .invalidHost: "The hostname or IP address is invalid. Please check and try again."
         case .permissionDenied: "Network permission was denied. Please check your settings."
+        case .dnsLookupFailed: "DNS lookup failed. Please check the domain name and try again."
+        case .serverError: "The server returned an error. Please try again later."
+        case .invalidResponse: "Received an invalid response. Please try again."
+        case .cancelled: "The operation was cancelled."
         case .unknown: "An unexpected error occurred. Please try again."
         }
+    }
+
+    /// Convert from legacy error types
+    static func from(_ error: Error) -> NetworkError {
+        if let networkError = error as? NetworkError {
+            return networkError
+        }
+        if error is CancellationError {
+            return .cancelled
+        }
+        return .unknown(error)
     }
 }

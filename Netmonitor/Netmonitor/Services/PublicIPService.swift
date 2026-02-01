@@ -64,6 +64,7 @@ final class PublicIPService {
     }
 }
 
+/// Legacy alias — new code should use NetworkError directly
 enum PublicIPError: LocalizedError {
     case invalidResponse
     case decodingError
@@ -72,6 +73,13 @@ enum PublicIPError: LocalizedError {
         switch self {
         case .invalidResponse: "Invalid response from server"
         case .decodingError: "Could not parse response"
+        }
+    }
+
+    var asNetworkError: NetworkError {
+        switch self {
+        case .invalidResponse: .invalidResponse
+        case .decodingError: .invalidResponse
         }
     }
 }

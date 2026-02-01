@@ -366,6 +366,7 @@ private class QueryContext {
     }
 }
 
+/// Legacy alias — new code should use NetworkError directly
 enum DNSError: LocalizedError {
     case lookupFailed
     case timeout
@@ -374,6 +375,13 @@ enum DNSError: LocalizedError {
         switch self {
         case .lookupFailed: "DNS lookup failed"
         case .timeout: "DNS query timed out"
+        }
+    }
+
+    var asNetworkError: NetworkError {
+        switch self {
+        case .lookupFailed: .dnsLookupFailed
+        case .timeout: .timeout
         }
     }
 }

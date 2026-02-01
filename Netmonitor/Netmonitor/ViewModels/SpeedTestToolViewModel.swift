@@ -80,7 +80,7 @@ final class SpeedTestToolViewModel {
                 // User cancelled — no error
                 phase = .idle
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = NetworkError.from(error).userFacingMessage
                 phase = .idle
             }
             isRunning = false

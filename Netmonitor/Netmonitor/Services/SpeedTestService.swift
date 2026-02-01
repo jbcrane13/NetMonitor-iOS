@@ -245,6 +245,7 @@ private final class UploadProgressDelegate: NSObject, URLSessionTaskDelegate, Se
 
 // MARK: - Errors
 
+/// Legacy alias — new code should use NetworkError directly
 enum SpeedTestError: LocalizedError {
     case serverError
     case cancelled
@@ -253,6 +254,13 @@ enum SpeedTestError: LocalizedError {
         switch self {
         case .serverError: "Speed test server returned an error"
         case .cancelled: "Speed test was cancelled"
+        }
+    }
+
+    var asNetworkError: NetworkError {
+        switch self {
+        case .serverError: .serverError
+        case .cancelled: .cancelled
         }
     }
 }

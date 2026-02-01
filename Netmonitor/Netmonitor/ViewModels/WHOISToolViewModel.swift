@@ -39,7 +39,7 @@ final class WHOISToolViewModel {
         do {
             result = try await whoisService.lookup(query: domain.trimmingCharacters(in: .whitespaces))
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = NetworkError.from(error).userFacingMessage
         }
 
         isLoading = false
