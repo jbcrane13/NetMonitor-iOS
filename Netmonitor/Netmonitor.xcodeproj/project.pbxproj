@@ -69,6 +69,7 @@
 		C9CA0D1A7EA81E8A26E0A4CE /* SpeedTestToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2696588C988FC5442F9C41C1 /* SpeedTestToolView.swift */; };
 		CD39589B010EE8B9672B8083 /* NetworkUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6C836F46733E8C1871D2A9 /* NetworkUtilities.swift */; };
 		CD9620FF9979D47B492D819A /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7002A651D1A034719D2422FD /* ToolsView.swift */; };
+		CDB58D126FB987AED4CA46A6 /* BackgroundTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */; };
 		CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */; };
 		D7E8FBD05424FE8677213B74 /* TracerouteToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD13DBD10983D46386B3CB1 /* TracerouteToolView.swift */; };
 		DA041C1DB8E0898E61A69C24 /* SpeedTestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */; };
@@ -132,6 +133,7 @@
 		3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolViewModel.swift; sourceTree = "<group>"; };
 		43AF94739B269FC1575A7C64 /* BonjourDiscoveryToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryToolView.swift; sourceTree = "<group>"; };
 		475DD181BC184D12F5543624 /* ToolsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModel.swift; sourceTree = "<group>"; };
+		4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskService.swift; sourceTree = "<group>"; };
 		4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolView.swift; sourceTree = "<group>"; };
 		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 		7F584797DFC51E19130C9DF0 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */,
 				88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */,
 				5FA287DBFBE09678EC985C93 /* DataExportService.swift */,
 				7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */,
@@ -515,6 +518,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */,
+				CDB58D126FB987AED4CA46A6 /* BackgroundTaskService.swift in Sources */,
 				29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */,
 				0C7129BD9C6F7B71D7B217DC /* BonjourDiscoveryToolView.swift in Sources */,
 				15E4B5C7ED0C12C04F3BF9A3 /* BonjourDiscoveryToolViewModel.swift in Sources */,

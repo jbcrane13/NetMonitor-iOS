@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import BackgroundTasks
 
 @main
 struct NetmonitorApp: App {
@@ -28,6 +29,11 @@ struct NetmonitorApp: App {
         WindowGroup {
             ContentView()
                 .accessibilityIdentifier("screen_main")
+                .onAppear {
+                    BackgroundTaskService.shared.registerTasks()
+                    BackgroundTaskService.shared.scheduleRefreshTask()
+                    BackgroundTaskService.shared.scheduleSyncTask()
+                }
         }
         .modelContainer(sharedModelContainer)
     }
