@@ -8,17 +8,18 @@ struct DashboardView: View {
             ScrollView {
                 VStack(spacing: Theme.Layout.sectionSpacing) {
                     ConnectionStatusHeader(viewModel: viewModel)
-                    
+
                     SessionCard(viewModel: viewModel)
-                    
+
                     WiFiCard(viewModel: viewModel)
-                    
+
                     GatewayCard(viewModel: viewModel)
-                    
+
                     ISPCard(viewModel: viewModel)
-                    
+
                     LocalDevicesCard(viewModel: viewModel)
                 }
+                .padding(.top, 8)
                 .padding(.horizontal, Theme.Layout.screenPadding)
                 .padding(.bottom, Theme.Layout.sectionSpacing)
             }
