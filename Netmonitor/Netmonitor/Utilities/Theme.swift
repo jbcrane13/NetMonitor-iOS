@@ -151,8 +151,7 @@ extension Color {
 struct ThemedBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .background(Theme.Gradients.background)
-            .ignoresSafeArea()
+            .background(Theme.Gradients.background.ignoresSafeArea())
     }
 }
 
