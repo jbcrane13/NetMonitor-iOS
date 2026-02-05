@@ -1,0 +1,156 @@
+import XCTest
+
+/// UI tests for the Ping tool functionality
+final class PingToolUITests: XCTestCase {
+    
+    var app: XCUIApplication!
+    var pingScreen: PingToolScreen!
+    
+    override func setUp() {
+        super.setUp()
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launch()
+        
+        // Navigate to Ping tool
+        let toolsScreen = ToolsScreen(app: app)
+        toolsScreen.navigateToTools()
+        pingScreen = toolsScreen.openPingTool()
+    }
+    
+    override func tearDown() {
+        app = nil
+        pingScreen = nil
+        super.tearDown()
+    }
+    
+    // MARK: - Screen Display Tests
+    
+    func testPingToolScreenDisplays() {
+        XCTAssertTrue(pingScreen.isDisplayed(), "Ping tool screen should be displayed")
+    }
+    
+    func testHostInputFieldExists() {
+        XCTAssertTrue(
+            pingScreen.hostInput.waitForExistence(timeout: 5),
+            "Host input field should exist"
+        )
+    }
+    
+    func testPingCountPickerExists() {
+        XCTAssertTrue(
+            pingScreen.countPicker.waitForExistence(timeout: 5),
+            "Ping count picker should exist"
+        )
+    }
+    
+    func testRunButtonExists() {
+        XCTAssertTrue(
+            pingScreen.runButton.waitForExistence(timeout: 5),
+            "Run button should exist"
+        )
+    }
+    
+    // MARK: - Input Tests
+    
+    func testCanEnterHostname() {
+        pingScreen.enterHost("google.com")
+        
+        // Verify text was entered
+        XCTAssertEqual(
+            pingScreen.hostInput.value as? String,
+            "google.com",
+            "Host input should contain entered text"
+        )
+    }
+    
+    func testCanEnterIPAddress() {
+        pingScreen.enterHost("8.8.8.8")
+        
+        XCTAssertEqual(
+            pingScreen.hostInput.value as? String,
+            "8.8.8.8",
+            "Host input should contain entered IP address"
+        )
+    }
+    
+    // MARK: - Execution Tests
+    
+    func testCanStartPing() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+        
+        // Button text should change to indicate running state or results should appear
+        // Give some time for ping to start
+        let expectation = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == true"),
+            object: pingScreen.resultsSection
+        )
+        
+        let result = XCTWaiter.wait(for: [expectation], timeout: 15)
+        XCTAssertEqual(result, .completed, "Ping should produce results")
+    }
+    
+    func testPingShowsResults() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+        
+        XCTAssertTrue(
+            pingScreen.waitForResults(timeout: 30),
+            "Ping results should be displayed"
+        )
+    }
+    
+    func testPingShowsStatistics() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+        
+        XCTAssertTrue(
+            pingScreen.waitForStatistics(timeout: 30),
+            "Ping statistics should be displayed after completion"
+        )
+    }
+    
+    // MARK: - Clear Results Tests
+    
+    func testClearButtonAppearsAfterPing() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+        
+        _ = pingScreen.waitForStatistics(timeout: 30)
+        
+        XCTAssertTrue(
+            pingScreen.clearButton.waitForExistence(timeout: 5),
+            "Clear button should appear after ping completes"
+        )
+    }
+    
+    func testCanClearResults() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+        
+        _ = pingScreen.waitForStatistics(timeout: 30)
+        
+        pingScreen.clearResults()
+        
+        // Results section should no longer exist
+        XCTAssertFalse(
+            pingScreen.resultsSection.exists,
+            "Results should be cleared"
+        )
+    }
+    
+    // MARK: - Navigation Tests
+    
+    func testCanNavigateBack() {
+        pingScreen.navigateBack()
+        
+        let toolsScreen = ToolsScreen(app: app)
+        XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+}

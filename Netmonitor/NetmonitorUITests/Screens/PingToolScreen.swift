@@ -1,0 +1,92 @@
+import XCTest
+
+/// Ping Tool screen page object
+final class PingToolScreen: BaseScreen {
+    
+    // MARK: - Screen Identifier
+    var screen: XCUIElement {
+        app.otherElements["screen_pingTool"]
+    }
+    
+    // MARK: - Input Elements
+    var hostInput: XCUIElement {
+        app.textFields["pingTool_input_host"]
+    }
+    
+    var countPicker: XCUIElement {
+        app.buttons["pingTool_picker_count"]
+    }
+    
+    // MARK: - Control Buttons
+    var runButton: XCUIElement {
+        app.buttons["pingTool_button_run"]
+    }
+    
+    var clearButton: XCUIElement {
+        app.buttons["pingTool_button_clear"]
+    }
+    
+    // MARK: - Results
+    var resultsSection: XCUIElement {
+        app.otherElements["pingTool_section_results"]
+    }
+    
+    var statisticsCard: XCUIElement {
+        app.otherElements["pingTool_card_statistics"]
+    }
+    
+    var packetsCard: XCUIElement {
+        app.otherElements["pingTool_card_packets"]
+    }
+    
+    // MARK: - Verification
+    func isDisplayed() -> Bool {
+        waitForElement(screen)
+    }
+    
+    // MARK: - Actions
+    @discardableResult
+    func enterHost(_ host: String) -> Self {
+        if hostInput.waitForExistence(timeout: timeout) {
+            hostInput.tap()
+            hostInput.typeText(host)
+        }
+        return self
+    }
+    
+    @discardableResult
+    func startPing() -> Self {
+        tapIfExists(runButton)
+        return self
+    }
+    
+    @discardableResult
+    func stopPing() -> Self {
+        tapIfExists(runButton)
+        return self
+    }
+    
+    @discardableResult
+    func clearResults() -> Self {
+        tapIfExists(clearButton)
+        return self
+    }
+    
+    func waitForResults(timeout: TimeInterval = 30) -> Bool {
+        resultsSection.waitForExistence(timeout: timeout)
+    }
+    
+    func waitForStatistics(timeout: TimeInterval = 30) -> Bool {
+        statisticsCard.waitForExistence(timeout: timeout)
+    }
+    
+    /// Get count of result rows
+    func getResultCount() -> Int {
+        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'pingTool_result_'")).count
+    }
+    
+    /// Navigate back to Tools
+    func navigateBack() {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
+}
