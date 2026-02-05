@@ -150,21 +150,35 @@ final class SpeedTestService: NSObject {
 
         let expectedLength = httpResponse.expectedContentLength
         var totalReceived: Int64 = 0
+        var buffer = Data()
+        buffer.reserveCapacity(8192) // Pre-allocate for performance
 
-        for try await _ in bytes {
-            totalReceived += 1
-            if expectedLength > 0 {
-                let newProgress = Double(totalReceived) / Double(expectedLength)
-                // Update progress at intervals to avoid UI thrashing
-                if Int(newProgress * 100) > Int(progress * 100) {
-                    progress = min(newProgress, 1.0)
-                    let elapsed = Date().timeIntervalSince(start)
-                    if elapsed > 0.1 {
-                        downloadSpeed = Double(totalReceived * 8) / elapsed / 1_000_000
+        for try await byte in bytes {
+            buffer.append(byte)
+            
+            // Process in chunks to improve performance
+            if buffer.count >= 8192 || (expectedLength > 0 && totalReceived + Int64(buffer.count) >= expectedLength) {
+                totalReceived += Int64(buffer.count)
+                buffer.removeAll(keepingCapacity: true)
+                
+                if expectedLength > 0 {
+                    let newProgress = Double(totalReceived) / Double(expectedLength)
+                    // Update progress at intervals to avoid UI thrashing
+                    if Int(newProgress * 100) > Int(progress * 100) {
+                        progress = min(newProgress, 1.0)
+                        let elapsed = Date().timeIntervalSince(start)
+                        if elapsed > 0.1 {
+                            downloadSpeed = Double(totalReceived * 8) / elapsed / 1_000_000
+                        }
                     }
                 }
+                try Task.checkCancellation()
             }
-            try Task.checkCancellation()
+        }
+        
+        // Process any remaining bytes
+        if !buffer.isEmpty {
+            totalReceived += Int64(buffer.count)
         }
 
         let elapsed = Date().timeIntervalSince(start)
