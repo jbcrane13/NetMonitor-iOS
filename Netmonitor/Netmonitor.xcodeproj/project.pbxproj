@@ -104,6 +104,10 @@
 		F3C9B852652E69E7847B8801 /* ToolsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D7A67DB0C2408DDC15FAF1 /* ToolsScreen.swift */; };
 		F4027F034FAB6EA97490C118 /* TracerouteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52FF2D8858DC7777706B50FF /* TracerouteService.swift */; };
 		F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */; };
+		AA11BB01COMPANION0001AAAA /* CompanionMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB02COMPANION0002AAAA /* CompanionMessage.swift */; };
+		AA11BB03MACCONN000003AAAA /* MacConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB04MACCONN000004AAAA /* MacConnectionService.swift */; };
+		AA11BB05MACPAIR000005AAAA /* MacPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB06MACPAIR000006AAAA /* MacPairingView.swift */; };
+		AA11BB07CONNSEC000007AAAA /* ConnectionSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB08CONNSEC000008AAAA /* ConnectionSettingsSection.swift */; };
 		F718105BDBE5F0B48DA691C4 /* LocalDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02BE60C3159EA13BBE3A88BA /* LocalDevice.swift */; };
 		F92F99F9B06EA4A9DA9EDC51 /* PingToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */; };
 		FD20EFB97591DD3C54D9C65C /* WakeOnLANToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59B9B70E6692112DF8019BF /* WakeOnLANToolScreen.swift */; };
@@ -253,6 +257,10 @@
 		FB129EC3165CBDEDE8804667 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		FF9788D39F038C283A32FAA2 /* ToolInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolInputField.swift; sourceTree = "<group>"; };
 		FFAAAE5D3014C1E5B23378FD /* PortScannerToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerToolScreen.swift; sourceTree = "<group>"; };
+		AA11BB02COMPANION0002AAAA /* CompanionMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionMessage.swift; sourceTree = "<group>"; };
+		AA11BB04MACCONN000004AAAA /* MacConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacConnectionService.swift; sourceTree = "<group>"; };
+		AA11BB06MACPAIR000006AAAA /* MacPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPairingView.swift; sourceTree = "<group>"; };
+		AA11BB08CONNSEC000008AAAA /* ConnectionSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionSettingsSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -279,6 +287,7 @@
 		15F7ADC82B886D7F63C47C7D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				AA11BB02COMPANION0002AAAA /* CompanionMessage.swift */,
 				294323B8D7590D23A94BAF7D /* Enums.swift */,
 				02BE60C3159EA13BBE3A88BA /* LocalDevice.swift */,
 				9E923657203E10C881ED154E /* MonitoringTarget.swift */,
@@ -421,6 +430,7 @@
 				7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */,
 				D57264957B282936BB6CC799 /* DNSLookupService.swift */,
 				A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */,
+				AA11BB04MACCONN000004AAAA /* MacConnectionService.swift */,
 				58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */,
 				3330E2C0C120D6F9187854C1 /* NotificationService.swift */,
 				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
@@ -504,6 +514,8 @@
 			isa = PBXGroup;
 			children = (
 				7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */,
+				AA11BB08CONNSEC000008AAAA /* ConnectionSettingsSection.swift */,
+				AA11BB06MACPAIR000006AAAA /* MacPairingView.swift */,
 				87D89D07B0E8D95EB1314E86 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -664,6 +676,8 @@
 				0C7129BD9C6F7B71D7B217DC /* BonjourDiscoveryToolView.swift in Sources */,
 				15E4B5C7ED0C12C04F3BF9A3 /* BonjourDiscoveryToolViewModel.swift in Sources */,
 				6DF9E468436DC233C0A8AE12 /* ConcurrencyHelpers.swift in Sources */,
+				AA11BB01COMPANION0001AAAA /* CompanionMessage.swift in Sources */,
+				AA11BB07CONNSEC000007AAAA /* ConnectionSettingsSection.swift in Sources */,
 				5660E8DE88C207CD78745048 /* ContentView.swift in Sources */,
 				853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */,
 				C88FE784FCEAC565A2B97A6C /* DNSLookupToolView.swift in Sources */,
@@ -678,6 +692,8 @@
 				CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */,
 				32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */,
 				F718105BDBE5F0B48DA691C4 /* LocalDevice.swift in Sources */,
+				AA11BB03MACCONN000003AAAA /* MacConnectionService.swift in Sources */,
+				AA11BB05MACPAIR000005AAAA /* MacPairingView.swift in Sources */,
 				B93B4C2F2439E56ECB464C84 /* MetricCard.swift in Sources */,
 				AB95EB4D3560B73FBB78E6DD /* MonitoringTarget.swift in Sources */,
 				C1C4F42F718B71BE5DD9C1CC /* NetmonitorApp.swift in Sources */,

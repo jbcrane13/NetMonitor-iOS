@@ -51,21 +51,45 @@ struct DashboardView: View {
 
 struct ConnectionStatusHeader: View {
     let viewModel: DashboardViewModel
-    
+    var macConnectionService: MacConnectionService?
+
+    private var isMacConnected: Bool {
+        macConnectionService?.connectionState.isConnected == true
+    }
+
+    private var macName: String? {
+        macConnectionService?.connectedMacName
+    }
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Standalone Mode")
-                    .font(.headline)
-                    .foregroundStyle(Theme.Colors.textPrimary)
+                if isMacConnected, let name = macName {
+                    Text("Connected to \(name)")
+                        .font(.headline)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                } else {
+                    Text("Standalone Mode")
+                        .font(.headline)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
                 Text(viewModel.connectionStatusText)
                     .font(.caption)
                     .foregroundStyle(Theme.Colors.textSecondary)
             }
-            
+
             Spacer()
-            
-            StatusBadge(status: viewModel.isConnected ? .online : .offline, size: .small)
+
+            if isMacConnected {
+                HStack(spacing: 6) {
+                    Image(systemName: "desktopcomputer")
+                        .font(.caption)
+                        .foregroundStyle(Theme.Colors.success)
+                    StatusDot(status: .online, size: 8, animated: true)
+                }
+            } else {
+                StatusBadge(status: viewModel.isConnected ? .online : .offline, size: .small)
+            }
         }
         .padding(.top, Theme.Layout.smallCornerRadius)
         .accessibilityIdentifier("dashboard_header_connectionStatus")

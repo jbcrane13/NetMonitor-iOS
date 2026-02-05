@@ -11,9 +11,21 @@ struct SettingsView: View {
     @State private var showingClearCacheAlert = false
     @State private var showingExportSheet = false
     @State private var exportFileURL: URL?
+    @State private var showingPairingSheet = false
+    @State var connectionService: MacConnectionService?
 
     var body: some View {
         List {
+            // MARK: - Mac Companion Section
+            ConnectionSettingsSection(
+                connectionService: connectionService,
+                showPairingSheet: $showingPairingSheet,
+                onDisconnect: {
+                    connectionService?.disconnect()
+                    connectionService = nil
+                }
+            )
+
             // MARK: - Network Tools Section
             Section {
                 HStack {
@@ -322,6 +334,11 @@ struct SettingsView: View {
         .sheet(isPresented: $showingExportSheet) {
             if let url = exportFileURL {
                 ShareSheet(activityItems: [url])
+            }
+        }
+        .sheet(isPresented: $showingPairingSheet) {
+            MacPairingView { service in
+                connectionService = service
             }
         }
     }
