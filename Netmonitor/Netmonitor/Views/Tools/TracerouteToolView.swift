@@ -34,13 +34,13 @@ struct TracerouteToolView: View {
                 placeholder: "Enter hostname or IP address",
                 icon: "point.topleft.down.to.point.bottomright.curvepath",
                 keyboardType: .URL,
+                accessibilityID: "tracerouteTool_input_host",
                 onSubmit: {
                     if viewModel.canStartTrace {
                         viewModel.startTrace()
                     }
                 }
             )
-            .accessibilityIdentifier("tracerouteTool_input_host")
 
             // Max hops picker
             HStack {

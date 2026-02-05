@@ -35,13 +35,13 @@ struct PingToolView: View {
                 placeholder: "Enter hostname or IP address",
                 icon: "network",
                 keyboardType: .URL,
+                accessibilityID: "pingTool_input_host",
                 onSubmit: {
                     if viewModel.canStartPing {
                         viewModel.startPing()
                     }
                 }
             )
-            .accessibilityIdentifier("pingTool_input_host")
 
             // Ping count picker
             HStack {

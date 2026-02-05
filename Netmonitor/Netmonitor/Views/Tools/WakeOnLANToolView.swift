@@ -36,13 +36,13 @@ struct WakeOnLANToolView: View {
                     placeholder: "Enter MAC address (e.g., AA:BB:CC:DD:EE:FF)",
                     icon: "network",
                     autocapitalization: .characters,
+                    accessibilityID: "wol_input_mac",
                     onSubmit: {
                         if viewModel.canSend {
                             Task { await viewModel.sendWakePacket() }
                         }
                     }
                 )
-                .accessibilityIdentifier("wol_input_mac")
 
                 if !viewModel.macAddress.isEmpty {
                     HStack {
@@ -73,9 +73,9 @@ struct WakeOnLANToolView: View {
                     text: $viewModel.broadcastAddress,
                     placeholder: "255.255.255.255",
                     icon: "antenna.radiowaves.left.and.right",
-                    keyboardType: .numbersAndPunctuation
+                    keyboardType: .numbersAndPunctuation,
+                    accessibilityID: "wol_input_broadcast"
                 )
-                .accessibilityIdentifier("wol_input_broadcast")
 
                 Text("Usually 255.255.255.255 for local network")
                     .font(.caption)

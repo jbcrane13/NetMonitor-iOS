@@ -7,6 +7,7 @@ struct ToolInputField: View {
     let icon: String
     var keyboardType: UIKeyboardType = .default
     var autocapitalization: TextInputAutocapitalization = .never
+    var accessibilityID: String? = nil
     var onSubmit: (() -> Void)? = nil
 
     var body: some View {
@@ -25,6 +26,7 @@ struct ToolInputField: View {
                 .onSubmit {
                     onSubmit?()
                 }
+                .accessibilityIdentifier(accessibilityID ?? "toolInput_\(icon)")
 
             if !text.isEmpty {
                 Button {
@@ -33,7 +35,7 @@ struct ToolInputField: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(Theme.Colors.textTertiary)
                 }
-                .accessibilityIdentifier("toolInput_button_clear")
+                .accessibilityIdentifier("\(accessibilityID ?? "toolInput")_button_clear")
             }
         }
         .padding(.horizontal, 16)
@@ -46,7 +48,6 @@ struct ToolInputField: View {
             RoundedRectangle(cornerRadius: Theme.Layout.buttonCornerRadius)
                 .stroke(Theme.Colors.glassBorder, lineWidth: 1)
         )
-        .accessibilityIdentifier("toolInput_\(icon)")
     }
 }
 

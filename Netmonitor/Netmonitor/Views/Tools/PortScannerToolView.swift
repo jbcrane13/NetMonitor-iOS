@@ -34,9 +34,9 @@ struct PortScannerToolView: View {
                 text: $viewModel.host,
                 placeholder: "Enter hostname or IP address",
                 icon: "door.left.hand.open",
-                keyboardType: .URL
+                keyboardType: .URL,
+                accessibilityID: "portScanner_input_host"
             )
-            .accessibilityIdentifier("portScanner_input_host")
 
             // Port range picker
             HStack {

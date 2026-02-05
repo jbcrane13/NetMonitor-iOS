@@ -34,13 +34,13 @@ struct WHOISToolView: View {
                 placeholder: "Enter domain name (e.g., example.com)",
                 icon: "doc.text.magnifyingglass",
                 keyboardType: .URL,
+                accessibilityID: "whois_input_domain",
                 onSubmit: {
                     if viewModel.canStartLookup {
                         Task { await viewModel.lookup() }
                     }
                 }
             )
-            .accessibilityIdentifier("whois_input_domain")
         }
     }
 

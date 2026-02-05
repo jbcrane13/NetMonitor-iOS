@@ -34,13 +34,13 @@ struct DNSLookupToolView: View {
                 placeholder: "Enter domain name",
                 icon: "globe",
                 keyboardType: .URL,
+                accessibilityID: "dnsLookup_input_domain",
                 onSubmit: {
                     if viewModel.canStartLookup {
                         Task { await viewModel.lookup() }
                     }
                 }
             )
-            .accessibilityIdentifier("dnsLookup_input_domain")
 
             // Record type picker
             HStack {
