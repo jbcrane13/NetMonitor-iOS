@@ -98,12 +98,16 @@ final class BonjourDiscoveryService {
                 browseServiceType(type)
             }
 
-            DispatchQueue.global().asyncAfter(deadline: .now() + 10) { [weak self] in
+            // IMPROVED: More reasonable timeout for type browsers (30s instead of 10s)
+            // and better cleanup to prevent premature cancellation
+            DispatchQueue.global().asyncAfter(deadline: .now() + 30) { [weak self] in
                 Task { @MainActor [weak self] in
-                    for typeBrowser in self?.typeBrowsers ?? [] {
+                    // Only cancel if still discovering to avoid interfering with manual stops
+                    guard let self = self, self.isDiscovering else { return }
+                    for typeBrowser in self.typeBrowsers {
                         typeBrowser.cancel()
                     }
-                    self?.typeBrowsers.removeAll()
+                    self.typeBrowsers.removeAll()
                 }
             }
         }
