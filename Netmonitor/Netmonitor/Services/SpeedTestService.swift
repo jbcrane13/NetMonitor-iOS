@@ -150,40 +150,53 @@ final class SpeedTestService: NSObject {
 
         let expectedLength = httpResponse.expectedContentLength
         var totalReceived: Int64 = 0
+        let chunkSize = 64 * 1024 // 64KB chunks for better performance
         var buffer = Data()
-        buffer.reserveCapacity(8192) // Pre-allocate for performance
+        buffer.reserveCapacity(chunkSize)
+        
+        downloadBytesReceived = 0
+        downloadStartTime = start
 
+        // FIXED: Process bytes in efficient chunks instead of byte-by-byte
         for try await byte in bytes {
             buffer.append(byte)
             
-            // Process in chunks to improve performance
-            if buffer.count >= 8192 || (expectedLength > 0 && totalReceived + Int64(buffer.count) >= expectedLength) {
-                totalReceived += Int64(buffer.count)
+            // Process in larger chunks for better performance
+            if buffer.count >= chunkSize || (expectedLength > 0 && totalReceived + Int64(buffer.count) >= expectedLength) {
+                let chunkBytes = Int64(buffer.count)
+                totalReceived += chunkBytes
+                downloadBytesReceived = totalReceived
                 buffer.removeAll(keepingCapacity: true)
                 
+                // Update progress and speed more efficiently
                 if expectedLength > 0 {
                     let newProgress = Double(totalReceived) / Double(expectedLength)
-                    // Update progress at intervals to avoid UI thrashing
-                    if Int(newProgress * 100) > Int(progress * 100) {
-                        progress = min(newProgress, 1.0)
-                        let elapsed = Date().timeIntervalSince(start)
-                        if elapsed > 0.1 {
-                            downloadSpeed = Double(totalReceived * 8) / elapsed / 1_000_000
-                        }
+                    progress = min(newProgress, 1.0)
+                    
+                    let elapsed = Date().timeIntervalSince(start)
+                    if elapsed > 0.1 { // Update speed every 100ms minimum
+                        downloadSpeed = Double(totalReceived * 8) / elapsed / 1_000_000
                     }
                 }
+                
                 try Task.checkCancellation()
             }
         }
         
         // Process any remaining bytes
         if !buffer.isEmpty {
-            totalReceived += Int64(buffer.count)
+            let remainingBytes = Int64(buffer.count)
+            totalReceived += remainingBytes
+            downloadBytesReceived = totalReceived
         }
 
         let elapsed = Date().timeIntervalSince(start)
         guard elapsed > 0 else { return 0 }
-        return Double(totalReceived * 8) / elapsed / 1_000_000  // bits to Mbps
+        
+        // Final speed calculation
+        let speedMbps = Double(totalReceived * 8) / elapsed / 1_000_000
+        downloadSpeed = speedMbps
+        return speedMbps
     }
 
     // MARK: - Upload Measurement
