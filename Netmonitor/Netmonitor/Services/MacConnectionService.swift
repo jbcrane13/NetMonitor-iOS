@@ -325,7 +325,7 @@ final class MacConnectionService: MacConnectionServiceProtocol {
         case .deviceList(let payload):
             lastDeviceList = payload
         case .toolResult(let payload):
-            print("[MacConnectionService] Tool result: \(payload.toolName) - \(payload.success)")
+            print("[MacConnectionService] Tool result: \(payload.tool) - \(payload.success)")
         case .error(let payload):
             print("[MacConnectionService] Error from Mac: \(payload.message)")
         case .heartbeat:
@@ -352,8 +352,8 @@ final class MacConnectionService: MacConnectionServiceProtocol {
 
     private func sendHeartbeat() async {
         let message = CompanionMessage.heartbeat(HeartbeatPayload(
-            version: Self.heartbeatVersion,
-            timestamp: Date()
+            timestamp: Date(),
+            version: Self.heartbeatVersion
         ))
         do {
             let data = try message.encodeLengthPrefixed()

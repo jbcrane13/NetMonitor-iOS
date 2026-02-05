@@ -19,7 +19,7 @@ final class PairedMac {
         name: String,
         hostname: String? = nil,
         ipAddress: String? = nil,
-        port: Int = 5555,
+        port: Int = 8849,
         lastConnected: Date? = nil,
         isPrimary: Bool = false,
         isConnected: Bool = false,

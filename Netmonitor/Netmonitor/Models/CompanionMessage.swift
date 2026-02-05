@@ -108,13 +108,14 @@ struct TargetListPayload: Codable, Sendable {
 }
 
 struct TargetInfo: Codable, Sendable, Identifiable {
-    let id: String
+    let id: UUID
     let name: String
     let host: String
     let port: Int?
-    let isOnline: Bool
+    let `protocol`: String
+    let isEnabled: Bool
+    let isReachable: Bool?
     let latency: Double?
-    let lastChecked: Date?
 }
 
 struct DeviceListPayload: Codable, Sendable {
@@ -122,22 +123,21 @@ struct DeviceListPayload: Codable, Sendable {
 }
 
 struct DeviceInfo: Codable, Sendable, Identifiable {
-    let id: String
-    let name: String?
+    let id: UUID
     let ipAddress: String
-    let macAddress: String?
+    let macAddress: String
+    let hostname: String?
     let vendor: String?
+    let deviceType: String
     let isOnline: Bool
 }
 
 struct CommandPayload: Codable, Sendable {
     let action: CommandAction
-    let target: String?
     let parameters: [String: String]?
 
-    init(action: CommandAction, target: String? = nil, parameters: [String: String]? = nil) {
+    init(action: CommandAction, parameters: [String: String]? = nil) {
         self.action = action
-        self.target = target
         self.parameters = parameters
     }
 }
@@ -156,21 +156,21 @@ enum CommandAction: String, Codable, Sendable {
 }
 
 struct ToolResultPayload: Codable, Sendable {
-    let toolName: String
+    let tool: String
     let success: Bool
-    let output: String
+    let result: String
     let timestamp: Date
 }
 
 struct ErrorPayload: Codable, Sendable {
-    let code: Int
+    let code: String
     let message: String
     let timestamp: Date
 }
 
 struct HeartbeatPayload: Codable, Sendable {
-    let version: String
     let timestamp: Date
+    let version: String
 }
 
 // MARK: - JSON Encoder/Decoder Configuration
@@ -179,14 +179,12 @@ extension CompanionMessage {
     /// Shared JSON encoder configured to match the macOS companion service format.
     static let jsonEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
         return encoder
     }()
 
     /// Shared JSON decoder configured to match the macOS companion service format.
     static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
         return decoder
     }()
 
