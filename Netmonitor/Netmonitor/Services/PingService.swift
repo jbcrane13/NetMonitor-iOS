@@ -47,7 +47,7 @@ actor PingService {
         }
     }
     
-    func stop() {
+    func stop() async {
         isRunning = false
     }
     
@@ -130,7 +130,7 @@ actor PingService {
                inet_pton(AF_INET6, string, &addr6) == 1
     }
     
-    func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) -> PingStatistics? {
+    func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) async -> PingStatistics? {
         guard !results.isEmpty else { return nil }
 
         let transmitted = requestedCount ?? results.count
