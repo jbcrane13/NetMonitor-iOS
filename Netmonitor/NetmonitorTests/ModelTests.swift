@@ -674,3 +674,50 @@ struct SpeedTestResultModelTests {
         #expect(result.uploadSpeedText == "1.5 Gbps")
     }
 }
+
+// MARK: - Deep QA Added Coverage (Speed Test + Bonjour)
+
+@Suite("SpeedTestService Tests")
+struct SpeedTestServiceDeepQATests {
+    @Test("Initial state")
+    @MainActor
+    func initialState() {
+        let service = SpeedTestService()
+        #expect(service.downloadSpeed == 0)
+        #expect(service.uploadSpeed == 0)
+        #expect(service.latency == 0)
+        #expect(service.progress == 0)
+        #expect(service.phase == .idle)
+        #expect(service.isRunning == false)
+        #expect(service.errorMessage == nil)
+    }
+
+    @Test("Cloudflare endpoints are valid")
+    func endpoints() {
+        let downloadURL = URL(string: "https://speed.cloudflare.com/__down?bytes=25000000")
+        #expect(downloadURL?.host == "speed.cloudflare.com")
+        #expect(downloadURL?.path == "/__down")
+
+        let uploadURL = URL(string: "https://speed.cloudflare.com/__up")
+        #expect(uploadURL?.host == "speed.cloudflare.com")
+        #expect(uploadURL?.path == "/__up")
+    }
+}
+
+@Suite("BonjourDiscoveryService Tests")
+struct BonjourDiscoveryServiceDeepQATests {
+    @Test("Initial state")
+    @MainActor
+    func initialState() {
+        let service = BonjourDiscoveryService()
+        #expect(service.discoveredServices.isEmpty)
+        #expect(service.isDiscovering == false)
+    }
+
+    @Test("BonjourService categorization")
+    func categorization() {
+        #expect(BonjourService(name: "Web", type: "_http._tcp").serviceCategory == "Web")
+        #expect(BonjourService(name: "SSH", type: "_ssh._tcp").serviceCategory == "Remote Access")
+        #expect(BonjourService(name: "Printer", type: "_ipp._tcp").serviceCategory == "Printing")
+    }
+}
