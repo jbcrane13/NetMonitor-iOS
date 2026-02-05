@@ -65,6 +65,7 @@
 		853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57264957B282936BB6CC799 /* DNSLookupService.swift */; };
 		8D16761E2869FC3CAFDBE902 /* PingToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C077105D18FDB45B925393C7 /* PingToolView.swift */; };
 		8DB5D6B8C7B28BDF95243E42 /* WakeOnLANToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */; };
+		5CCBA826B89D4742A1819936 /* WebBrowserToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5634EB544B534E54ACDB5B94 /* WebBrowserToolView.swift */; };
 		8F0CDAF1F52301561E93889B /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CD8D98B225B8C88636C6D3 /* SettingsScreen.swift */; };
 		9215237969D7CDABFA5CD4A2 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07EA322CAD921F569DD291C /* EmptyStateView.swift */; };
 		93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02055F2010A87B108B40DBFF /* StatusBadge.swift */; };
@@ -178,6 +179,7 @@
 		475DD181BC184D12F5543624 /* ToolsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModel.swift; sourceTree = "<group>"; };
 		4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskService.swift; sourceTree = "<group>"; };
 		4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolView.swift; sourceTree = "<group>"; };
+		5634EB544B534E54ACDB5B94 /* WebBrowserToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebBrowserToolView.swift; sourceTree = "<group>"; };
 		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
 		5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NetmonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
@@ -486,6 +488,7 @@
 				7002A651D1A034719D2422FD /* ToolsView.swift */,
 				CAD13DBD10983D46386B3CB1 /* TracerouteToolView.swift */,
 				4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */,
+				5634EB544B534E54ACDB5B94 /* WebBrowserToolView.swift */,
 				F491EB25FB029F43E2903652 /* WHOISToolView.swift */,
 			);
 			path = Tools;
@@ -738,6 +741,7 @@
 				1F59747566D30EC237A3525D /* WakeOnLANService.swift in Sources */,
 				8DB5D6B8C7B28BDF95243E42 /* WakeOnLANToolView.swift in Sources */,
 				3265D18FD8004ECCE5E32DA6 /* WakeOnLANToolViewModel.swift in Sources */,
+				5CCBA826B89D4742A1819936 /* WebBrowserToolView.swift in Sources */,
 				661489E4BA376D9671E26FD4 /* WiFiInfoService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

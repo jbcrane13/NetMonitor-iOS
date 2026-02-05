@@ -38,6 +38,7 @@ enum ToolDestination: Hashable {
     case speedTest
     case whois
     case wakeOnLAN
+    case webBrowser
 
     @ViewBuilder
     var view: some View {
@@ -58,6 +59,8 @@ enum ToolDestination: Hashable {
             WHOISToolView()
         case .wakeOnLAN:
             WakeOnLANToolView()
+        case .webBrowser:
+            WebBrowserToolView()
         }
     }
 }
@@ -165,6 +168,7 @@ struct ToolsGridSection: View {
         ToolItem(name: "Traceroute", icon: "point.topleft.down.to.point.bottomright.curvepath", color: Theme.Colors.info, description: "Trace network path", destination: .traceroute),
         ToolItem(name: "DNS Lookup", icon: "globe", color: Theme.Colors.success, description: "Query DNS records", destination: .dnsLookup),
         ToolItem(name: "Port Scanner", icon: "door.left.hand.open", color: Theme.Colors.warning, description: "Scan open ports", destination: .portScanner),
+        ToolItem(name: "Web Browser", icon: "safari.fill", color: Theme.Colors.info, description: "Browse network sites", destination: .webBrowser),
         ToolItem(name: "Bonjour", icon: "bonjour", color: Theme.Colors.accent, description: "Discover services", destination: .bonjour),
         ToolItem(name: "Speed Test", icon: "speedometer", color: Theme.Colors.success, description: "Test bandwidth", destination: .speedTest),
         ToolItem(name: "WHOIS", icon: "doc.text.magnifyingglass", color: Theme.Colors.info, description: "Domain information", destination: .whois),
