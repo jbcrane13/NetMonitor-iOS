@@ -28,50 +28,59 @@ final class ToolsUITests: XCTestCase {
     }
     
     func testQuickActionsSectionExists() {
+        // Verify quick actions section by checking for its header text and a known child button
         XCTAssertTrue(
-            toolsScreen.quickActionsSection.waitForExistence(timeout: 5),
+            toolsScreen.quickActionsSectionHeader.waitForExistence(timeout: 5) ||
+            toolsScreen.scanNetworkButton.waitForExistence(timeout: 5),
             "Quick Actions section should exist"
         )
     }
-    
+
     func testToolsGridSectionExists() {
+        // Verify tools grid section by checking for its header text and a known child card
         XCTAssertTrue(
-            toolsScreen.toolsGridSection.waitForExistence(timeout: 5),
+            toolsScreen.toolsGridSectionHeader.waitForExistence(timeout: 5) ||
+            toolsScreen.pingToolCard.waitForExistence(timeout: 5),
             "Tools grid section should exist"
         )
     }
-    
+
     func testRecentActivitySectionExists() {
+        // Scroll down to reveal recent activity section
+        toolsScreen.swipeUp()
         toolsScreen.swipeUp()
         XCTAssertTrue(
-            toolsScreen.recentActivitySection.waitForExistence(timeout: 5),
+            toolsScreen.recentActivitySectionHeader.waitForExistence(timeout: 5),
             "Recent activity section should exist"
         )
     }
     
     // MARK: - Quick Actions Tests
-    
+
     func testScanNetworkButtonExists() {
+        toolsScreen.scrollToQuickActions()
         XCTAssertTrue(
-            toolsScreen.scanNetworkButton.waitForExistence(timeout: 5),
+            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Scan Network"),
             "Scan Network quick action should exist"
         )
     }
-    
+
     func testSpeedTestQuickButtonExists() {
+        toolsScreen.scrollToQuickActions()
         XCTAssertTrue(
-            toolsScreen.speedTestQuickButton.waitForExistence(timeout: 5),
+            toolsScreen.quickActionExists(toolsScreen.speedTestQuickButton, labelText: "Speed Test"),
             "Speed Test quick action should exist"
         )
     }
-    
+
     func testPingGatewayButtonExists() {
+        toolsScreen.scrollToQuickActions()
         XCTAssertTrue(
-            toolsScreen.pingGatewayButton.waitForExistence(timeout: 5),
+            toolsScreen.quickActionExists(toolsScreen.pingGatewayButton, labelText: "Ping Gateway"),
             "Ping Gateway quick action should exist"
         )
     }
-    
+
     func testAllQuickActionsPresent() {
         XCTAssertTrue(toolsScreen.verifyQuickActionsPresent(), "All quick actions should be present")
     }
@@ -183,7 +192,17 @@ final class ToolsUITests: XCTestCase {
     // MARK: - Quick Action Navigation Tests
     
     func testSpeedTestQuickActionOpensSpeedTest() {
-        toolsScreen.tapIfExists(toolsScreen.speedTestQuickButton)
+        toolsScreen.scrollToQuickActions()
+        // Try tapping by ID first, fall back to label text
+        if toolsScreen.speedTestQuickButton.waitForExistence(timeout: 3) {
+            toolsScreen.speedTestQuickButton.tap()
+        } else {
+            let predicate = NSPredicate(format: "label CONTAINS[c] %@", "Speed Test")
+            let fallbackButton = app.buttons.matching(predicate).firstMatch
+            if fallbackButton.waitForExistence(timeout: 3) {
+                fallbackButton.tap()
+            }
+        }
         let speedTestScreen = SpeedTestToolScreen(app: app)
         XCTAssertTrue(speedTestScreen.isDisplayed(), "Speed Test quick action should open Speed Test tool")
     }

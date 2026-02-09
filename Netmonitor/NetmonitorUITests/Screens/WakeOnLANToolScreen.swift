@@ -23,21 +23,30 @@ final class WakeOnLANToolScreen: BaseScreen {
     }
     
     // MARK: - Results
+    // Note: GlassCard containers may not be reliably found as otherElements in XCUITest.
+    // Use multiple query strategies to find them.
     var successMessage: XCUIElement {
         app.otherElements["wol_success"]
     }
-    
+
     var errorMessage: XCUIElement {
         app.otherElements["wol_error"]
     }
-    
+
     var infoCard: XCUIElement {
         app.otherElements["wol_info"]
+    }
+
+    /// Fallback: check for the info card's known content text
+    var infoCardHeaderText: XCUIElement {
+        app.staticTexts["How it works"]
     }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for send button instead of screen container for more reliable detection
+        // Buttons become available faster than otherElements during navigation
+        sendButton.waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions
@@ -71,15 +80,21 @@ final class WakeOnLANToolScreen: BaseScreen {
     }
     
     func waitForSuccess(timeout: TimeInterval = 10) -> Bool {
-        successMessage.waitForExistence(timeout: timeout)
+        // Check both otherElements and staticTexts for success indication
+        let otherSuccess = successMessage.waitForExistence(timeout: timeout)
+        if otherSuccess { return true }
+        // Fallback: check for the success text content
+        return app.staticTexts["Wake packet sent!"].waitForExistence(timeout: 2)
     }
-    
+
     func hasError() -> Bool {
-        errorMessage.exists
+        // Check both otherElements and staticTexts for error indication
+        errorMessage.exists || app.staticTexts["Failed to send"].exists
     }
-    
+
     func verifyInfoCardPresent() -> Bool {
-        waitForElement(infoCard)
+        // Try otherElements first, fall back to checking for known content text
+        waitForElement(infoCard) || waitForElement(infoCardHeaderText)
     }
     
     /// Navigate back to Tools

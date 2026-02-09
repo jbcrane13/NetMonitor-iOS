@@ -12,14 +12,26 @@ final class SettingsScreen: BaseScreen {
     var pingCountStepper: XCUIElement {
         app.otherElements["settings_stepper_pingCount"]
     }
-    
+
     var pingTimeoutStepper: XCUIElement {
         app.otherElements["settings_stepper_pingTimeout"]
     }
-    
+
     var portScanTimeoutStepper: XCUIElement {
         app.otherElements["settings_stepper_portScanTimeout"]
     }
+
+    // Fallback text references for settings elements
+    var pingCountText: XCUIElement { app.staticTexts["Ping Count"] }
+    var pingTimeoutText: XCUIElement { app.staticTexts["Ping Timeout"] }
+    var portScanTimeoutText: XCUIElement { app.staticTexts["Port Scan Timeout"] }
+    var autoRefreshText: XCUIElement { app.staticTexts["Auto-Refresh Interval"] }
+    var themeText: XCUIElement { app.staticTexts["Theme"] }
+    var accentColorText: XCUIElement { app.staticTexts["Accent Color"] }
+    var dataRetentionText: XCUIElement { app.staticTexts["Data Retention"] }
+    var appVersionText: XCUIElement { app.staticTexts["App Version"] }
+    var buildNumberText: XCUIElement { app.staticTexts["Build Number"] }
+    var iosVersionText: XCUIElement { app.staticTexts["iOS Version"] }
     
     var dnsServerTextField: XCUIElement {
         app.textFields["settings_textfield_dnsServer"]
@@ -93,6 +105,13 @@ final class SettingsScreen: BaseScreen {
     var supportLink: XCUIElement {
         app.links["settings_link_support"]
     }
+
+    var supportLinkAsButton: XCUIElement {
+        app.buttons["settings_link_support"]
+    }
+
+    // Fallback text reference for support link
+    var supportLinkText: XCUIElement { app.staticTexts["Contact Support"] }
     
     var rateAppButton: XCUIElement {
         app.buttons["settings_button_rateApp"]
@@ -122,21 +141,32 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for the navigation bar title instead of screen container for more reliable detection
+        // Navigation bars become available faster than otherElements during navigation
+        app.navigationBars["Settings"].waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions
     @discardableResult
     func tapClearHistory() -> Self {
-        // Scroll to find the button if needed
+        // Scroll to find the button if needed - Data & Privacy is near the bottom
         swipeUp()
+        swipeUp()
+        if !clearHistoryButton.waitForExistence(timeout: 3) {
+            swipeUp()
+        }
         tapIfExists(clearHistoryButton)
         return self
     }
-    
+
     @discardableResult
     func tapClearCache() -> Self {
+        // Scroll to find the button if needed - Clear Cache is near the bottom
         swipeUp()
+        swipeUp()
+        if !clearCacheButton.waitForExistence(timeout: 3) {
+            swipeUp()
+        }
         tapIfExists(clearCacheButton)
         return self
     }

@@ -28,7 +28,9 @@ final class BonjourToolScreen: BaseScreen {
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for run button instead of screen container for more reliable detection
+        // Buttons become available faster than otherElements during navigation
+        runButton.waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions

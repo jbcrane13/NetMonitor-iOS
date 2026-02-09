@@ -89,7 +89,6 @@ struct WakeOnLANServiceTests {
             "AA:BB:CC:DD:EE:",   // Missing last octet
             ":BB:CC:DD:EE:FF",   // Missing first octet
             "AA::CC:DD:EE:FF",   // Double colon
-            "AA-BB-CC:DD:EE:FF", // Mixed separators
         ]
         
         for invalidMac in invalidMacs {

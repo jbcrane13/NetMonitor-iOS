@@ -33,7 +33,9 @@ final class TracerouteToolScreen: BaseScreen {
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for run button instead of screen container for more reliable detection
+        // Buttons become available faster than otherElements during navigation
+        runButton.waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions
@@ -65,9 +67,11 @@ final class TracerouteToolScreen: BaseScreen {
     }
     
     func waitForHops(timeout: TimeInterval = 60) -> Bool {
-        hopsSection.waitForExistence(timeout: timeout)
+        // Try otherElements first, fall back to checking for "Route" header text
+        hopsSection.waitForExistence(timeout: timeout) ||
+        app.staticTexts["Route"].waitForExistence(timeout: 2)
     }
-    
+
     /// Get count of hop rows
     func getHopCount() -> Int {
         app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'tracerouteTool_hop_'")).count

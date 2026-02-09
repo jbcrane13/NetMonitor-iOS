@@ -26,22 +26,28 @@ final class WHOISToolScreen: BaseScreen {
     var domainInfoCard: XCUIElement {
         app.otherElements["whois_domainInfo"]
     }
-    
+
     var datesCard: XCUIElement {
         app.otherElements["whois_dates"]
     }
-    
+
     var nameServersCard: XCUIElement {
         app.otherElements["whois_nameServers"]
     }
-    
+
     var errorView: XCUIElement {
         app.otherElements["whois_error"]
     }
+
+    // Fallback text references
+    var domainDatesText: XCUIElement { app.staticTexts["Domain Dates"] }
+    var nameServersText: XCUIElement { app.staticTexts["Name Servers"] }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for run button instead of screen container for more reliable detection
+        // Buttons become available faster than otherElements during navigation
+        runButton.waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions
@@ -67,19 +73,26 @@ final class WHOISToolScreen: BaseScreen {
     }
     
     func waitForDomainInfo(timeout: TimeInterval = 15) -> Bool {
-        domainInfoCard.waitForExistence(timeout: timeout)
+        // Try otherElements first, fall back to checking for the "Domain" label text
+        domainInfoCard.waitForExistence(timeout: timeout) ||
+        app.staticTexts["Registrar"].waitForExistence(timeout: 2)
     }
-    
+
     func waitForDates(timeout: TimeInterval = 15) -> Bool {
-        datesCard.waitForExistence(timeout: timeout)
+        datesCard.waitForExistence(timeout: timeout) ||
+        domainDatesText.waitForExistence(timeout: 2)
     }
-    
+
     func waitForNameServers(timeout: TimeInterval = 15) -> Bool {
-        nameServersCard.waitForExistence(timeout: timeout)
+        nameServersCard.waitForExistence(timeout: timeout) ||
+        nameServersText.waitForExistence(timeout: 2)
     }
-    
+
     func hasError() -> Bool {
-        errorView.exists
+        errorView.exists ||
+        app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'failed' OR label CONTAINS[c] 'error' OR label CONTAINS[c] 'timed out' OR label CONTAINS[c] 'could not'")).count > 0 ||
+        app.images["exclamationmark.triangle"].exists ||
+        app.images["exclamationmark.triangle.fill"].exists
     }
     
     /// Navigate back to Tools

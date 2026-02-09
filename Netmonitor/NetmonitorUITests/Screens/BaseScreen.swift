@@ -58,6 +58,21 @@ class BaseScreen {
     func swipeDown(on element: XCUIElement? = nil) {
         (element ?? app).swipeDown()
     }
+
+    /// Aggressively scroll to top of the current view
+    func scrollToTop() {
+        // Tap the status bar to trigger iOS scroll-to-top behavior
+        let statusBar = app.statusBars.firstMatch
+        if statusBar.exists {
+            statusBar.tap()
+            usleep(500_000) // 0.5 seconds for scroll animation
+        } else {
+            // Fallback: tap the top of the screen coordinate
+            let topCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.02))
+            topCoordinate.tap()
+            usleep(500_000)
+        }
+    }
     
     /// Dismiss keyboard if visible
     func dismissKeyboard() {

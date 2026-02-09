@@ -14,8 +14,8 @@ final class NetmonitorUITests: XCTestCase {
     // MARK: - Dashboard Flow
 
     func testDashboardLoads() {
-        let mainScreen = app.otherElements["screen_main"]
-        XCTAssertTrue(mainScreen.waitForExistence(timeout: 5), "Main screen should load")
+        let dashboardScreen = DashboardScreen(app: app)
+        XCTAssertTrue(dashboardScreen.isDisplayed(), "Dashboard screen should load")
     }
 
     func testDashboardTabExists() {
@@ -27,110 +27,78 @@ final class NetmonitorUITests: XCTestCase {
     // MARK: - Settings Navigation
 
     func testSettingsScreenLoads() {
-        // Navigate to Settings tab
-        let settingsTab = app.tabBars.buttons["Settings"]
-        if settingsTab.exists {
-            settingsTab.tap()
-            let settingsScreen = app.otherElements["screen_settings"]
-            XCTAssertTrue(settingsScreen.waitForExistence(timeout: 5), "Settings screen should load")
-        }
+        // Navigate to Settings via Dashboard settings button
+        let dashboardScreen = DashboardScreen(app: app)
+        let settingsScreen = dashboardScreen.openSettings()
+        XCTAssertTrue(settingsScreen.isDisplayed(), "Settings screen should load")
     }
 
     func testSettingsPingCountExists() {
-        let settingsTab = app.tabBars.buttons["Settings"]
-        if settingsTab.exists {
-            settingsTab.tap()
-            let stepper = app.otherElements["settings_stepper_pingCount"]
-            XCTAssertTrue(stepper.waitForExistence(timeout: 5), "Ping count stepper should exist")
-        }
+        let dashboardScreen = DashboardScreen(app: app)
+        let settingsScreen = dashboardScreen.openSettings()
+        XCTAssertTrue(
+            settingsScreen.pingCountStepper.waitForExistence(timeout: 5) ||
+            settingsScreen.pingCountText.waitForExistence(timeout: 3),
+            "Ping count stepper should exist"
+        )
     }
 
     func testSettingsClearHistoryButton() {
-        let settingsTab = app.tabBars.buttons["Settings"]
-        if settingsTab.exists {
-            settingsTab.tap()
-            let clearButton = app.buttons["settings_button_clearHistory"]
-            // Scroll down to find it
-            let settingsScreen = app.otherElements["screen_settings"]
-            if settingsScreen.exists {
-                settingsScreen.swipeUp()
-            }
-            if clearButton.waitForExistence(timeout: 5) {
-                clearButton.tap()
-                // Alert should appear
-                let alert = app.alerts["Clear History"]
-                XCTAssertTrue(alert.waitForExistence(timeout: 3), "Clear history alert should appear")
-                alert.buttons["Cancel"].tap()
-            }
+        let dashboardScreen = DashboardScreen(app: app)
+        let settingsScreen = dashboardScreen.openSettings()
+        settingsScreen.swipeUp()
+        let clearButton = settingsScreen.clearHistoryButton
+        if clearButton.waitForExistence(timeout: 5) {
+            clearButton.tap()
+            // Alert should appear
+            let alert = app.alerts["Clear History"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 3), "Clear history alert should appear")
+            alert.buttons["Cancel"].tap()
         }
     }
 
     func testSettingsClearCacheButton() {
-        let settingsTab = app.tabBars.buttons["Settings"]
-        if settingsTab.exists {
-            settingsTab.tap()
-            let settingsScreen = app.otherElements["screen_settings"]
-            if settingsScreen.exists {
-                settingsScreen.swipeUp()
-            }
-            let clearCacheButton = app.buttons["settings_button_clearCache"]
-            if clearCacheButton.waitForExistence(timeout: 5) {
-                clearCacheButton.tap()
-                let alert = app.alerts["Clear All Cached Data"]
-                XCTAssertTrue(alert.waitForExistence(timeout: 3), "Clear cache alert should appear")
-                alert.buttons["Cancel"].tap()
-            }
+        let dashboardScreen = DashboardScreen(app: app)
+        let settingsScreen = dashboardScreen.openSettings()
+        settingsScreen.swipeUp()
+        let clearCacheButton = settingsScreen.clearCacheButton
+        if clearCacheButton.waitForExistence(timeout: 5) {
+            clearCacheButton.tap()
+            let alert = app.alerts["Clear All Cached Data"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 3), "Clear cache alert should appear")
+            alert.buttons["Cancel"].tap()
         }
     }
 
     // MARK: - Tools Navigation
 
     func testToolsTabExists() {
-        let toolsTab = app.tabBars.buttons["Tools"]
-        if toolsTab.exists {
-            toolsTab.tap()
-            let toolsScreen = app.otherElements["screen_tools"]
-            XCTAssertTrue(toolsScreen.waitForExistence(timeout: 5), "Tools screen should load")
-        }
+        let toolsScreen = ToolsScreen(app: app)
+        toolsScreen.navigateToTools()
+        XCTAssertTrue(toolsScreen.isDisplayed(), "Tools screen should load")
     }
 
     // MARK: - Network Map Navigation
 
     func testNetworkMapTabExists() {
-        let mapTab = app.tabBars.buttons["Network Map"]
-        if mapTab.exists {
-            mapTab.tap()
-            let mapScreen = app.otherElements["screen_networkMap"]
-            XCTAssertTrue(mapScreen.waitForExistence(timeout: 5), "Network Map screen should load")
-        }
+        let mapScreen = NetworkMapScreen(app: app)
+        mapScreen.navigateToNetworkMap()
+        XCTAssertTrue(mapScreen.isDisplayed(), "Network Map screen should load")
     }
 
     // MARK: - Tool Execution - Ping
 
     func testPingToolNavigation() {
-        let toolsTab = app.tabBars.buttons["Tools"]
-        guard toolsTab.exists else { return }
-        toolsTab.tap()
-
-        // Look for Ping tool link
-        let pingLink = app.buttons["tool_link_ping"]
-        if pingLink.waitForExistence(timeout: 5) {
-            pingLink.tap()
-            let pingScreen = app.otherElements["screen_pingTool"]
-            XCTAssertTrue(pingScreen.waitForExistence(timeout: 5), "Ping tool screen should load")
-        }
+        let toolsScreen = ToolsScreen(app: app)
+        toolsScreen.navigateToTools()
+        let pingScreen = toolsScreen.openPingTool()
+        XCTAssertTrue(pingScreen.isDisplayed(), "Ping tool screen should load")
     }
 
     func testPortScannerToolNavigation() {
-        let toolsTab = app.tabBars.buttons["Tools"]
-        guard toolsTab.exists else { return }
-        toolsTab.tap()
-
-        let portScanLink = app.buttons["tool_link_portScanner"]
-        if portScanLink.waitForExistence(timeout: 5) {
-            portScanLink.tap()
-            let portScanScreen = app.otherElements["screen_portScannerTool"]
-            XCTAssertTrue(portScanScreen.waitForExistence(timeout: 5), "Port Scanner screen should load")
-        }
+        let toolsScreen = ToolsScreen(app: app)
+        toolsScreen.navigateToTools()
+        let portScanScreen = toolsScreen.openPortScannerTool()
+        XCTAssertTrue(portScanScreen.isDisplayed(), "Port Scanner screen should load")
     }
 }

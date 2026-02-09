@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1770412838702,
+  "projectRoot": "/Users/blake/Projects/NetMonitor-iOS",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "Netmonitor": {
+      "path": "Netmonitor",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1770412838694,
+      "keyFiles": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "UI-TEST-REPORT.md",
+        "project.yml"
+      ]
+    },
+    "Screenshots": {
+      "path": "Screenshots",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1770412838694,
+      "keyFiles": [
+        "01-dashboard.png",
+        "02-dashboard-after-load.png",
+        "02-map.png",
+        "03-tools.png",
+        "04-ping-tool.png"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 4,
+      "lastAccessed": 1770412838694,
+      "keyFiles": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "IMPLEMENTATION_PLAN.md",
+        "NetMonitor iOS Companion - Product Requirements Document.md"
+      ]
+    },
+    "tasks": {
+      "path": "tasks",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1770412838694,
+      "keyFiles": [
+        "TASK-b2g-dashboard-title-fix.md"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

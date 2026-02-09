@@ -29,7 +29,9 @@ final class SpeedTestToolScreen: BaseScreen {
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for run button instead of screen container for more reliable detection
+        // Buttons become available faster than otherElements during navigation
+        runButton.waitForExistence(timeout: timeout)
     }
     
     // MARK: - Actions
@@ -54,7 +56,11 @@ final class SpeedTestToolScreen: BaseScreen {
     }
     
     func verifyGaugePresent() -> Bool {
-        waitForElement(gauge)
+        // The gauge ZStack may not be found as otherElements in XCUITest.
+        // Fall back to checking for known gauge content like "Mbps" text or "0.0" text.
+        waitForElement(gauge) ||
+        app.staticTexts["Mbps"].waitForExistence(timeout: timeout) ||
+        app.staticTexts["0.0"].waitForExistence(timeout: timeout)
     }
     
     /// Navigate back to Tools

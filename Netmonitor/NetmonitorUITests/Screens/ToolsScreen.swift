@@ -9,29 +9,41 @@ final class ToolsScreen: BaseScreen {
     }
     
     // MARK: - Sections
-    var quickActionsSection: XCUIElement {
-        app.otherElements["tools_section_quickActions"]
+    // Note: SwiftUI containers with accessibilityIdentifier are unreliable as otherElements
+    // in XCUITest. Use staticTexts section headers as proxy for section existence.
+    var quickActionsSectionHeader: XCUIElement {
+        app.staticTexts["Quick Actions"]
     }
-    
-    var toolsGridSection: XCUIElement {
-        app.otherElements["tools_section_grid"]
+
+    var toolsGridSectionHeader: XCUIElement {
+        app.staticTexts["Network Tools"]
     }
-    
-    var recentActivitySection: XCUIElement {
-        app.otherElements["tools_section_recentActivity"]
+
+    var recentActivitySectionHeader: XCUIElement {
+        app.staticTexts["Recent Activity"]
     }
     
     // MARK: - Quick Action Buttons
     var scanNetworkButton: XCUIElement {
         app.buttons["quickAction_scan_network"]
     }
-    
+
     var speedTestQuickButton: XCUIElement {
         app.buttons["quickAction_speed_test"]
     }
-    
+
     var pingGatewayButton: XCUIElement {
         app.buttons["quickAction_ping_gateway"]
+    }
+
+    /// Check if a quick action button exists (by ID or label text fallback)
+    func quickActionExists(_ button: XCUIElement, labelText: String) -> Bool {
+        if button.waitForExistence(timeout: 3) {
+            return true
+        }
+        // Fallback: find button containing the label text
+        let predicate = NSPredicate(format: "label CONTAINS[c] %@", labelText)
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: 3)
     }
     
     // MARK: - Tool Cards
@@ -76,7 +88,8 @@ final class ToolsScreen: BaseScreen {
     @discardableResult
     func navigateToTools() -> Self {
         navigateToTab("Tools")
-        _ = waitForElement(screen)
+        // Wait for a reliable tool card button instead of screen container
+        _ = waitForElement(pingToolCard)
         return self
     }
     
@@ -128,11 +141,21 @@ final class ToolsScreen: BaseScreen {
         return WakeOnLANToolScreen(app: app)
     }
     
+    // MARK: - Scrolling
+    /// Scroll to top to ensure quick actions are visible
+    @discardableResult
+    func scrollToQuickActions() -> Self {
+        scrollToTop()
+        return self
+    }
+
     // MARK: - Verification
     func isDisplayed() -> Bool {
-        waitForElement(screen)
+        // Check for a reliable tool card button instead of screen container
+        // Buttons become available faster than otherElements during navigation
+        waitForElement(pingToolCard)
     }
-    
+
     func verifyAllToolsPresent() -> Bool {
         waitForElement(pingToolCard) &&
         waitForElement(tracerouteToolCard) &&
@@ -143,11 +166,11 @@ final class ToolsScreen: BaseScreen {
         waitForElement(whoisToolCard) &&
         waitForElement(wakeOnLANToolCard)
     }
-    
+
     func verifyQuickActionsPresent() -> Bool {
-        waitForElement(quickActionsSection) &&
-        waitForElement(scanNetworkButton) &&
-        waitForElement(speedTestQuickButton) &&
-        waitForElement(pingGatewayButton)
+        scrollToTop()
+        return quickActionExists(scanNetworkButton, labelText: "Scan Network") &&
+        quickActionExists(speedTestQuickButton, labelText: "Speed Test") &&
+        quickActionExists(pingGatewayButton, labelText: "Ping Gateway")
     }
 }
