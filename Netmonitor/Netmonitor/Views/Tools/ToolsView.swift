@@ -96,7 +96,6 @@ struct QuickActionsSection: View {
                     .padding(.vertical, 16)
                     .glassCard(cornerRadius: 16, padding: 0)
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("quickAction_monitor_network")
 
                 NavigationLink(value: ToolDestination.speedTest) {
@@ -117,7 +116,6 @@ struct QuickActionsSection: View {
                     .padding(.vertical, 16)
                     .glassCard(cornerRadius: 16, padding: 0)
                 }
-                .buttonStyle(.plain)
                 .accessibilityIdentifier("quickAction_speed_test")
 
                 VStack(spacing: 0) {
@@ -262,7 +260,6 @@ struct ToolCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
         }
-        .buttonStyle(.plain)
         .accessibilityIdentifier("tools_card_\(tool.name.lowercased().replacingOccurrences(of: " ", with: "_"))")
     }
 }

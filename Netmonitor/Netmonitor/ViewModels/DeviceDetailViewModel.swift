@@ -21,12 +21,21 @@ final class DeviceDetailViewModel {
         993, 995, 3306, 3389, 5432, 5900, 8080, 8443
     ]
 
-    /// Load device from SwiftData by IP address
+    /// Load device from SwiftData by IP address, creating one if not found
     func loadDevice(ipAddress: String, context: ModelContext) {
         let descriptor = FetchDescriptor<LocalDevice>(
             predicate: #Predicate { $0.ipAddress == ipAddress }
         )
-        device = try? context.fetch(descriptor).first
+        if let existing = try? context.fetch(descriptor).first {
+            device = existing
+        } else {
+            let newDevice = LocalDevice(
+                ipAddress: ipAddress,
+                macAddress: ""
+            )
+            context.insert(newDevice)
+            device = newDevice
+        }
     }
 
     /// Enrich device data with manufacturer and resolved hostname

@@ -42,15 +42,27 @@ final class WiFiInfoService: NSObject {
     }
     
     private func fetchWiFiInfo() -> WiFiInfo? {
+        #if targetEnvironment(simulator)
+        return WiFiInfo(
+            ssid: "Simulator WiFi",
+            bssid: "00:00:00:00:00:00",
+            signalStrength: nil,
+            signalDBm: -45,
+            channel: 6,
+            frequency: nil,
+            band: .band2_4GHz,
+            securityType: "WPA3"
+        )
+        #else
         guard let interfaces = CNCopySupportedInterfaces() as? [String],
               let interface = interfaces.first,
               let info = CNCopyCurrentNetworkInfo(interface as CFString) as? [String: Any],
               let ssid = info[kCNNetworkInfoKeySSID as String] as? String else {
             return nil
         }
-        
+
         let bssid = info[kCNNetworkInfoKeyBSSID as String] as? String
-        
+
         return WiFiInfo(
             ssid: ssid,
             bssid: bssid,
@@ -61,6 +73,7 @@ final class WiFiInfoService: NSObject {
             band: nil,
             securityType: nil
         )
+        #endif
     }
 }
 
