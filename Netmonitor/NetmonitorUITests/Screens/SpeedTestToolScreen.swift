@@ -5,26 +5,26 @@ final class SpeedTestToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_speedTestTool"]
+        app.descendants(matching: .any)["screen_speedTestTool"]
     }
-    
+
     // MARK: - Elements
     var gauge: XCUIElement {
-        app.otherElements["speedTest_gauge"]
+        app.descendants(matching: .any)["speedTest_gauge"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["speedTest_button_run"]
     }
-    
+
     // MARK: - Results
     var resultsSection: XCUIElement {
-        app.otherElements["speedTest_results"]
+        app.descendants(matching: .any)["speedTest_results"]
     }
-    
+
     var historySection: XCUIElement {
-        app.otherElements["speedTest_section_history"]
+        app.descendants(matching: .any)["speedTest_section_history"]
     }
     
     // MARK: - Verification

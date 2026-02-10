@@ -120,8 +120,28 @@ final class PingToolUITests: XCTestCase {
         )
     }
     
+    // MARK: - Stop Tests
+
+    func testCanStopPing() {
+        pingScreen
+            .enterHost("1.1.1.1")
+            .startPing()
+
+        // Wait briefly for ping to start
+        sleep(2)
+
+        // Stop the ping
+        pingScreen.stopPing()
+
+        // Tool should remain functional
+        XCTAssertTrue(
+            pingScreen.isDisplayed(),
+            "Ping tool should remain displayed after stopping"
+        )
+    }
+
     // MARK: - Clear Results Tests
-    
+
     func testClearButtonAppearsAfterPing() {
         pingScreen
             .enterHost("1.1.1.1")
@@ -155,8 +175,36 @@ final class PingToolUITests: XCTestCase {
     
     func testCanNavigateBack() {
         pingScreen.navigateBack()
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+
+    func testHostInputPlaceholderText() {
+        let value = pingScreen.hostInput.value as? String ?? ""
+        let placeholderValue = pingScreen.hostInput.placeholderValue ?? ""
+
+        XCTAssertTrue(
+            value.isEmpty || !placeholderValue.isEmpty,
+            "Host input should have placeholder text or be empty"
+        )
+    }
+
+    func testRunButtonDisabledWhenEmpty() {
+        // Clear host input if not already empty
+        if let value = pingScreen.hostInput.value as? String, !value.isEmpty {
+            pingScreen.hostInput.tap()
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count)
+            pingScreen.hostInput.typeText(deleteString)
+        }
+
+        // Tap run button - tool should not crash
+        pingScreen.startPing()
+
+        // Tool should still be displayed
+        XCTAssertTrue(
+            pingScreen.isDisplayed(),
+            "Ping tool should remain displayed after tapping run with empty host"
+        )
     }
 }

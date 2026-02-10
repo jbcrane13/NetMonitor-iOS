@@ -5,25 +5,25 @@ final class BonjourToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_bonjourTool"]
+        app.descendants(matching: .any)["screen_bonjourTool"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["bonjour_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["bonjour_button_clear"]
     }
-    
+
     // MARK: - Results
     var servicesSection: XCUIElement {
-        app.otherElements["bonjour_section_services"]
+        app.descendants(matching: .any)["bonjour_section_services"]
     }
-    
+
     var emptyStateNoServices: XCUIElement {
-        app.otherElements["bonjour_emptystate_noservices"]
+        app.descendants(matching: .any)["bonjour_emptystate_noservices"]
     }
     
     // MARK: - Verification
@@ -62,7 +62,7 @@ final class BonjourToolScreen: BaseScreen {
     
     /// Get count of discovered services
     func getServiceCount() -> Int {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'bonjour_service_'")).count
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'bonjour_service_'")).count
     }
     
     /// Navigate back to Tools

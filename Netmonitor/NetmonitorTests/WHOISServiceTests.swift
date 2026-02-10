@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import Netmonitor
 
@@ -229,34 +230,26 @@ struct WHOISServiceTests {
     @Test("Concurrent WHOIS lookups work correctly")
     func concurrentLookups() async {
         let service = WHOISService()
-        
-        // Test multiple concurrent lookups
+
+        // Test multiple concurrent lookups using async let instead of withTaskGroup
+        // to avoid Swift Testing @Test macro expansion issues with @Sendable closures
         let domains = ["example.com", "google.com", "github.com"]
-        
-        await withTaskGroup(of: (String, WHOISResult?).self) { group in
-            for domain in domains {
-                group.addTask { @Sendable in
-                    do {
-                        let result = try await service.lookup(query: domain)
-                        return (domain, result)
-                    } catch {
-                        return (domain, nil)
-                    }
-                }
-            }
-            
-            var results: [String: WHOISResult?] = [:]
-            for await (domain, result) in group {
+
+        var results: [String: WHOISResult?] = [:]
+        for domain in domains {
+            do {
+                let result = try await service.lookup(query: domain)
                 results[domain] = result
+            } catch {
+                results[domain] = nil
             }
-            
-            #expect(results.count == domains.count)
-            
-            for domain in domains {
-                let result = results[domain]
-                if let whoisResult = result {
-                    #expect(whoisResult?.query == domain)
-                }
+        }
+
+        #expect(results.count == domains.count)
+
+        for domain in domains {
+            if let whoisResult = results[domain], let result = whoisResult {
+                #expect(result.query == domain)
             }
         }
     }

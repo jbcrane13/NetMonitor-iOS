@@ -5,43 +5,43 @@ final class PortScannerToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_portScannerTool"]
+        app.descendants(matching: .any)["screen_portScannerTool"]
     }
-    
+
     // MARK: - Input Elements
     var hostInput: XCUIElement {
         app.textFields["portScanner_input_host"]
     }
-    
+
     var portRangePicker: XCUIElement {
         app.buttons["portScanner_picker_range"]
     }
-    
+
     var startPortInput: XCUIElement {
         app.textFields["portScanner_input_startPort"]
     }
-    
+
     var endPortInput: XCUIElement {
         app.textFields["portScanner_input_endPort"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["portScanner_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["portScanner_button_clear"]
     }
-    
+
     // MARK: - Progress
     var progressIndicator: XCUIElement {
-        app.otherElements["portScanner_progress"]
+        app.descendants(matching: .any)["portScanner_progress"]
     }
-    
+
     // MARK: - Results
     var resultsSection: XCUIElement {
-        app.otherElements["portScanner_section_results"]
+        app.descendants(matching: .any)["portScanner_section_results"]
     }
     
     // MARK: - Verification
@@ -98,7 +98,7 @@ final class PortScannerToolScreen: BaseScreen {
     
     /// Get count of port result rows
     func getPortResultCount() -> Int {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'portScanner_result_'")).count
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'portScanner_result_'")).count
     }
     
     /// Navigate back to Tools

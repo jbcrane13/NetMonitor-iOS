@@ -5,38 +5,38 @@ final class DNSLookupToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_dnsLookupTool"]
+        app.descendants(matching: .any)["screen_dnsLookupTool"]
     }
-    
+
     // MARK: - Input Elements
     var domainInput: XCUIElement {
         app.textFields["dnsLookup_input_domain"]
     }
-    
+
     var recordTypePicker: XCUIElement {
         app.buttons["dnsLookup_picker_type"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["dnsLookup_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["dnsLookup_button_clear"]
     }
-    
+
     // MARK: - Results
     var queryInfoCard: XCUIElement {
-        app.otherElements["dnsLookup_queryInfo"]
+        app.descendants(matching: .any)["dnsLookup_queryInfo"]
     }
-    
+
     var recordsCard: XCUIElement {
-        app.otherElements["dnsLookup_records"]
+        app.descendants(matching: .any)["dnsLookup_records"]
     }
-    
+
     var errorView: XCUIElement {
-        app.otherElements["dnsLookup_error"]
+        app.descendants(matching: .any)["dnsLookup_error"]
     }
     
     // MARK: - Verification

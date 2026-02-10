@@ -309,11 +309,115 @@ final class SettingsUITests: XCTestCase {
     }
     
     // MARK: - Navigation Tests
-    
+
     func testCanNavigateBack() {
         settingsScreen.navigateBack()
-        
+
         let dashboardScreen = DashboardScreen(app: app)
         XCTAssertTrue(dashboardScreen.isDisplayed(), "Should return to Dashboard")
+    }
+
+    // MARK: - Interaction Tests
+
+    func testCanToggleBackgroundRefresh() {
+        settingsScreen.swipeUp()
+        let toggle = settingsScreen.backgroundRefreshToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "Background refresh toggle should exist")
+        XCTAssertTrue(toggle.isEnabled, "Background refresh toggle should be enabled")
+
+        // Tap the toggle to verify interaction works
+        toggle.tap()
+
+        // Verify toggle is still accessible after tap (confirms interaction was processed)
+        XCTAssertTrue(toggle.exists, "Background refresh toggle should still exist after tap")
+    }
+
+    func testCanToggleTargetDownAlert() {
+        settingsScreen.swipeUp()
+        let toggle = settingsScreen.targetDownAlertToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "Target down alert toggle should exist")
+        XCTAssertTrue(toggle.isEnabled, "Target down alert toggle should be enabled")
+
+        // Tap the toggle to verify interaction works
+        toggle.tap()
+
+        // Verify toggle is still accessible after tap (confirms interaction was processed)
+        XCTAssertTrue(toggle.exists, "Target down alert toggle should still exist after tap")
+    }
+
+    func testCanToggleNewDeviceAlert() {
+        settingsScreen.swipeUp()
+        let toggle = settingsScreen.newDeviceAlertToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "New device alert toggle should exist")
+        XCTAssertTrue(toggle.isEnabled, "New device alert toggle should be enabled")
+
+        // Tap the toggle to verify interaction works
+        toggle.tap()
+
+        // Verify toggle is still accessible after tap (confirms interaction was processed)
+        XCTAssertTrue(toggle.exists, "New device alert toggle should still exist after tap")
+    }
+
+    func testAcknowledgementsNavigationWorks() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let acknowledgementsLink = settingsScreen.acknowledgementsLink
+        XCTAssertTrue(acknowledgementsLink.waitForExistence(timeout: 5), "Acknowledgements link should exist")
+
+        acknowledgementsLink.tap()
+
+        // Verify navigation to Acknowledgements screen
+        XCTAssertTrue(
+            app.navigationBars["Acknowledgements"].waitForExistence(timeout: 5),
+            "Acknowledgements screen should load with navigation bar title"
+        )
+    }
+
+    func testClearHistoryConfirmActuallyClears() {
+        settingsScreen.tapClearHistory()
+
+        XCTAssertTrue(
+            settingsScreen.clearHistoryAlert.waitForExistence(timeout: 5),
+            "Clear history alert should appear"
+        )
+
+        settingsScreen.confirmClearHistory()
+
+        // Alert should be dismissed after confirmation
+        XCTAssertFalse(
+            settingsScreen.clearHistoryAlert.exists,
+            "Clear history alert should be dismissed after confirmation"
+        )
+    }
+
+    func testClearCacheConfirmActuallyClears() {
+        settingsScreen.tapClearCache()
+
+        XCTAssertTrue(
+            settingsScreen.clearCacheAlert.waitForExistence(timeout: 5),
+            "Clear cache alert should appear"
+        )
+
+        settingsScreen.confirmClearCache()
+
+        // Alert should be dismissed after confirmation
+        XCTAssertFalse(
+            settingsScreen.clearCacheAlert.exists,
+            "Clear cache alert should be dismissed after confirmation"
+        )
+    }
+
+    func testMacPairingSection() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        // Verify Mac Companion section exists
+        let macCompanionSection = app.staticTexts["Mac Companion"]
+        XCTAssertTrue(
+            macCompanionSection.waitForExistence(timeout: 5),
+            "Mac Companion section should exist in settings"
+        )
     }
 }

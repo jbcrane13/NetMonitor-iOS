@@ -5,34 +5,34 @@ final class DashboardScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_dashboard"]
+        app.descendants(matching: .any)["screen_dashboard"]
     }
-    
+
     // MARK: - Cards
     // Note: GlassCard containers and VStack containers may not be reliably found as
     // otherElements in XCUITest. Provide otherElements references and staticText fallbacks.
     var connectionStatusHeader: XCUIElement {
-        app.otherElements["dashboard_header_connectionStatus"]
+        app.descendants(matching: .any)["dashboard_header_connectionStatus"]
     }
 
     var sessionCard: XCUIElement {
-        app.otherElements["dashboard_card_session"]
+        app.descendants(matching: .any)["dashboard_card_session"]
     }
 
     var wifiCard: XCUIElement {
-        app.otherElements["dashboard_card_wifi"]
+        app.descendants(matching: .any)["dashboard_card_wifi"]
     }
 
     var gatewayCard: XCUIElement {
-        app.otherElements["dashboard_card_gateway"]
+        app.descendants(matching: .any)["dashboard_card_gateway"]
     }
 
     var ispCard: XCUIElement {
-        app.otherElements["dashboard_card_isp"]
+        app.descendants(matching: .any)["dashboard_card_isp"]
     }
 
     var localDevicesCard: XCUIElement {
-        app.otherElements["dashboard_card_localDevices"]
+        app.descendants(matching: .any)["dashboard_card_localDevices"]
     }
 
     // MARK: - Fallback Text References (for when otherElements don't work)

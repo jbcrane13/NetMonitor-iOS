@@ -270,4 +270,64 @@ final class DashboardUITests: XCTestCase {
         dashboardScreen.navigateToTab("Dashboard")
         XCTAssertTrue(dashboardScreen.isDisplayed(), "Should return to Dashboard")
     }
+
+    // MARK: - Additional Interaction Tests
+
+    func testAllThreeTabsExist() {
+        let tabBar = app.tabBars
+        XCTAssertTrue(tabBar.buttons["Dashboard"].waitForExistence(timeout: 5), "Dashboard tab should exist")
+        XCTAssertTrue(tabBar.buttons["Map"].waitForExistence(timeout: 5), "Map tab should exist")
+        XCTAssertTrue(tabBar.buttons["Tools"].waitForExistence(timeout: 5), "Tools tab should exist")
+    }
+
+    func testDashboardScrollsVertically() {
+        // Swipe up to scroll down
+        dashboardScreen.swipeUp()
+
+        // Swipe down to scroll back up
+        dashboardScreen.swipeDown()
+
+        // Verify dashboard still shows
+        XCTAssertTrue(dashboardScreen.isDisplayed(), "Dashboard should still be displayed after scrolling")
+    }
+
+    func testVerifyAllCardsPresentMethod() {
+        // Scroll to ensure all cards are accessible
+        dashboardScreen.swipeUp()
+
+        // Call verifyAllCardsPresent and assert it returns true
+        let allCardsPresent = dashboardScreen.verifyAllCardsPresent()
+        XCTAssertTrue(allCardsPresent, "All dashboard cards should be present")
+    }
+
+    func testSettingsButtonIsAccessible() {
+        let settingsButton = app.buttons["dashboard_button_settings"]
+        XCTAssertTrue(settingsButton.waitForExistence(timeout: 5), "Settings button should have accessibility identifier 'dashboard_button_settings'")
+        XCTAssertTrue(settingsButton.isHittable, "Settings button should be hittable")
+    }
+
+    func testTabBarIsVisibleOnDashboard() {
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 5), "Tab bar should exist on Dashboard")
+        XCTAssertTrue(tabBar.isHittable, "Tab bar should be hittable")
+    }
+
+    func testCanNavigateToAllTabsSequentially() {
+        // Start on Dashboard (default)
+        XCTAssertTrue(dashboardScreen.isDisplayed(), "Should start on Dashboard")
+
+        // Navigate to Tools
+        dashboardScreen.navigateToTab("Tools")
+        let toolsScreen = ToolsScreen(app: app)
+        XCTAssertTrue(toolsScreen.isDisplayed(), "Should navigate to Tools")
+
+        // Navigate to Map
+        dashboardScreen.navigateToTab("Map")
+        let mapScreen = NetworkMapScreen(app: app)
+        XCTAssertTrue(mapScreen.isDisplayed(), "Should navigate to Map")
+
+        // Navigate back to Dashboard
+        dashboardScreen.navigateToTab("Dashboard")
+        XCTAssertTrue(dashboardScreen.isDisplayed(), "Should return to Dashboard")
+    }
 }

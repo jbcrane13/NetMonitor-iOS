@@ -5,38 +5,38 @@ final class WHOISToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_whoisTool"]
+        app.descendants(matching: .any)["screen_whoisTool"]
     }
-    
+
     // MARK: - Input Elements
     var domainInput: XCUIElement {
         app.textFields["whois_input_domain"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["whois_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["whois_button_clear"]
     }
-    
+
     // MARK: - Results
     var domainInfoCard: XCUIElement {
-        app.otherElements["whois_domainInfo"]
+        app.descendants(matching: .any)["whois_domainInfo"]
     }
 
     var datesCard: XCUIElement {
-        app.otherElements["whois_dates"]
+        app.descendants(matching: .any)["whois_dates"]
     }
 
     var nameServersCard: XCUIElement {
-        app.otherElements["whois_nameServers"]
+        app.descendants(matching: .any)["whois_nameServers"]
     }
 
     var errorView: XCUIElement {
-        app.otherElements["whois_error"]
+        app.descendants(matching: .any)["whois_error"]
     }
 
     // Fallback text references

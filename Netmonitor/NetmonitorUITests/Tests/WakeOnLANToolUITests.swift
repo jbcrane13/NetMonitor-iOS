@@ -108,8 +108,26 @@ final class WakeOnLANToolUITests: XCTestCase {
     
     func testCanNavigateBack() {
         wolScreen.navigateBack()
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+
+    func testCanEnterBroadcastAddress() {
+        let testAddress = "192.168.1.255"
+        wolScreen.enterBroadcastAddress(testAddress)
+
+        XCTAssertEqual(
+            wolScreen.broadcastAddressInput.value as? String,
+            testAddress,
+            "Broadcast address input should contain entered value"
+        )
+    }
+
+    func testWakeOnLANScreenHasNavigationTitle() {
+        XCTAssertTrue(
+            app.navigationBars["Wake on LAN"].waitForExistence(timeout: 5),
+            "Wake on LAN navigation title should exist"
+        )
     }
 }

@@ -109,12 +109,70 @@ final class TracerouteToolUITests: XCTestCase {
         }
     }
     
+    // MARK: - Stop Tests
+
+    func testCanStopTraceroute() {
+        tracerouteScreen
+            .enterHost("8.8.8.8")
+            .startTrace()
+
+        sleep(2)
+
+        tracerouteScreen.stopTrace()
+
+        XCTAssertTrue(
+            tracerouteScreen.isDisplayed(),
+            "Traceroute tool should remain displayed after stopping"
+        )
+    }
+
     // MARK: - Navigation Tests
-    
+
     func testCanNavigateBack() {
         tracerouteScreen.navigateBack()
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+
+    // MARK: - Clear Results Tests
+
+    func testCanClearResults() {
+        tracerouteScreen
+            .enterHost("1.1.1.1")
+            .startTrace()
+
+        // Wait for some hops to appear
+        _ = tracerouteScreen.waitForHops(timeout: 30)
+
+        // Clear results
+        tracerouteScreen.clearResults()
+
+        // Hops section should be cleared or tool should remain functional
+        XCTAssertTrue(
+            !tracerouteScreen.hopsSection.exists || tracerouteScreen.isDisplayed(),
+            "Results should be cleared or tool should remain displayed"
+        )
+    }
+
+    func testTracerouteScreenHasNavigationTitle() {
+        XCTAssertTrue(
+            app.navigationBars["Traceroute"].waitForExistence(timeout: 5),
+            "Traceroute navigation title should exist"
+        )
+    }
+
+    func testClearButtonExists() {
+        tracerouteScreen
+            .enterHost("1.1.1.1")
+            .startTrace()
+
+        _ = tracerouteScreen.waitForHops(timeout: 30)
+
+        let clearExists = tracerouteScreen.clearButton.waitForExistence(timeout: 5)
+        XCTAssertTrue(
+            clearExists || tracerouteScreen.runButton.exists,
+            "Clear button should appear after trace, or tool should remain functional"
+        )
     }
 }

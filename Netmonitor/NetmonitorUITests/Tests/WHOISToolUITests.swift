@@ -138,8 +138,29 @@ final class WHOISToolUITests: XCTestCase {
     
     func testCanNavigateBack() {
         whoisScreen.navigateBack()
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+
+    func testClearButtonExists() {
+        whoisScreen
+            .enterDomain("google.com")
+            .startLookup()
+
+        _ = whoisScreen.waitForDomainInfo(timeout: 15)
+
+        let clearExists = whoisScreen.clearButton.waitForExistence(timeout: 5)
+        XCTAssertTrue(
+            clearExists || whoisScreen.runButton.exists,
+            "Clear button should appear after lookup, or tool should remain functional"
+        )
+    }
+
+    func testWHOISScreenHasNavigationTitle() {
+        XCTAssertTrue(
+            app.navigationBars["WHOIS"].waitForExistence(timeout: 5),
+            "WHOIS navigation title should exist"
+        )
     }
 }

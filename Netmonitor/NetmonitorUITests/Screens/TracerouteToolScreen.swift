@@ -5,30 +5,30 @@ final class TracerouteToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_tracerouteTool"]
+        app.descendants(matching: .any)["screen_tracerouteTool"]
     }
-    
+
     // MARK: - Input Elements
     var hostInput: XCUIElement {
         app.textFields["tracerouteTool_input_host"]
     }
-    
+
     var maxHopsPicker: XCUIElement {
         app.buttons["tracerouteTool_picker_maxHops"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["tracerouteTool_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["tracerouteTool_button_clear"]
     }
-    
+
     // MARK: - Results
     var hopsSection: XCUIElement {
-        app.otherElements["tracerouteTool_section_hops"]
+        app.descendants(matching: .any)["tracerouteTool_section_hops"]
     }
     
     // MARK: - Verification
@@ -74,7 +74,7 @@ final class TracerouteToolScreen: BaseScreen {
 
     /// Get count of hop rows
     func getHopCount() -> Int {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'tracerouteTool_hop_'")).count
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'tracerouteTool_hop_'")).count
     }
     
     /// Navigate back to Tools

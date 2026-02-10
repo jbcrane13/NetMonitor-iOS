@@ -5,38 +5,38 @@ final class PingToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_pingTool"]
+        app.descendants(matching: .any)["screen_pingTool"]
     }
-    
+
     // MARK: - Input Elements
     var hostInput: XCUIElement {
         app.textFields["pingTool_input_host"]
     }
-    
+
     var countPicker: XCUIElement {
         app.buttons["pingTool_picker_count"]
     }
-    
+
     // MARK: - Control Buttons
     var runButton: XCUIElement {
         app.buttons["pingTool_button_run"]
     }
-    
+
     var clearButton: XCUIElement {
         app.buttons["pingTool_button_clear"]
     }
-    
+
     // MARK: - Results
     var resultsSection: XCUIElement {
-        app.otherElements["pingTool_section_results"]
+        app.descendants(matching: .any)["pingTool_section_results"]
     }
-    
+
     var statisticsCard: XCUIElement {
-        app.otherElements["pingTool_card_statistics"]
+        app.descendants(matching: .any)["pingTool_card_statistics"]
     }
-    
+
     var packetsCard: XCUIElement {
-        app.otherElements["pingTool_card_packets"]
+        app.descendants(matching: .any)["pingTool_card_packets"]
     }
     
     // MARK: - Verification
@@ -84,7 +84,7 @@ final class PingToolScreen: BaseScreen {
     
     /// Get count of result rows
     func getResultCount() -> Int {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'pingTool_result_'")).count
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'pingTool_result_'")).count
     }
     
     /// Navigate back to Tools

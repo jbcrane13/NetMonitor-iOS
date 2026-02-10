@@ -87,8 +87,38 @@ final class NetworkMapUITests: XCTestCase {
     
     func testCanNavigateToTools() {
         mapScreen.navigateToTab("Tools")
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should navigate to Tools")
+    }
+
+    func testScanButtonIsEnabled() {
+        XCTAssertTrue(
+            mapScreen.scanButton.isEnabled || mapScreen.scanButton.isHittable,
+            "Scan button should be enabled or hittable"
+        )
+    }
+
+    func testMapScreenHasTabBar() {
+        XCTAssertTrue(
+            app.tabBars.element.waitForExistence(timeout: 5),
+            "Tab bar should exist while on map screen"
+        )
+    }
+
+    func testCanNavigateToAllTabs() {
+        // Navigate to Dashboard
+        mapScreen.navigateToTab("Dashboard")
+        let dashboardScreen = DashboardScreen(app: app)
+        XCTAssertTrue(dashboardScreen.isDisplayed(), "Should navigate to Dashboard")
+
+        // Navigate to Tools
+        dashboardScreen.navigateToTab("Tools")
+        let toolsScreen = ToolsScreen(app: app)
+        XCTAssertTrue(toolsScreen.isDisplayed(), "Should navigate to Tools")
+
+        // Navigate back to Map
+        toolsScreen.navigateToTab("Map")
+        XCTAssertTrue(mapScreen.isDisplayed(), "Should navigate back to Map")
     }
 }

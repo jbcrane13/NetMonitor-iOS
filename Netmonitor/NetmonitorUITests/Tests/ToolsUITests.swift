@@ -86,9 +86,9 @@ final class ToolsUITests: XCTestCase {
     }
     
     // MARK: - Tool Cards Existence Tests
-    
-    func testAllEightToolsPresent() {
-        XCTAssertTrue(toolsScreen.verifyAllToolsPresent(), "All 8 tools should be present")
+
+    func testAllNineToolsPresent() {
+        XCTAssertTrue(toolsScreen.verifyAllToolsPresent(), "All 9 tools should be present")
     }
     
     func testPingToolCardExists() {
@@ -146,7 +146,14 @@ final class ToolsUITests: XCTestCase {
             "Wake on LAN tool card should exist"
         )
     }
-    
+
+    func testWebBrowserToolCardExists() {
+        XCTAssertTrue(
+            toolsScreen.webBrowserToolCard.waitForExistence(timeout: 5),
+            "Web Browser tool card should exist"
+        )
+    }
+
     // MARK: - Tool Navigation Tests
     
     func testPingToolOpens() {
@@ -188,7 +195,12 @@ final class ToolsUITests: XCTestCase {
         let wolScreen = toolsScreen.openWakeOnLANTool()
         XCTAssertTrue(wolScreen.isDisplayed(), "Wake on LAN tool screen should open")
     }
-    
+
+    func testWebBrowserToolOpens() {
+        let webBrowserScreen = toolsScreen.openWebBrowserTool()
+        XCTAssertTrue(webBrowserScreen.isDisplayed(), "Web Browser tool screen should open")
+    }
+
     // MARK: - Quick Action Navigation Tests
     
     func testSpeedTestQuickActionOpensSpeedTest() {
@@ -205,5 +217,27 @@ final class ToolsUITests: XCTestCase {
         }
         let speedTestScreen = SpeedTestToolScreen(app: app)
         XCTAssertTrue(speedTestScreen.isDisplayed(), "Speed Test quick action should open Speed Test tool")
+    }
+
+    func testScanNetworkQuickActionExists() {
+        toolsScreen.scrollToQuickActions()
+        XCTAssertTrue(
+            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Scan Network"),
+            "Scan Network quick action should exist"
+        )
+    }
+
+    func testPingGatewayQuickActionExists() {
+        toolsScreen.scrollToQuickActions()
+        XCTAssertTrue(
+            toolsScreen.quickActionExists(toolsScreen.pingGatewayButton, labelText: "Ping Gateway"),
+            "Ping Gateway quick action should exist"
+        )
+    }
+
+    func testCanScrollToolsView() {
+        toolsScreen.swipeUp()
+        toolsScreen.swipeDown()
+        XCTAssertTrue(toolsScreen.isDisplayed(), "Tools screen should still be displayed after scrolling")
     }
 }

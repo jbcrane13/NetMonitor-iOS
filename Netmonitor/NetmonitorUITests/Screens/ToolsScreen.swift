@@ -5,7 +5,7 @@ final class ToolsScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_tools"]
+        app.descendants(matching: .any)["screen_tools"]
     }
     
     // MARK: - Sections
@@ -78,7 +78,11 @@ final class ToolsScreen: BaseScreen {
     var wakeOnLANToolCard: XCUIElement {
         app.buttons["tools_card_wake_on_lan"]
     }
-    
+
+    var webBrowserToolCard: XCUIElement {
+        app.buttons["tools_card_web_browser"]
+    }
+
     // MARK: - Activity
     var clearActivityButton: XCUIElement {
         app.buttons["tools_button_clearActivity"]
@@ -140,7 +144,13 @@ final class ToolsScreen: BaseScreen {
         tapIfExists(wakeOnLANToolCard)
         return WakeOnLANToolScreen(app: app)
     }
-    
+
+    @discardableResult
+    func openWebBrowserTool() -> WebBrowserToolScreen {
+        tapIfExists(webBrowserToolCard)
+        return WebBrowserToolScreen(app: app)
+    }
+
     // MARK: - Scrolling
     /// Scroll to top to ensure quick actions are visible
     @discardableResult
@@ -164,7 +174,8 @@ final class ToolsScreen: BaseScreen {
         waitForElement(bonjourToolCard) &&
         waitForElement(speedTestToolCard) &&
         waitForElement(whoisToolCard) &&
-        waitForElement(wakeOnLANToolCard)
+        waitForElement(wakeOnLANToolCard) &&
+        waitForElement(webBrowserToolCard)
     }
 
     func verifyQuickActionsPresent() -> Bool {

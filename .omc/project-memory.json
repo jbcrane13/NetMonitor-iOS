@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1770412838702,
+  "lastScanned": 1770661886252,
   "projectRoot": "/Users/blake/Projects/NetMonitor-iOS",
   "techStack": {
     "languages": [],
@@ -38,7 +38,7 @@
       "path": "Netmonitor",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1770412838694,
+      "lastAccessed": 1770661885841,
       "keyFiles": [
         "AGENTS.md",
         "CLAUDE.md",
@@ -50,7 +50,7 @@
       "path": "Screenshots",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1770412838694,
+      "lastAccessed": 1770661885841,
       "keyFiles": [
         "01-dashboard.png",
         "02-dashboard-after-load.png",
@@ -63,7 +63,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1770412838694,
+      "lastAccessed": 1770661885842,
       "keyFiles": [
         "AGENTS.md",
         "CLAUDE.md",
@@ -75,12 +75,313 @@
       "path": "tasks",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1770412838694,
+      "lastAccessed": 1770661885842,
       "keyFiles": [
         "TASK-b2g-dashboard-title-fix.md"
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/BonjourToolUITests.swift",
+      "accessCount": 21,
+      "lastAccessed": 1770694228138,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/PortScannerToolUITests.swift",
+      "accessCount": 19,
+      "lastAccessed": 1770694231791,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/ToolsScreen.swift",
+      "accessCount": 18,
+      "lastAccessed": 1770692403060,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/DNSLookupToolUITests.swift",
+      "accessCount": 15,
+      "lastAccessed": 1770693528245,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/ToolsUITests.swift",
+      "accessCount": 14,
+      "lastAccessed": 1770693044492,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/SpeedTestToolUITests.swift",
+      "accessCount": 13,
+      "lastAccessed": 1770693200969,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/TracerouteToolUITests.swift",
+      "accessCount": 13,
+      "lastAccessed": 1770693215696,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/BonjourToolScreen.swift",
+      "accessCount": 13,
+      "lastAccessed": 1770693874896,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor",
+      "accessCount": 12,
+      "lastAccessed": 1770692292014,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/DashboardScreen.swift",
+      "accessCount": 12,
+      "lastAccessed": 1770692402017,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/PingToolScreen.swift",
+      "accessCount": 11,
+      "lastAccessed": 1770692408875,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/SettingsScreen.swift",
+      "accessCount": 11,
+      "lastAccessed": 1770692413543,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/NetworkMapScreen.swift",
+      "accessCount": 11,
+      "lastAccessed": 1770692414072,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/DashboardUITests.swift",
+      "accessCount": 11,
+      "lastAccessed": 1770693032379,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/PingToolUITests.swift",
+      "accessCount": 11,
+      "lastAccessed": 1770693198588,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/BaseScreen.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770692402013,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/DNSLookupToolScreen.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770692409886,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/WebBrowserToolUITests.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770693034844,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/SettingsUITests.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770693044060,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/WHOISToolUITests.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770693528962,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/PortScannerToolScreen.swift",
+      "accessCount": 10,
+      "lastAccessed": 1770693875409,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/WebBrowserToolScreen.swift",
+      "accessCount": 9,
+      "lastAccessed": 1770692413016,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/TracerouteToolScreen.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770692410424,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/SpeedTestToolScreen.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770692410924,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/WHOISToolScreen.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770692411958,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/WakeOnLANToolScreen.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770692412493,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/WakeOnLANToolUITests.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770693042769,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/NetworkMapUITests.swift",
+      "accessCount": 8,
+      "lastAccessed": 1770693043457,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorTests/WHOISServiceTests.swift",
+      "accessCount": 6,
+      "lastAccessed": 1770681393808,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Tools/WebBrowserToolView.swift",
+      "accessCount": 6,
+      "lastAccessed": 1770692307629,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/project.yml",
+      "accessCount": 6,
+      "lastAccessed": 1770693150119,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 5,
+      "lastAccessed": 1770692110096,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/NetmonitorUITests.swift",
+      "accessCount": 5,
+      "lastAccessed": 1770692116794,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/ContentView.swift",
+      "accessCount": 5,
+      "lastAccessed": 1770692296628,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorTests",
+      "accessCount": 4,
+      "lastAccessed": 1770687604909,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests",
+      "accessCount": 4,
+      "lastAccessed": 1770692112209,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Dashboard/DashboardView.swift",
+      "accessCount": 4,
+      "lastAccessed": 1770692297146,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/NetworkMap/NetworkMapView.swift",
+      "accessCount": 4,
+      "lastAccessed": 1770692297671,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Tools/ToolsView.swift",
+      "accessCount": 4,
+      "lastAccessed": 1770692298196,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorTests/ModelTests.swift",
+      "accessCount": 3,
+      "lastAccessed": 1770681376229,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Settings/SettingsView.swift",
+      "accessCount": 3,
+      "lastAccessed": 1770692298724,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Tools/PingToolView.swift",
+      "accessCount": 3,
+      "lastAccessed": 1770692299201,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Tools/DNSLookupToolView.swift",
+      "accessCount": 3,
+      "lastAccessed": 1770692300842,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Views/Tools/BonjourDiscoveryToolView.swift",
+      "accessCount": 3,
+      "lastAccessed": 1770692306726,
+      "type": "file"
+    },
+    {
+      "path": "UI-TEST-REPORT.md",
+      "accessCount": 2,
+      "lastAccessed": 1770680937355,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorTests/PortScannerServiceTests.swift",
+      "accessCount": 2,
+      "lastAccessed": 1770681422742,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor",
+      "accessCount": 2,
+      "lastAccessed": 1770685742945,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Utilities/GlassCard.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770680952071,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Services/WHOISService.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770681302353,
+      "type": "directory"
+    },
+    {
+      "path": "Netmonitor/Netmonitor/Models/ToolModels.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770681310937,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

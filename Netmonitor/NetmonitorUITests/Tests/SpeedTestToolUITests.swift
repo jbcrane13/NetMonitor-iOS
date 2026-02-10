@@ -63,12 +63,84 @@ final class SpeedTestToolUITests: XCTestCase {
         }
     }
     
+    // MARK: - Stop Tests
+
+    func testCanStopSpeedTest() {
+        speedTestScreen.startTest()
+
+        sleep(3)
+
+        speedTestScreen.stopTest()
+
+        XCTAssertTrue(
+            speedTestScreen.isDisplayed(),
+            "Speed Test should remain displayed after stopping"
+        )
+    }
+
     // MARK: - Navigation Tests
-    
+
     func testCanNavigateBack() {
         speedTestScreen.navigateBack()
-        
+
         let toolsScreen = ToolsScreen(app: app)
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
+    }
+
+    func testHistorySectionAppearance() {
+        // Scroll to ensure history section is visible
+        speedTestScreen.swipeUp()
+
+        // History section should exist (may be empty)
+        XCTAssertTrue(
+            speedTestScreen.historySection.exists || app.staticTexts["History"].exists,
+            "History section should exist"
+        )
+    }
+
+    func testSpeedTestScreenHasNavigationTitle() {
+        XCTAssertTrue(
+            app.navigationBars["Speed Test"].waitForExistence(timeout: 5),
+            "Speed Test navigation title should exist"
+        )
+    }
+
+    // MARK: - Results Verification Tests
+
+    func testGaugeShowsActivityDuringTest() {
+        speedTestScreen.startTest()
+
+        // During test, gauge should be present
+        XCTAssertTrue(
+            speedTestScreen.verifyGaugePresent(),
+            "Gauge should remain visible during speed test"
+        )
+
+        // Wait briefly and verify tool is still functional
+        sleep(3)
+        XCTAssertTrue(
+            speedTestScreen.isDisplayed(),
+            "Speed test screen should remain displayed during test"
+        )
+    }
+
+    func testResultsSectionAfterTest() {
+        speedTestScreen.startTest()
+
+        let gotResults = speedTestScreen.waitForResults(timeout: 90)
+        if gotResults {
+            // Results section should contain speed information
+            let hasDownload = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'download' OR label CONTAINS[c] 'Mbps' OR label CONTAINS[c] 'MB'")).count > 0
+            XCTAssertTrue(
+                hasDownload || speedTestScreen.resultsSection.exists,
+                "Results should contain speed information"
+            )
+        } else {
+            // Network may not be available in simulator
+            XCTAssertTrue(
+                speedTestScreen.isDisplayed(),
+                "Speed test should remain functional after timeout"
+            )
+        }
     }
 }

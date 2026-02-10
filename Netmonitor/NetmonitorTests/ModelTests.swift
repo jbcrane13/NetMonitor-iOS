@@ -436,29 +436,6 @@ struct WakeOnLANToolViewModelTests {
     }
 }
 
-// MARK: - WHOISService Tests
-
-@Suite("WHOISService Tests")
-struct WHOISServiceTests {
-
-    @Test("Server selection for common TLDs")
-    func serverSelection() async {
-        let service = WHOISService()
-
-        let comServer = await service.serverForDomain("example.com")
-        #expect(comServer == "whois.verisign-grs.com")
-
-        let orgServer = await service.serverForDomain("example.org")
-        #expect(orgServer == "whois.pir.org")
-
-        let ioServer = await service.serverForDomain("example.io")
-        #expect(ioServer == "whois.nic.io")
-
-        let unknownServer = await service.serverForDomain("example.xyz")
-        #expect(unknownServer == "whois.iana.org")
-    }
-}
-
 // MARK: - PingToolViewModel Tests
 
 @Suite("PingToolViewModel Tests")

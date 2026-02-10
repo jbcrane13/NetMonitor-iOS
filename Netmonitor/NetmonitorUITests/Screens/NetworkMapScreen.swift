@@ -5,20 +5,20 @@ final class NetworkMapScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_networkMap"]
+        app.descendants(matching: .any)["screen_networkMap"]
     }
-    
+
     // MARK: - Elements
     var topology: XCUIElement {
-        app.otherElements["networkMap_topology"]
+        app.descendants(matching: .any)["networkMap_topology"]
     }
 
     var deviceList: XCUIElement {
-        app.otherElements["networkMap_deviceList"]
+        app.descendants(matching: .any)["networkMap_deviceList"]
     }
 
     var gatewayNode: XCUIElement {
-        app.otherElements["networkMap_node_gateway"]
+        app.descendants(matching: .any)["networkMap_node_gateway"]
     }
 
     // Fallback text elements for when otherElements aren't found
@@ -74,13 +74,13 @@ final class NetworkMapScreen: BaseScreen {
     
     /// Get count of discovered device nodes
     func getDeviceNodeCount() -> Int {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'networkMap_node_'")).count - 1 // Subtract gateway
+        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'networkMap_node_'")).count - 1 // Subtract gateway
     }
-    
+
     /// Tap a device node by IP (underscored format)
     func tapDeviceNode(ip: String) {
         let nodeId = "networkMap_node_\(ip.replacingOccurrences(of: ".", with: "_"))"
-        let node = app.otherElements[nodeId]
+        let node = app.descendants(matching: .any)[nodeId]
         tapIfExists(node)
     }
 }

@@ -5,36 +5,36 @@ final class WakeOnLANToolScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_wolTool"]
+        app.descendants(matching: .any)["screen_wolTool"]
     }
-    
+
     // MARK: - Input Elements
     var macAddressInput: XCUIElement {
         app.textFields["wol_input_mac"]
     }
-    
+
     var broadcastAddressInput: XCUIElement {
         app.textFields["wol_input_broadcast"]
     }
-    
+
     // MARK: - Control Buttons
     var sendButton: XCUIElement {
         app.buttons["wol_button_send"]
     }
-    
+
     // MARK: - Results
     // Note: GlassCard containers may not be reliably found as otherElements in XCUITest.
     // Use multiple query strategies to find them.
     var successMessage: XCUIElement {
-        app.otherElements["wol_success"]
+        app.descendants(matching: .any)["wol_success"]
     }
 
     var errorMessage: XCUIElement {
-        app.otherElements["wol_error"]
+        app.descendants(matching: .any)["wol_error"]
     }
 
     var infoCard: XCUIElement {
-        app.otherElements["wol_info"]
+        app.descendants(matching: .any)["wol_info"]
     }
 
     /// Fallback: check for the info card's known content text
