@@ -1,0 +1,23 @@
+# Ralph Progress Log
+Started: 2026-02-10T04:30:00.000Z
+
+## Feature: Device Details Page
+
+### Codebase Patterns
+- LocalDevice is @Model (SwiftData persistent), DiscoveredDevice is transient Sendable struct
+- ViewModels: @MainActor @Observable, views own via @State
+- Services: @MainActor @Observable or actor, use async/await + AsyncStream
+- Navigation: TabView(3 tabs) → NavigationStack → navigationDestination(for:)
+- Tools accept host: String parameter (PingService, PortScannerService, etc.)
+- Design: Liquid Glass via Theme.swift, GlassCard, GlassButton
+- Accessibility: {screen}_{element}_{descriptor} pattern
+- Existing DNS/Bonjour services available for name resolution
+- MAC vendor API: maclookup.app (free, no key needed)
+
+### Dependencies
+- US-001 (model) blocks US-002, US-003, US-004
+- US-002, US-003 provide data for US-004 display
+- US-004 (view) blocks US-005 (quick actions), US-006 (navigation), US-007 (services)
+- US-008 (tests) depends on all prior stories
+
+---
