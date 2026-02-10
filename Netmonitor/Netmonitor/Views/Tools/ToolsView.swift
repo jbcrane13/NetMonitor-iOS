@@ -39,6 +39,7 @@ enum ToolDestination: Hashable {
     case whois
     case wakeOnLAN
     case webBrowser
+    case networkMonitor
 
     @ViewBuilder
     var view: some View {
@@ -61,6 +62,8 @@ enum ToolDestination: Hashable {
             WakeOnLANToolView()
         case .webBrowser:
             WebBrowserToolView()
+        case .networkMonitor:
+            NetworkMapView()
         }
     }
 }
@@ -75,16 +78,26 @@ struct QuickActionsSection: View {
                 .foregroundStyle(Theme.Colors.textPrimary)
 
             HStack(spacing: Theme.Layout.itemSpacing) {
-                QuickActionButton(
-                    title: "Scan Network",
-                    icon: "network",
-                    color: Theme.Colors.accent,
-                    isLoading: viewModel.isScanning
-                ) {
-                    Task {
-                        await viewModel.runNetworkScan()
+                NavigationLink(value: ToolDestination.networkMonitor) {
+                    VStack(spacing: Theme.Layout.smallCornerRadius) {
+                        Image(systemName: "network")
+                            .font(.title2)
+                            .foregroundStyle(Theme.Colors.accent)
+
+                        Text("Monitor Network")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .glassCard(cornerRadius: 16, padding: 0)
                 }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("quickAction_monitor_network")
 
                 NavigationLink(value: ToolDestination.speedTest) {
                     VStack(spacing: Theme.Layout.smallCornerRadius) {
@@ -107,14 +120,24 @@ struct QuickActionsSection: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("quickAction_speed_test")
 
-                QuickActionButton(
-                    title: "Ping Gateway",
-                    icon: "arrow.up.arrow.down",
-                    color: Theme.Colors.info,
-                    isLoading: false
-                ) {
-                    Task {
-                        await viewModel.pingGateway()
+                VStack(spacing: 0) {
+                    QuickActionButton(
+                        title: "Ping Gateway",
+                        icon: "arrow.up.arrow.down",
+                        color: Theme.Colors.info,
+                        isLoading: false
+                    ) {
+                        Task {
+                            await viewModel.pingGateway()
+                        }
+                    }
+
+                    if let result = viewModel.lastGatewayResult {
+                        Text(result)
+                            .font(.caption2)
+                            .foregroundStyle(Theme.Colors.success)
+                            .padding(.top, 4)
+                            .transition(.opacity)
                     }
                 }
             }

@@ -43,9 +43,12 @@ final class BonjourDiscoveryToolViewModel {
             let stream = bonjourService.discoveryStream(serviceType: nil)
 
             for await service in stream {
+                // Only append if not cancelled
+                guard !Task.isCancelled else { break }
                 services.append(service)
             }
 
+            // Stream ended - discovery stopped
             isDiscovering = false
         }
     }

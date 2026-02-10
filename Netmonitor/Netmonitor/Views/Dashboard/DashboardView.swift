@@ -141,7 +141,7 @@ struct SessionCard: View {
 
 struct WiFiCard: View {
     let viewModel: DashboardViewModel
-    
+
     var body: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
@@ -153,13 +153,24 @@ struct WiFiCard: View {
                         .foregroundStyle(Theme.Colors.textPrimary)
                     Spacer()
                     if viewModel.connectionType == .wifi {
-                        SignalStrengthIndicator(strength: viewModel.currentWiFi?.signalBars ?? 0)
+                        Text("WiFi")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Theme.Colors.success)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Theme.Colors.success.opacity(0.2))
+                            .clipShape(Capsule())
                     }
                 }
-                
+
                 if let wifi = viewModel.currentWiFi {
                     VStack(spacing: Theme.Layout.smallCornerRadius) {
                         ToolResultRow(label: "Network", value: wifi.ssid, icon: "network")
+                        ToolResultRow(label: "Type", value: "WiFi", icon: "wifi")
+                        if let bssid = wifi.bssid {
+                            ToolResultRow(label: "BSSID", value: bssid, icon: "barcode", isMonospaced: true)
+                        }
                         if let dbm = wifi.signalDBm {
                             ToolResultRow(label: "Signal", value: "\(dbm) dBm", icon: "antenna.radiowaves.left.and.right")
                         }
@@ -168,9 +179,6 @@ struct WiFiCard: View {
                         }
                         if let security = wifi.securityType {
                             ToolResultRow(label: "Security", value: security, icon: "lock.shield")
-                        }
-                        if let bssid = wifi.bssid {
-                            ToolResultRow(label: "BSSID", value: bssid, icon: "barcode", isMonospaced: true)
                         }
                     }
                 } else if viewModel.needsLocationPermission {
@@ -205,23 +213,6 @@ struct WiFiCard: View {
             .foregroundStyle(Theme.Colors.textSecondary)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
-    }
-}
-
-struct SignalStrengthIndicator: View {
-    let strength: Int
-    let maxBars: Int = 4
-    
-    var body: some View {
-        HStack(spacing: 2) {
-            ForEach(0..<maxBars, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(index < strength ? Theme.Colors.success : Theme.Colors.textTertiary)
-                    .frame(width: Theme.Layout.signalBarWidth, height: CGFloat(8 + index * 4))
-            }
-        }
-        .accessibilityIdentifier("signalStrength_\(strength)")
-        .accessibilityLabel("Signal strength \(strength) of \(maxBars) bars")
     }
 }
 
@@ -325,54 +316,63 @@ struct ISPCard: View {
 
 struct LocalDevicesCard: View {
     let viewModel: DashboardViewModel
-    
+
     var body: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
-                HStack {
-                    Image(systemName: "desktopcomputer")
-                        .foregroundStyle(Theme.Colors.accent)
-                    Text("Local Devices")
-                        .font(.headline)
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                    Spacer()
-                    Text("\(viewModel.deviceCount) devices")
-                        .font(.subheadline)
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                }
-                
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Last Scan")
-                            .font(.caption)
-                            .foregroundStyle(Theme.Colors.textSecondary)
-                        if let lastScan = viewModel.lastScanDate {
-                            Text(lastScan, style: .relative)
+        NavigationLink(destination: DeviceListView(discoveredDevices: viewModel.discoveredDevices)) {
+            GlassCard {
+                VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
+                    HStack {
+                        Image(systemName: "desktopcomputer")
+                            .foregroundStyle(Theme.Colors.accent)
+                        Text("Local Devices")
+                            .font(.headline)
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        Spacer()
+                        HStack(spacing: 4) {
+                            Text("\(viewModel.deviceCount) devices")
                                 .font(.subheadline)
-                                .foregroundStyle(Theme.Colors.textPrimary)
-                        } else {
-                            Text("Never")
-                                .font(.subheadline)
-                                .foregroundStyle(Theme.Colors.textPrimary)
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.textTertiary)
                         }
                     }
-                    
-                    Spacer()
-                    
-                    if viewModel.isScanning {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: Theme.Colors.accent))
-                    } else {
-                        GlassButton(title: "Scan", icon: "magnifyingglass", size: .small) {
-                            Task {
-                                await viewModel.startDeviceScan()
+
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Last Scan")
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                            if let lastScan = viewModel.lastScanDate {
+                                Text(lastScan, style: .relative)
+                                    .font(.subheadline)
+                                    .foregroundStyle(Theme.Colors.textPrimary)
+                            } else {
+                                Text("Never")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Theme.Colors.textPrimary)
                             }
                         }
+
+                        Spacer()
+
+                        if viewModel.isScanning {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Theme.Colors.accent))
+                        } else {
+                            GlassButton(title: "Scan", icon: "magnifyingglass", size: .small) {
+                                Task {
+                                    await viewModel.startDeviceScan()
+                                }
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .buttonStyle(PlainButtonStyle())
         .accessibilityIdentifier("dashboard_card_localDevices")
     }
 }

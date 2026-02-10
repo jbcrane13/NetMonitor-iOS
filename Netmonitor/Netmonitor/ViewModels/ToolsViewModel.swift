@@ -9,6 +9,7 @@ final class ToolsViewModel {
     private(set) var isPortScanRunning = false
     private(set) var currentPingResults: [PingResult] = []
     private(set) var currentPortScanResults: [PortScanResult] = []
+    private(set) var lastGatewayResult: String?
     
     let pingService: any PingServiceProtocol
     let portScannerService: any PortScannerServiceProtocol
@@ -140,14 +141,31 @@ final class ToolsViewModel {
     
     func pingGateway() async {
         await gatewayService.detectGateway()
-        
+
         if let gateway = gatewayService.gateway {
+            let resultText = "\(gateway.ipAddress) • \(gateway.latencyText ?? "Connected")"
+            lastGatewayResult = resultText
+
             addActivity(
                 tool: "Ping",
                 target: gateway.ipAddress,
                 result: gateway.latencyText ?? "Connected",
                 success: true
             )
+
+            // Clear result after 5 seconds
+            Task {
+                try? await Task.sleep(for: .seconds(5))
+                lastGatewayResult = nil
+            }
+        } else {
+            lastGatewayResult = "No gateway found"
+
+            // Clear result after 5 seconds
+            Task {
+                try? await Task.sleep(for: .seconds(5))
+                lastGatewayResult = nil
+            }
         }
     }
     

@@ -21,7 +21,7 @@ struct NetworkMapView: View {
                 }
             }
             .task {
-                await viewModel.startScan()
+                await viewModel.startScan(forceRefresh: false)
             }
             .navigationDestination(item: Binding(
                 get: { viewModel.selectedDeviceIP },
@@ -37,7 +37,7 @@ struct NetworkMapView: View {
     private var scanButton: some View {
         Button {
             Task {
-                await viewModel.startScan()
+                await viewModel.startScan(forceRefresh: true)
             }
         } label: {
             if viewModel.isScanning {

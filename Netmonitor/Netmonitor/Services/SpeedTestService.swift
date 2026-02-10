@@ -141,60 +141,23 @@ final class SpeedTestService: NSObject {
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
 
         let start = Date()
-        let (bytes, response) = try await session.bytes(for: request)
+
+        // Use data(for:) for efficient bulk download instead of byte-by-byte
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
             throw SpeedTestError.serverError
         }
 
-        let expectedLength = httpResponse.expectedContentLength
-        var totalReceived: Int64 = 0
-        let chunkSize = 64 * 1024 // 64KB chunks for better performance
-        var buffer = Data()
-        buffer.reserveCapacity(chunkSize)
-        
-        downloadBytesReceived = 0
-        downloadStartTime = start
-
-        // FIXED: Process bytes in efficient chunks instead of byte-by-byte
-        for try await byte in bytes {
-            buffer.append(byte)
-            
-            // Process in larger chunks for better performance
-            if buffer.count >= chunkSize || (expectedLength > 0 && totalReceived + Int64(buffer.count) >= expectedLength) {
-                let chunkBytes = Int64(buffer.count)
-                totalReceived += chunkBytes
-                downloadBytesReceived = totalReceived
-                buffer.removeAll(keepingCapacity: true)
-                
-                // Update progress and speed more efficiently
-                if expectedLength > 0 {
-                    let newProgress = Double(totalReceived) / Double(expectedLength)
-                    progress = min(newProgress, 1.0)
-                    
-                    let elapsed = Date().timeIntervalSince(start)
-                    if elapsed > 0.1 { // Update speed every 100ms minimum
-                        downloadSpeed = Double(totalReceived * 8) / elapsed / 1_000_000
-                    }
-                }
-                
-                try Task.checkCancellation()
-            }
-        }
-        
-        // Process any remaining bytes
-        if !buffer.isEmpty {
-            let remainingBytes = Int64(buffer.count)
-            totalReceived += remainingBytes
-            downloadBytesReceived = totalReceived
-        }
-
         let elapsed = Date().timeIntervalSince(start)
         guard elapsed > 0 else { return 0 }
-        
-        // Final speed calculation
-        let speedMbps = Double(totalReceived * 8) / elapsed / 1_000_000
+
+        let totalBytes = Int64(data.count)
+        downloadBytesReceived = totalBytes
+        progress = 1.0
+
+        let speedMbps = Double(totalBytes * 8) / elapsed / 1_000_000
         downloadSpeed = speedMbps
         return speedMbps
     }

@@ -43,7 +43,14 @@ final class NetworkMapViewModel {
         bonjourService.discoveredServices
     }
     
-    func startScan() async {
+    func startScan(forceRefresh: Bool = false) async {
+        // Skip if we already have results from a recent scan (within 60 seconds)
+        if !forceRefresh,
+           !discoveredDevices.isEmpty,
+           let lastScan = deviceDiscoveryService.lastScanDate,
+           Date().timeIntervalSince(lastScan) < 60 {
+            return
+        }
         await deviceDiscoveryService.scanNetwork(subnet: nil)
     }
     
@@ -65,6 +72,6 @@ final class NetworkMapViewModel {
     
     func refresh() async {
         await gatewayService.detectGateway()
-        await deviceDiscoveryService.scanNetwork(subnet: nil)
+        await startScan(forceRefresh: true)
     }
 }
