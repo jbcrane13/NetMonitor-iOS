@@ -19,8 +19,11 @@ final class WakeOnLANToolViewModel {
 
     private let wolService: any WakeOnLANServiceProtocol
 
-    init(wolService: any WakeOnLANServiceProtocol = WakeOnLANService()) {
+    init(wolService: any WakeOnLANServiceProtocol = WakeOnLANService(), initialMacAddress: String? = nil) {
         self.wolService = wolService
+        if let initialMacAddress = initialMacAddress {
+            self.macAddress = initialMacAddress
+        }
     }
 
     // MARK: - Computed Properties

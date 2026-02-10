@@ -2,7 +2,13 @@ import SwiftUI
 
 /// Ping tool view for testing host reachability
 struct PingToolView: View {
-    @State private var viewModel = PingToolViewModel()
+    let initialHost: String?
+    @State private var viewModel: PingToolViewModel
+
+    init(initialHost: String? = nil) {
+        self.initialHost = initialHost
+        self._viewModel = State(initialValue: PingToolViewModel(initialHost: initialHost))
+    }
 
     var body: some View {
         ScrollView {

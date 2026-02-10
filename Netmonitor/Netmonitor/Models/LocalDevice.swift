@@ -17,7 +17,11 @@ final class LocalDevice {
     var firstSeen: Date
     var lastSeen: Date
     var notes: String?
-    
+    var resolvedHostname: String?
+    var manufacturer: String?
+    var openPorts: [Int]?
+    var discoveredServices: [String]?
+
     init(
         id: UUID = UUID(),
         ipAddress: String,
@@ -30,7 +34,11 @@ final class LocalDevice {
         lastLatency: Double? = nil,
         isGateway: Bool = false,
         supportsWakeOnLan: Bool = false,
-        notes: String? = nil
+        notes: String? = nil,
+        resolvedHostname: String? = nil,
+        manufacturer: String? = nil,
+        openPorts: [Int]? = nil,
+        discoveredServices: [String]? = nil
     ) {
         self.id = id
         self.ipAddress = ipAddress
@@ -46,10 +54,14 @@ final class LocalDevice {
         self.firstSeen = Date()
         self.lastSeen = Date()
         self.notes = notes
+        self.resolvedHostname = resolvedHostname
+        self.manufacturer = manufacturer
+        self.openPorts = openPorts
+        self.discoveredServices = discoveredServices
     }
     
     var displayName: String {
-        customName ?? hostname ?? ipAddress
+        customName ?? resolvedHostname ?? hostname ?? ipAddress
     }
     
     var formattedMacAddress: String {

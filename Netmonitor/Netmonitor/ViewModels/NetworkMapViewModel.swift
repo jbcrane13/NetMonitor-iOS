@@ -3,7 +3,7 @@ import Foundation
 @MainActor
 @Observable
 final class NetworkMapViewModel {
-    private(set) var selectedDeviceIP: String?
+    var selectedDeviceIP: String?
     
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     let gatewayService: any GatewayServiceProtocol

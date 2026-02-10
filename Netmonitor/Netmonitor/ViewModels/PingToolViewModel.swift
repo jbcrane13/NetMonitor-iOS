@@ -25,8 +25,11 @@ final class PingToolViewModel {
     private let pingService: any PingServiceProtocol
     private var pingTask: Task<Void, Never>?
 
-    init(pingService: any PingServiceProtocol = PingService()) {
+    init(pingService: any PingServiceProtocol = PingService(), initialHost: String? = nil) {
         self.pingService = pingService
+        if let initialHost = initialHost {
+            self.host = initialHost
+        }
     }
 
     // MARK: - Computed Properties

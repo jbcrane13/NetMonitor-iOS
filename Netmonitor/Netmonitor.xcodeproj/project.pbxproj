@@ -29,11 +29,13 @@
 		238D2A8042A6A08822DA1B56 /* SpeedTestToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC5A13735AF98830DC10D74 /* SpeedTestToolScreen.swift */; };
 		26A8AD63310A016D0E197E7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */; };
 		27DC896E46B4025DB940681A /* NetworkMapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB1C480E81630053E84B74E /* NetworkMapScreen.swift */; };
+		29C812B2BF604171396CD09A /* DeviceNameResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759DE888578874E90B49CD5C /* DeviceNameResolver.swift */; };
 		29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */; };
 		2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33559F156548EF73D7F1450 /* DashboardView.swift */; };
 		3174F0BAC8CC4D082023D448 /* DashboardUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676FDFA6FA30CE17EDD55C4B /* DashboardUITests.swift */; };
 		3265D18FD8004ECCE5E32DA6 /* WakeOnLANToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22BEC63DF690D795CAF710F /* WakeOnLANToolViewModel.swift */; };
 		32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */; };
+		38C01677DF8EF9E1782E8888 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF267D60E5E69DA3580C0637 /* DeviceDetailView.swift */; };
 		3BE8993F1F9B0295A1871DDF /* PortScannerToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0B9A9C61281712842689A6 /* PortScannerToolViewModel.swift */; };
 		3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A684E333115E6A9D9307FB /* ServiceProtocols.swift */; };
 		419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */; };
@@ -42,6 +44,7 @@
 		4F531E52F9283E780A11AD31 /* ToolClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE3BC8C2E8587C19E12A25C /* ToolClearButton.swift */; };
 		506524F1FFC2B56EAFC59961 /* PublicIPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C207EB5D98191A0B7F0C582B /* PublicIPService.swift */; };
 		518F6B86E5929EB25747D37B /* SpeedTestToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F7A275FD612584B1EBC235 /* SpeedTestToolViewModel.swift */; };
+		54AE945331AC04A4241C0BA6 /* DeviceDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539B19432439CD2798642904 /* DeviceDetailScreen.swift */; };
 		5660E8DE88C207CD78745048 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD98A9090968B419D3C50A7B /* ContentView.swift */; };
 		57DAD8B829A0D0AE754129AA /* ToolsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D17EB90E9137729B1C21D004 /* ToolsUITests.swift */; };
 		5A543160E7F3FC84722106BA /* DNSLookupToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FADE1F9BC923A5CC643D35 /* DNSLookupToolViewModel.swift */; };
@@ -74,6 +77,7 @@
 		9215237969D7CDABFA5CD4A2 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07EA322CAD921F569DD291C /* EmptyStateView.swift */; };
 		93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02055F2010A87B108B40DBFF /* StatusBadge.swift */; };
 		9931234D8F8D2221970329E2 /* PingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666B7D3676F199D98F8CDAE6 /* PingService.swift */; };
+		9C9BBC1AC61F0156A8BD5392 /* DeviceDetailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A646E79542AEFD3909B20A49 /* DeviceDetailTests.swift */; };
 		A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */; };
 		A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D89D07B0E8D95EB1314E86 /* SettingsView.swift */; };
 		A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66834196F05AEFC207F67B35 /* NetworkMapView.swift */; };
@@ -86,6 +90,7 @@
 		AE5D9D728D6F531A59C50C19 /* WebBrowserToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F935F449C1BAA19590AF1C33 /* WebBrowserToolScreen.swift */; };
 		AE97F016D4B2E29630061A1B /* ToolRunButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 094CFA7360143B82F75A7EB1 /* ToolRunButton.swift */; };
 		B25A120449A4A2DDD872ABDD /* SpeedTestToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 773CD7BFFD69A6BB9E013967 /* SpeedTestToolUITests.swift */; };
+		B49F7507AABB42156727EA89 /* MACVendorLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4195BA109EA1021B616FC9A2 /* MACVendorLookupService.swift */; };
 		B93B4C2F2439E56ECB464C84 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6AFFA75177ABCBE889D3BB /* MetricCard.swift */; };
 		BD46AC401EB70A0DB80DF33E /* ToolResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E84D20209C2F8E01041E94F /* ToolResult.swift */; };
 		BFA8EBCD5DE8EB0F356495A0 /* GatewayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */; };
@@ -102,11 +107,13 @@
 		CDB58D126FB987AED4CA46A6 /* BackgroundTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */; };
 		CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */; };
 		D7E8FBD05424FE8677213B74 /* TracerouteToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD13DBD10983D46386B3CB1 /* TracerouteToolView.swift */; };
+		D97C3E380F29B44DE0DE4253 /* DeviceDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE07B0498E13641B7B25404 /* DeviceDetailViewModel.swift */; };
 		D9BEA9ED83862EAD7A785F89 /* DNSLookupToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782E83BEB37D74286405C265 /* DNSLookupToolScreen.swift */; };
 		DA041C1DB8E0898E61A69C24 /* SpeedTestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */; };
 		DF85EB51E2BA627806492418 /* ToolResultRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141BF850FCC550338D72B7AF /* ToolResultRow.swift */; };
 		E0AEE979D6E8F2690F743439 /* PortScannerToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2784CD17EE1760AF879F96A /* PortScannerToolUITests.swift */; };
 		E6B930D1B328C0A1E1B29BFA /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA362BD9D2F3CA940C445512 /* ModelTests.swift */; };
+		EB4F25F232323CA4C7BCAEF5 /* DeviceDetailUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */; };
 		EC86D1E45F3607F5FD1BC075 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CC30DB1C8834D21D07E32BC /* NetworkError.swift */; };
 		F1FFC624C0E0BA2C75666725 /* CompanionMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033F1255B0B57C017086E8F8 /* CompanionMessage.swift */; };
 		F3C9B852652E69E7847B8801 /* ToolsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D7A67DB0C2408DDC15FAF1 /* ToolsScreen.swift */; };
@@ -183,6 +190,7 @@
 		3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANService.swift; sourceTree = "<group>"; };
 		3ABA1D23D2CBE1FD126EECBF /* MacPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPairingView.swift; sourceTree = "<group>"; };
 		3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolViewModel.swift; sourceTree = "<group>"; };
+		4195BA109EA1021B616FC9A2 /* MACVendorLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MACVendorLookupService.swift; sourceTree = "<group>"; };
 		43AF94739B269FC1575A7C64 /* BonjourDiscoveryToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryToolView.swift; sourceTree = "<group>"; };
 		475DD181BC184D12F5543624 /* ToolsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModel.swift; sourceTree = "<group>"; };
 		4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskService.swift; sourceTree = "<group>"; };
@@ -191,6 +199,7 @@
 		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
 		5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NetmonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
+		539B19432439CD2798642904 /* DeviceDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailScreen.swift; sourceTree = "<group>"; };
 		5759CADDA2E2A2291F8D3900 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorService.swift; sourceTree = "<group>"; };
 		5C12050F0EAF174A6D28C98B /* NetworkMapUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapUITests.swift; sourceTree = "<group>"; };
@@ -206,6 +215,7 @@
 		70EB42A6AD07CC40DA9B5048 /* BonjourToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourToolScreen.swift; sourceTree = "<group>"; };
 		74168BED9E68CEE13F41DDB4 /* DNSLookupToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupToolUITests.swift; sourceTree = "<group>"; };
 		74D8D7846855E63D5D70CBE6 /* DNSLookupToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupToolView.swift; sourceTree = "<group>"; };
+		759DE888578874E90B49CD5C /* DeviceNameResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceNameResolver.swift; sourceTree = "<group>"; };
 		7652D24B8136AB72C321388E /* NetmonitorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetmonitorApp.swift; sourceTree = "<group>"; };
 		773CD7BFFD69A6BB9E013967 /* SpeedTestToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestToolUITests.swift; sourceTree = "<group>"; };
 		782E83BEB37D74286405C265 /* DNSLookupToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupToolScreen.swift; sourceTree = "<group>"; };
@@ -216,6 +226,7 @@
 		87D89D07B0E8D95EB1314E86 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		87FFC87A4EBFEAB564F0178D /* WHOISService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISService.swift; sourceTree = "<group>"; };
 		88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
+		895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailUITests.swift; sourceTree = "<group>"; };
 		8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NetmonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CF37CB8EA2B149229CD1189 /* BonjourToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourToolUITests.swift; sourceTree = "<group>"; };
 		92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -226,6 +237,7 @@
 		9E923657203E10C881ED154E /* MonitoringTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringTarget.swift; sourceTree = "<group>"; };
 		A33559F156548EF73D7F1450 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolUITests.swift; sourceTree = "<group>"; };
+		A646E79542AEFD3909B20A49 /* DeviceDetailTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailTests.swift; sourceTree = "<group>"; };
 		A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GatewayService.swift; sourceTree = "<group>"; };
 		A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AAE00E42D443DCE45B77E999 /* WHOISToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISToolUITests.swift; sourceTree = "<group>"; };
@@ -251,12 +263,14 @@
 		CAD13DBD10983D46386B3CB1 /* TracerouteToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteToolView.swift; sourceTree = "<group>"; };
 		CB0B9A9C61281712842689A6 /* PortScannerToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerToolViewModel.swift; sourceTree = "<group>"; };
 		CDC5A13735AF98830DC10D74 /* SpeedTestToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestToolScreen.swift; sourceTree = "<group>"; };
+		CF267D60E5E69DA3580C0637 /* DeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailView.swift; sourceTree = "<group>"; };
 		D17EB90E9137729B1C21D004 /* ToolsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsUITests.swift; sourceTree = "<group>"; };
 		D2DE7F8A1D8140441C29A3B2 /* TracerouteServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteServiceTests.swift; sourceTree = "<group>"; };
 		D4EC81A821305FA78EDF39F2 /* TracerouteToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteToolViewModel.swift; sourceTree = "<group>"; };
 		D57264957B282936BB6CC799 /* DNSLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSLookupService.swift; sourceTree = "<group>"; };
 		D59B9B70E6692112DF8019BF /* WakeOnLANToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolScreen.swift; sourceTree = "<group>"; };
 		DC287DDC78C55DC6A7B19F51 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		DEE07B0498E13641B7B25404 /* DeviceDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailViewModel.swift; sourceTree = "<group>"; };
 		E07EA322CAD921F569DD291C /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E22BEC63DF690D795CAF710F /* WakeOnLANToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolViewModel.swift; sourceTree = "<group>"; };
 		E2784CD17EE1760AF879F96A /* PortScannerToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerToolUITests.swift; sourceTree = "<group>"; };
@@ -281,6 +295,7 @@
 				B90304020D4B3151F77A454A /* BaseScreen.swift */,
 				70EB42A6AD07CC40DA9B5048 /* BonjourToolScreen.swift */,
 				B110AF1C722E2CE74C25EFF5 /* DashboardScreen.swift */,
+				539B19432439CD2798642904 /* DeviceDetailScreen.swift */,
 				782E83BEB37D74286405C265 /* DNSLookupToolScreen.swift */,
 				AEB1C480E81630053E84B74E /* NetworkMapScreen.swift */,
 				2AFE5E5DCE34D3FC50475D52 /* PingToolScreen.swift */,
@@ -370,6 +385,7 @@
 			children = (
 				12104D7EB06574920F40B209 /* BonjourDiscoveryToolViewModel.swift */,
 				ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */,
+				DEE07B0498E13641B7B25404 /* DeviceDetailViewModel.swift */,
 				37FADE1F9BC923A5CC643D35 /* DNSLookupToolViewModel.swift */,
 				5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */,
 				3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */,
@@ -393,6 +409,14 @@
 				FB129EC3165CBDEDE8804667 /* Theme.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		756922B213C3BAB991052AF0 /* DeviceDetail */ = {
+			isa = PBXGroup;
+			children = (
+				CF267D60E5E69DA3580C0637 /* DeviceDetailView.swift */,
+			);
+			path = DeviceDetail;
 			sourceTree = "<group>";
 		};
 		756FF34A53661EDBD0F0B89B /* Netmonitor */ = {
@@ -419,6 +443,7 @@
 			children = (
 				62360F94B964DE4BD1725F6E /* Components */,
 				56462C8C87EC20502B449722 /* Dashboard */,
+				756922B213C3BAB991052AF0 /* DeviceDetail */,
 				9F34762630D56D16DA0D4E18 /* NetworkMap */,
 				CF5F029C595B322BB6B53A3E /* Settings */,
 				BDEA5678731A7CABD62E9CE4 /* Tools */,
@@ -441,9 +466,11 @@
 				88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */,
 				5FA287DBFBE09678EC985C93 /* DataExportService.swift */,
 				7C0F962442B05882BF335EA7 /* DeviceDiscoveryService.swift */,
+				759DE888578874E90B49CD5C /* DeviceNameResolver.swift */,
 				D57264957B282936BB6CC799 /* DNSLookupService.swift */,
 				A7BA8567A3B739091EAC1AE0 /* GatewayService.swift */,
 				028028F98729F2EE8C0C5498 /* MacConnectionService.swift */,
+				4195BA109EA1021B616FC9A2 /* MACVendorLookupService.swift */,
 				58CBC37D9966628861F04C25 /* NetworkMonitorService.swift */,
 				3330E2C0C120D6F9187854C1 /* NotificationService.swift */,
 				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
@@ -471,6 +498,7 @@
 		90188B6011C0D23757D7E68F /* NetmonitorTests */ = {
 			isa = PBXGroup;
 			children = (
+				A646E79542AEFD3909B20A49 /* DeviceDetailTests.swift */,
 				B0A56CB9F9017D327E732650 /* DNSLookupServiceTests.swift */,
 				BA362BD9D2F3CA940C445512 /* ModelTests.swift */,
 				0C21CEEC269150806B5E9A01 /* NetworkMonitorServiceTests.swift */,
@@ -513,6 +541,7 @@
 			children = (
 				8CF37CB8EA2B149229CD1189 /* BonjourToolUITests.swift */,
 				676FDFA6FA30CE17EDD55C4B /* DashboardUITests.swift */,
+				895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */,
 				74168BED9E68CEE13F41DDB4 /* DNSLookupToolUITests.swift */,
 				5C12050F0EAF174A6D28C98B /* NetworkMapUITests.swift */,
 				A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */,
@@ -702,13 +731,17 @@
 				2E025D365C89D9AC7714DF30 /* DashboardView.swift in Sources */,
 				5B9B202652127DB6F3B99D1F /* DashboardViewModel.swift in Sources */,
 				5FE0072C887CBDE80906DE5D /* DataExportService.swift in Sources */,
+				38C01677DF8EF9E1782E8888 /* DeviceDetailView.swift in Sources */,
+				D97C3E380F29B44DE0DE4253 /* DeviceDetailViewModel.swift in Sources */,
 				C168B2E0690BF1558729567D /* DeviceDiscoveryService.swift in Sources */,
+				29C812B2BF604171396CD09A /* DeviceNameResolver.swift in Sources */,
 				9215237969D7CDABFA5CD4A2 /* EmptyStateView.swift in Sources */,
 				0998BA84147CA6DB0A71C79F /* Enums.swift in Sources */,
 				BFA8EBCD5DE8EB0F356495A0 /* GatewayService.swift in Sources */,
 				CE961BF1944F5A7B2703FB1F /* GlassButton.swift in Sources */,
 				32D1B59F40E66DB91E515DFE /* GlassCard.swift in Sources */,
 				F718105BDBE5F0B48DA691C4 /* LocalDevice.swift in Sources */,
+				B49F7507AABB42156727EA89 /* MACVendorLookupService.swift in Sources */,
 				5D1541C9E89C5A0BC8020948 /* MacConnectionService.swift in Sources */,
 				AC1262263918E403166C5206 /* MacPairingView.swift in Sources */,
 				B93B4C2F2439E56ECB464C84 /* MetricCard.swift in Sources */,
@@ -773,6 +806,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A1E248E3CF96938E4ECDC31 /* DNSLookupServiceTests.swift in Sources */,
+				9C9BBC1AC61F0156A8BD5392 /* DeviceDetailTests.swift in Sources */,
 				E6B930D1B328C0A1E1B29BFA /* ModelTests.swift in Sources */,
 				1A83022DFB5EFE416ADB56BF /* NetworkMonitorServiceTests.swift in Sources */,
 				419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */,
@@ -794,6 +828,8 @@
 				03140E45B86D0CE346ED5D82 /* DNSLookupToolUITests.swift in Sources */,
 				AC150F4865382C8F37B1E5A7 /* DashboardScreen.swift in Sources */,
 				3174F0BAC8CC4D082023D448 /* DashboardUITests.swift in Sources */,
+				54AE945331AC04A4241C0BA6 /* DeviceDetailScreen.swift in Sources */,
+				EB4F25F232323CA4C7BCAEF5 /* DeviceDetailUITests.swift in Sources */,
 				27DC896E46B4025DB940681A /* NetworkMapScreen.swift in Sources */,
 				AC389886B48F0E89220A6D49 /* NetworkMapUITests.swift in Sources */,
 				222389FC69992542DDB437D0 /* PingToolScreen.swift in Sources */,

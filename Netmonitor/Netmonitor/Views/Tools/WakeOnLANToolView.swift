@@ -2,7 +2,13 @@ import SwiftUI
 
 /// Wake on LAN tool view for waking devices remotely
 struct WakeOnLANToolView: View {
-    @State private var viewModel = WakeOnLANToolViewModel()
+    let initialMacAddress: String?
+    @State private var viewModel: WakeOnLANToolViewModel
+
+    init(initialMacAddress: String? = nil) {
+        self.initialMacAddress = initialMacAddress
+        self._viewModel = State(initialValue: WakeOnLANToolViewModel(initialMacAddress: initialMacAddress))
+    }
 
     var body: some View {
         ScrollView {

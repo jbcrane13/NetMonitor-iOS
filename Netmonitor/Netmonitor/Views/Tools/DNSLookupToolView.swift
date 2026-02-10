@@ -2,7 +2,13 @@ import SwiftUI
 
 /// DNS Lookup tool view for querying DNS records
 struct DNSLookupToolView: View {
-    @State private var viewModel = DNSLookupToolViewModel()
+    let initialDomain: String?
+    @State private var viewModel: DNSLookupToolViewModel
+
+    init(initialDomain: String? = nil) {
+        self.initialDomain = initialDomain
+        self._viewModel = State(initialValue: DNSLookupToolViewModel(initialDomain: initialDomain))
+    }
 
     var body: some View {
         ScrollView {

@@ -22,8 +22,11 @@ final class PortScannerToolViewModel {
     private let portScannerService: any PortScannerServiceProtocol
     private var scanTask: Task<Void, Never>?
 
-    init(portScannerService: any PortScannerServiceProtocol = PortScannerService()) {
+    init(portScannerService: any PortScannerServiceProtocol = PortScannerService(), initialHost: String? = nil) {
         self.portScannerService = portScannerService
+        if let initialHost = initialHost {
+            self.host = initialHost
+        }
     }
 
     // MARK: - Computed Properties

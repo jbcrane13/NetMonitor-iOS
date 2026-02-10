@@ -23,6 +23,13 @@ struct NetworkMapView: View {
             .task {
                 await viewModel.startScan()
             }
+            .navigationDestination(item: Binding(
+                get: { viewModel.selectedDeviceIP },
+                set: { viewModel.selectDevice($0) }
+            )) { ipAddress in
+                DeviceDetailView(ipAddress: ipAddress)
+                    .accessibilityIdentifier("deviceDetail_navigation")
+            }
         }
         .accessibilityIdentifier("screen_networkMap")
     }
@@ -282,6 +289,9 @@ struct DeviceRow: View {
             deviceDetails
             Spacer()
             latencyBadge
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(Theme.Colors.textTertiary)
         }
         .padding(Theme.Layout.itemSpacing)
         .background(rowBackground)

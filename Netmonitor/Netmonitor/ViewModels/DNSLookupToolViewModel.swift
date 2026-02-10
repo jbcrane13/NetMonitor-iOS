@@ -19,8 +19,11 @@ final class DNSLookupToolViewModel {
 
     private let dnsService: any DNSLookupServiceProtocol
 
-    init(dnsService: any DNSLookupServiceProtocol = DNSLookupService()) {
+    init(dnsService: any DNSLookupServiceProtocol = DNSLookupService(), initialDomain: String? = nil) {
         self.dnsService = dnsService
+        if let initialDomain = initialDomain {
+            self.domain = initialDomain
+        }
     }
 
     // MARK: - Computed Properties
