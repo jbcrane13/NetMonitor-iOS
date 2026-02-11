@@ -1,37 +1,44 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1770661886252,
+  "lastScanned": 1770775118953,
   "projectRoot": "/Users/blake/Projects/NetMonitor-iOS",
-  "techStack": "Swift 6 (strict concurrency) | SwiftUI | SwiftData | Observation framework (@Observable) | Network.framework | iOS 18+ deployment target | XcodeGen (project.yml) | Bundle ID: com.blakemiller.netmonitor",
-  "build": "Build: xcodebuild build -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro' | Test: xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro' | Single test: add -only-testing:NetmonitorTests/Class/method | Coverage: add -enableCodeCoverage YES | Project gen: cd Netmonitor && xcodegen generate",
-  "conventions": "Naming: camelCase for properties/methods, PascalCase for types | Accessibility IDs: {screen}_{element}_{descriptor} (e.g. dashboard_button_settings) | ViewModels: @MainActor @Observable classes, views own via @State, @Bindable for bindings | Services: actor isolation or @MainActor @Observable, async/await throughout, AsyncStream for streaming | SwiftData: @Model for persisted, Codable structs for transient | UI: Liquid Glass aesthetic via Theme.swift, GlassCard modifier, GlassButton variants | Screen Object pattern for UI tests (BaseScreen → specific screens) | REJECTED patterns: ObservableObject, @Published, @StateObject, CoreData, DispatchQueue, NavigationView",
-  "structure": "App/ → entry point + tab nav | Models/ → SwiftData @Model + Codable types + enums | ViewModels/ → @MainActor @Observable aggregators | Services/ → 11 network services (actors, @MainActor @Observable) | Views/ → SwiftUI by feature (Dashboard/, NetworkMap/, Tools/, Settings/) | Utilities/ → Theme system, reusable modifiers | NetmonitorTests/ → Swift Testing unit tests | NetmonitorUITests/ → XCUITest with Screen Object pattern",
-  "customNotes": [
-    {
-      "timestamp": 1770700260323,
-      "source": "manual",
-      "category": "tooling",
-      "content": "SwiftUI Dev Plugin (swiftui-dev) installed at ~/.claude/plugins/swiftui-dev/ provides coding practices enforcement. Skills: modern-apple-dev (Swift 6 patterns, @Observable, SwiftData, accessibility IDs), xcode-build (scaffolding, builds, tests), ios-simulator (screenshots, push, biometrics), appium-xcuitest (UI test page objects), cloudkit (iCloud sync). Agents: liquid-glass-expert, project-architect, architect-review, swiftdata-expert, cloudkit-expert, swiftui-ux-designer, mobile-code-implementer. Hooks enforce legacy pattern rejection (ObservableObject, @Published, CoreData) and accessibility identifier validation on write. Commands: /new-app, /design, /plan, /audit, /build, /test, /screenshot, /simulator."
-    },
-    {
-      "timestamp": 1770700264241,
-      "source": "manual",
-      "category": "workflow",
-      "content": "Task tracking uses Beads (bd CLI) - git-backed issue tracker at .beads/. All work should be tracked as beads issues: bd create for new work, bd update --status=in_progress when starting, bd close when done, bd sync to push. Use bd ready to find available work. Dependencies via bd dep add. 34/34 issues completed on this project with 10.2hr avg lead time."
-    },
-    {
-      "timestamp": 1770700267338,
-      "source": "manual",
-      "category": "workflow",
-      "content": "User preference: Use agent teams (Claude Code native teams via /oh-my-claudecode:team) for multi-task work. Prefer spawning coordinated teammate agents over sequential single-agent execution. Teams enable parallel work with shared task lists and automatic coordination. Good for: feature implementation + tests simultaneously, multi-file refactoring, bulk UI test fixes."
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
     }
-  ],
+  },
+  "customNotes": [],
   "directoryMap": {
     "Netmonitor": {
       "path": "Netmonitor",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1770661885841,
+      "lastAccessed": 1770775118942,
       "keyFiles": [
         "AGENTS.md",
         "CLAUDE.md",
@@ -43,7 +50,7 @@
       "path": "Screenshots",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1770661885841,
+      "lastAccessed": 1770775118943,
       "keyFiles": [
         "01-dashboard.png",
         "02-dashboard-after-load.png",
@@ -56,7 +63,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 4,
-      "lastAccessed": 1770661885842,
+      "lastAccessed": 1770775118943,
       "keyFiles": [
         "AGENTS.md",
         "CLAUDE.md",
@@ -68,7 +75,7 @@
       "path": "tasks",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1770661885842,
+      "lastAccessed": 1770775118943,
       "keyFiles": [
         "TASK-b2g-dashboard-title-fix.md"
       ]
@@ -76,327 +83,35 @@
   },
   "hotPaths": [
     {
-      "path": "Netmonitor/NetmonitorUITests/Tests/BonjourToolUITests.swift",
-      "accessCount": 21,
-      "lastAccessed": 1770694228138,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 21,
-      "lastAccessed": 1770706195524,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/NetworkMap/NetworkMapView.swift",
-      "accessCount": 20,
-      "lastAccessed": 1770706156844,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/PortScannerToolUITests.swift",
-      "accessCount": 19,
-      "lastAccessed": 1770694231791,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/ToolsScreen.swift",
-      "accessCount": 18,
-      "lastAccessed": 1770692403060,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/DNSLookupToolUITests.swift",
-      "accessCount": 15,
-      "lastAccessed": 1770693528245,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor",
-      "accessCount": 15,
-      "lastAccessed": 1770702715049,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/ToolsUITests.swift",
-      "accessCount": 14,
-      "lastAccessed": 1770693044492,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/SpeedTestToolUITests.swift",
-      "accessCount": 13,
-      "lastAccessed": 1770693200969,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/TracerouteToolUITests.swift",
-      "accessCount": 13,
-      "lastAccessed": 1770693215696,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/BonjourToolScreen.swift",
-      "accessCount": 13,
-      "lastAccessed": 1770693874896,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/NetworkMapScreen.swift",
-      "accessCount": 13,
-      "lastAccessed": 1770702715653,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/DashboardScreen.swift",
-      "accessCount": 12,
-      "lastAccessed": 1770692402017,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/PingToolScreen.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770692408875,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/SettingsScreen.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770692413543,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/DashboardUITests.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770693032379,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/PingToolUITests.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770693198588,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/BaseScreen.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770702715246,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Tools/ToolsView.swift",
-      "accessCount": 11,
-      "lastAccessed": 1770706088409,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/DNSLookupToolScreen.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770692409886,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/WebBrowserToolUITests.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770693034844,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/SettingsUITests.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770693044060,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/WHOISToolUITests.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770693528962,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/PortScannerToolScreen.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770693875409,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Dashboard/DashboardView.swift",
-      "accessCount": 10,
-      "lastAccessed": 1770706241742,
+      "path": "Netmonitor/Netmonitor/Views/Tools/WebBrowserToolView.swift",
+      "accessCount": 2,
+      "lastAccessed": 1770775314058,
       "type": "file"
     },
     {
       "path": "Netmonitor/NetmonitorUITests/Screens/WebBrowserToolScreen.swift",
-      "accessCount": 9,
-      "lastAccessed": 1770692413016,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/NetworkMapUITests.swift",
-      "accessCount": 9,
-      "lastAccessed": 1770702716620,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/project.yml",
-      "accessCount": 9,
-      "lastAccessed": 1770704419484,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/ContentView.swift",
-      "accessCount": 9,
-      "lastAccessed": 1770705892223,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Models/ToolModels.swift",
-      "accessCount": 9,
-      "lastAccessed": 1770706148867,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/TracerouteToolScreen.swift",
-      "accessCount": 8,
-      "lastAccessed": 1770692410424,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/SpeedTestToolScreen.swift",
-      "accessCount": 8,
-      "lastAccessed": 1770692410924,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/WHOISToolScreen.swift",
-      "accessCount": 8,
-      "lastAccessed": 1770692411958,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Screens/WakeOnLANToolScreen.swift",
-      "accessCount": 8,
-      "lastAccessed": 1770692412493,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/Tests/WakeOnLANToolUITests.swift",
-      "accessCount": 8,
-      "lastAccessed": 1770693042769,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Tools/PingToolView.swift",
-      "accessCount": 7,
-      "lastAccessed": 1770705742904,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorTests/WHOISServiceTests.swift",
-      "accessCount": 6,
-      "lastAccessed": 1770681393808,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Tools/WebBrowserToolView.swift",
-      "accessCount": 6,
-      "lastAccessed": 1770692307629,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests/NetmonitorUITests.swift",
-      "accessCount": 5,
-      "lastAccessed": 1770692116794,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Tools/DNSLookupToolView.swift",
-      "accessCount": 5,
-      "lastAccessed": 1770702432995,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorTests",
-      "accessCount": 4,
-      "lastAccessed": 1770687604909,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/NetmonitorUITests",
-      "accessCount": 4,
-      "lastAccessed": 1770692112209,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/NetmonitorTests/ModelTests.swift",
-      "accessCount": 4,
-      "lastAccessed": 1770702666981,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor",
-      "accessCount": 4,
-      "lastAccessed": 1770704349591,
-      "type": "directory"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Tools/BonjourDiscoveryToolView.swift",
-      "accessCount": 4,
-      "lastAccessed": 1770706107625,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Views/Settings/SettingsView.swift",
-      "accessCount": 3,
-      "lastAccessed": 1770692298724,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Utilities/GlassCard.swift",
-      "accessCount": 3,
-      "lastAccessed": 1770702209811,
-      "type": "file"
-    },
-    {
-      "path": "UI-TEST-REPORT.md",
-      "accessCount": 2,
-      "lastAccessed": 1770680937355,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/NetmonitorTests/PortScannerServiceTests.swift",
-      "accessCount": 2,
-      "lastAccessed": 1770681422742,
-      "type": "file"
-    },
-    {
-      "path": "Netmonitor/Netmonitor/Services/WHOISService.swift",
       "accessCount": 1,
-      "lastAccessed": 1770681302353,
-      "type": "directory"
+      "lastAccessed": 1770775134440,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Tests/WebBrowserToolUITests.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770775134937,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/ToolsScreen.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770775251133,
+      "type": "file"
+    },
+    {
+      "path": "Netmonitor/NetmonitorUITests/Screens/BaseScreen.swift",
+      "accessCount": 1,
+      "lastAccessed": 1770775284494,
+      "type": "file"
     }
   ],
-  "userDirectives": [
-    {
-      "timestamp": 1770700896060,
-      "directive": "Use notepad (notepad_write_working, notepad_write_manual) to capture important decisions, architecture choices, and lessons learned during every session. Never let key insights go unrecorded.",
-      "context": "Knowledge preservation across sessions and compaction events",
-      "source": "explicit",
-      "priority": "high"
-    },
-    {
-      "timestamp": 1770700898503,
-      "directive": "Prefer agent teams (Claude Code native teams via /oh-my-claudecode:team or TeamCreate) over individual sub-agents for multi-task work. Teams provide coordinated execution with shared task lists and inter-agent messaging.",
-      "context": "Execution preference for parallel and multi-file work",
-      "source": "explicit",
-      "priority": "high"
-    },
-    {
-      "timestamp": 1770700901008,
-      "directive": "At the end of every session, review the notepad (notepad_read) and extract lessons learned, key decisions, and reusable patterns. Add durable insights to project memory (project_memory_add_note) and global notepad (notepad_write_manual). This is mandatory before session close.",
-      "context": "Session close protocol - knowledge harvesting",
-      "source": "explicit",
-      "priority": "high"
-    }
-  ]
+  "userDirectives": []
 }
