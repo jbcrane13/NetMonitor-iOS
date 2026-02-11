@@ -63,3 +63,16 @@ fastlane/test_output
 
 # Worktrees
 .worktrees/
+
+# Xcode build output
+**/build/
+*.xcarchive
+
+# OpenMC / Claude state
+.omc/
+
+# OS files
+.DS_Store
+
+# Test artifacts
+test_fixes.swift

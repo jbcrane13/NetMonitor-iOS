@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'Netmonitor' in project 'Netmonitor'
-➜ Explicit dependency on target 'NetmonitorWidget' in project 'Netmonitor'
-Target 'NetmonitorWidget' in project 'Netmonitor' (no dependencies)
