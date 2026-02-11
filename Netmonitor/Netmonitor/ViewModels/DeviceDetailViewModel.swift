@@ -44,17 +44,36 @@ final class DeviceDetailViewModel {
         isLoading = true
         defer { isLoading = false }
 
-        // Lookup manufacturer from MAC address
-        if device.manufacturer == nil, !device.macAddress.isEmpty {
-            device.manufacturer = await macLookupService.lookup(macAddress: device.macAddress)
+        // Extract Sendable values before async work
+        let macAddress = device.macAddress
+        let ipAddress = device.ipAddress
+
+        // Lookup manufacturer from MAC address (skip if empty)
+        if device.manufacturer == nil, !macAddress.isEmpty {
+            let lookupTask = Task { await self.macLookupService.lookup(macAddress: macAddress) }
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                lookupTask.cancel()
+            }
+            let manufacturer = await lookupTask.value
+            timeoutTask.cancel()
+            if !Task.isCancelled { device.manufacturer = manufacturer }
         }
 
-        // Resolve hostname
+        guard !Task.isCancelled else { return }
+
+        // Resolve hostname with timeout to prevent hanging on DNS
         if device.resolvedHostname == nil {
-            device.resolvedHostname = await nameResolver.resolve(
-                ipAddress: device.ipAddress,
-                bonjourServices: bonjourServices
-            )
+            let resolveTask = Task {
+                await self.nameResolver.resolve(ipAddress: ipAddress, bonjourServices: bonjourServices)
+            }
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(8))
+                resolveTask.cancel()
+            }
+            let hostname = await resolveTask.value
+            timeoutTask.cancel()
+            if !Task.isCancelled { device.resolvedHostname = hostname }
         }
     }
 

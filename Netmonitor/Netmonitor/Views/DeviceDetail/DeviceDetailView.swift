@@ -36,8 +36,9 @@ struct DeviceDetailView: View {
         .navigationTitle(viewModel.device?.displayName ?? ipAddress)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-        .task {
+        .task(id: ipAddress) {
             viewModel.loadDevice(ipAddress: ipAddress, context: modelContext)
+            guard !Task.isCancelled else { return }
             await viewModel.enrichDevice(bonjourServices: [])
         }
         .accessibilityIdentifier("screen_deviceDetail")

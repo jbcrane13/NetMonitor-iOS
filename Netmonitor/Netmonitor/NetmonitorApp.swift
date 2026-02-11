@@ -4,6 +4,8 @@ import BackgroundTasks
 
 @main
 struct NetmonitorApp: App {
+    @AppStorage("selectedTheme") private var selectedTheme: String = "system"
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             PairedMac.self,
@@ -25,10 +27,18 @@ struct NetmonitorApp: App {
         }
     }()
 
+    private var resolvedColorScheme: ColorScheme? {
+        switch selectedTheme {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil  // "system" — follow device setting
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(resolvedColorScheme)
                 .accessibilityIdentifier("screen_main")
                 .onAppear {
                     BackgroundTaskService.shared.registerTasks()
