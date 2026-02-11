@@ -60,8 +60,8 @@ final class ToolsUITests: XCTestCase {
     func testScanNetworkButtonExists() {
         toolsScreen.scrollToQuickActions()
         XCTAssertTrue(
-            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Scan Network"),
-            "Scan Network quick action should exist"
+            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Monitor Network"),
+            "Monitor Network quick action should exist"
         )
     }
 
@@ -222,8 +222,8 @@ final class ToolsUITests: XCTestCase {
     func testScanNetworkQuickActionExists() {
         toolsScreen.scrollToQuickActions()
         XCTAssertTrue(
-            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Scan Network"),
-            "Scan Network quick action should exist"
+            toolsScreen.quickActionExists(toolsScreen.scanNetworkButton, labelText: "Monitor Network"),
+            "Monitor Network quick action should exist"
         )
     }
 

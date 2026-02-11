@@ -108,6 +108,24 @@ final class DeviceDetailScreen: BaseScreen {
     }
 
     // MARK: - Navigation
+
+    /// Checks if there are any available devices to test with
+    var hasAvailableDevices: Bool {
+        // Navigate to Map tab
+        navigateToTab("Map")
+
+        // Wait for map screen to load
+        let mapScreen = NetworkMapScreen(app: app)
+        _ = mapScreen.isDisplayed()
+
+        // Check for device nodes (excluding gateway)
+        let deviceNodes = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'networkMap_node_' AND identifier != 'networkMap_node_gateway'")
+        )
+
+        return deviceNodes.count > 0
+    }
+
     @discardableResult
     func navigateToDeviceDetail() -> Self {
         // Navigate to Map tab
@@ -125,10 +143,10 @@ final class DeviceDetailScreen: BaseScreen {
 
         if deviceNodes.count > 0 {
             deviceNodes.element(boundBy: 0).tap()
+            // Wait for detail screen to appear
+            _ = waitForElement(screen)
         }
 
-        // Wait for detail screen to appear
-        _ = waitForElement(screen)
         return self
     }
 

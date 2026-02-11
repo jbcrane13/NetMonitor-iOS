@@ -33,27 +33,27 @@ final class WebBrowserToolScreen: BaseScreen {
 
     // MARK: - Bookmarks
     var routerAdminBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_router_admin"]
+        app.descendants(matching: .any)["webBrowser_bookmark_router_admin"]
     }
 
     var speedTestBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_speed_test"]
+        app.descendants(matching: .any)["webBrowser_bookmark_speed_test"]
     }
 
     var dnsCheckerBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_dns_checker"]
+        app.descendants(matching: .any)["webBrowser_bookmark_dns_checker"]
     }
 
     var whatIsMyIPBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_what's_my_ip"]
+        app.descendants(matching: .any)["webBrowser_bookmark_what's_my_ip"]
     }
 
     var portCheckerBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_port_checker"]
+        app.descendants(matching: .any)["webBrowser_bookmark_port_checker"]
     }
 
     var pingTestBookmark: XCUIElement {
-        app.buttons["webBrowser_bookmark_ping_test"]
+        app.descendants(matching: .any)["webBrowser_bookmark_ping_test"]
     }
 
     // MARK: - Verification

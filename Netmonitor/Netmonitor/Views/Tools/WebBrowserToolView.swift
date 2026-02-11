@@ -224,32 +224,32 @@ struct BookmarkRow: View {
                     .font(.title3)
                     .foregroundStyle(Theme.Colors.accent)
                     .frame(width: 24)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(bookmark.name)
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(Theme.Colors.textPrimary)
-                    
+
                     Text(bookmark.description)
                         .font(.caption)
                         .foregroundStyle(Theme.Colors.textSecondary)
-                    
+
                     Text(bookmark.url)
                         .font(.caption)
                         .fontDesign(.monospaced)
                         .foregroundStyle(Theme.Colors.textTertiary)
                 }
-                
+
                 Spacer()
-                
+
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Theme.Colors.textTertiary)
             }
+            .accessibilityIdentifier("webBrowser_bookmark_\(bookmark.name.lowercased().replacingOccurrences(of: " ", with: "_"))")
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("webBrowser_bookmark_\(bookmark.name.lowercased().replacingOccurrences(of: " ", with: "_"))")
     }
 }
 

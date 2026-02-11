@@ -159,7 +159,7 @@ final class WHOISToolUITests: XCTestCase {
 
     func testWHOISScreenHasNavigationTitle() {
         XCTAssertTrue(
-            app.navigationBars["WHOIS"].waitForExistence(timeout: 5),
+            app.navigationBars["WHOIS Lookup"].waitForExistence(timeout: 5),
             "WHOIS navigation title should exist"
         )
     }

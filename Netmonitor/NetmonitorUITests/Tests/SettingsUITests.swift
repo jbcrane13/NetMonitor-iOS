@@ -410,11 +410,11 @@ final class SettingsUITests: XCTestCase {
     }
 
     func testMacPairingSection() {
-        settingsScreen.swipeUp()
-        settingsScreen.swipeUp()
+        // Mac Companion section is at the top of settings, no scrolling needed
+        // Section headers in SwiftUI Lists may appear as otherElements instead of staticTexts
+        let macCompanionSection = app.otherElements["Mac Companion"].exists ?
+            app.otherElements["Mac Companion"] : app.staticTexts["Mac Companion"]
 
-        // Verify Mac Companion section exists
-        let macCompanionSection = app.staticTexts["Mac Companion"]
         XCTAssertTrue(
             macCompanionSection.waitForExistence(timeout: 5),
             "Mac Companion section should exist in settings"
