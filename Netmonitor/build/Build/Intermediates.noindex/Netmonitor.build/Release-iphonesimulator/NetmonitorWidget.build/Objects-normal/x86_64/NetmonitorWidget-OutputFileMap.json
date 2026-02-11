@@ -1,0 +1,16 @@
+{
+  "" : {
+    "const-values" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary.swiftconstvalues",
+    "dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary.d",
+    "diagnostics" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary.dia",
+    "emit-module-dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary-emit-module.dia",
+    "pch" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget-primary.swiftdeps"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/NetmonitorWidget/NetmonitorWidget.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/NetmonitorWidget.build/Objects-normal/x86_64/NetmonitorWidget.o"
+  }
+}

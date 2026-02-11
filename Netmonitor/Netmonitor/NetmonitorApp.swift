@@ -28,6 +28,7 @@ struct NetmonitorApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)
                 .accessibilityIdentifier("screen_main")
                 .onAppear {
                     BackgroundTaskService.shared.registerTasks()

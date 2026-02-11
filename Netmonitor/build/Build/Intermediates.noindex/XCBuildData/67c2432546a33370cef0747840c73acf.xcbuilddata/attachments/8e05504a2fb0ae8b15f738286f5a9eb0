@@ -1,0 +1,391 @@
+{
+  "" : {
+    "const-values" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary.swiftconstvalues",
+    "dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary.d",
+    "diagnostics" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary.dia",
+    "emit-module-dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary-emit-module.dia",
+    "pch" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Netmonitor-primary.swiftdeps"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ContentView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/CompanionMessage.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/CompanionMessage.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/CompanionMessage.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/CompanionMessage.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/Enums.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Enums.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Enums.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Enums.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/LocalDevice.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/LocalDevice.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/LocalDevice.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/LocalDevice.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/MonitoringTarget.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MonitoringTarget.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MonitoringTarget.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MonitoringTarget.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/NetworkError.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkError.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkError.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkError.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/NetworkModels.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkModels.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkModels.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkModels.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/PairedMac.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PairedMac.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PairedMac.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PairedMac.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/ToolModels.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolModels.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolModels.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolModels.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Models/ToolResult.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResult.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResult.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResult.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/NetmonitorApp.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetmonitorApp.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetmonitorApp.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetmonitorApp.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/BackgroundTaskService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BackgroundTaskService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BackgroundTaskService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BackgroundTaskService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/BonjourDiscoveryService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/DNSLookupService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/DataExportService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DataExportService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DataExportService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DataExportService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/DeviceDiscoveryService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDiscoveryService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDiscoveryService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDiscoveryService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/DeviceNameResolver.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceNameResolver.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceNameResolver.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceNameResolver.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/GatewayService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GatewayService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GatewayService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GatewayService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/MACVendorLookupService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MACVendorLookupService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MACVendorLookupService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MACVendorLookupService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/MacConnectionService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacConnectionService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacConnectionService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacConnectionService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/NetworkMonitorService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMonitorService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMonitorService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMonitorService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/NotificationService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NotificationService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NotificationService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NotificationService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/PingService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/PortScannerService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/PublicIPService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PublicIPService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PublicIPService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PublicIPService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/ServiceProtocols.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ServiceProtocols.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ServiceProtocols.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ServiceProtocols.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/SpeedTestService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/TracerouteService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/WHOISService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/WakeOnLANService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Services/WiFiInfoService.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WiFiInfoService.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WiFiInfoService.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WiFiInfoService.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Utilities/ConcurrencyHelpers.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConcurrencyHelpers.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConcurrencyHelpers.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConcurrencyHelpers.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Utilities/GlassCard.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassCard.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassCard.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassCard.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Utilities/NetworkUtilities.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkUtilities.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkUtilities.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkUtilities.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Utilities/Theme.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/Theme.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/BonjourDiscoveryToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/DNSLookupToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/DashboardViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/DeviceDetailViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/NetworkMapViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/PingToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/PortScannerToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/SettingsViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/SpeedTestToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/ToolsViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/TracerouteToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/WHOISToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/ViewModels/WakeOnLANToolViewModel.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolViewModel.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolViewModel.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolViewModel.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/EmptyStateView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/EmptyStateView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/EmptyStateView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/EmptyStateView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/GlassButton.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassButton.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassButton.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GlassButton.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/MetricCard.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MetricCard.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MetricCard.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MetricCard.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/StatusBadge.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/StatusBadge.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/StatusBadge.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/StatusBadge.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/ToolClearButton.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolClearButton.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolClearButton.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolClearButton.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/ToolInputField.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolInputField.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolInputField.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolInputField.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/ToolResultRow.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResultRow.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResultRow.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolResultRow.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/ToolRunButton.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolRunButton.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolRunButton.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolRunButton.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Components/ToolStatisticsCard.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolStatisticsCard.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolStatisticsCard.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolStatisticsCard.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Dashboard/DashboardView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DashboardView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Dashboard/DeviceListView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceListView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceListView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceListView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/DeviceDetail/DeviceDetailView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DeviceDetailView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/NetworkMap/NetworkMapView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/NetworkMapView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Settings/AcknowledgementsView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/AcknowledgementsView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/AcknowledgementsView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/AcknowledgementsView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Settings/ConnectionSettingsSection.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConnectionSettingsSection.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConnectionSettingsSection.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ConnectionSettingsSection.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Settings/MacPairingView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacPairingView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacPairingView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/MacPairingView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Settings/SettingsView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SettingsView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/BonjourDiscoveryToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/BonjourDiscoveryToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/DNSLookupToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/DNSLookupToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/PingToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PingToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/PortScannerToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/PortScannerToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/SpeedTestToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/SpeedTestToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/ToolsView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/ToolsView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/TracerouteToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/TracerouteToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/WHOISToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WHOISToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/WakeOnLANToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WakeOnLANToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/Netmonitor/Views/Tools/WebBrowserToolView.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WebBrowserToolView.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WebBrowserToolView.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/WebBrowserToolView.o"
+  },
+  "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/blake/Projects/NetMonitor-iOS/Netmonitor/build/Build/Intermediates.noindex/Netmonitor.build/Release-iphonesimulator/Netmonitor.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}
