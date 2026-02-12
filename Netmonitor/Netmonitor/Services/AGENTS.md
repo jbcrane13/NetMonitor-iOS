@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-01-29 | Updated: 2026-01-29 -->
+<!-- Generated: 2026-01-29 | Updated: 2026-02-12 -->
 
 # Services
 
@@ -20,7 +20,15 @@ Network operation services implementing async/await patterns. Each service encap
 | `BonjourDiscoveryService.swift` | mDNS/Bonjour service browser |
 | `WakeOnLANService.swift` | Magic packet UDP broadcast |
 | `TracerouteService.swift` | Network path tracing |
-| `WHOISService.swift` | WHOIS domain/IP lookups |
+| `WHOISService.swift` | WHOIS domain/IP lookups (actor) |
+| `SpeedTestService.swift` | Download/upload bandwidth measurement |
+| `MacConnectionService.swift` | Paired Mac companion WebSocket connection |
+| `BackgroundTaskService.swift` | BGTaskScheduler for background refresh/sync |
+| `NotificationService.swift` | Local notification delivery |
+| `DataExportService.swift` | CSV/JSON export of results |
+| `DeviceNameResolver.swift` | Hostname reverse-DNS resolution |
+| `MACVendorLookupService.swift` | MAC address to vendor name lookup |
+| `ServiceProtocols.swift` | Protocol definitions for dependency injection |
 
 ## For AI Agents
 
@@ -32,9 +40,10 @@ Network operation services implementing async/await patterns. Each service encap
 - Use `NWConnection` from Network.framework for TCP/UDP operations
 
 ### Concurrency Patterns
-- `actor` for shared mutable state (`PingService`)
-- `TaskGroup` for parallel operations (`DeviceDiscoveryService`)
-- `AsyncStream` for streaming results (ping, port scan)
-- `@MainActor` on services that update UI-bound state
+- `actor` for concurrent background ops: PingService, PortScannerService, TracerouteService, WHOISService
+- `TaskGroup` for parallel operations (DeviceDiscoveryService — 20 concurrent probes)
+- `AsyncStream` for streaming results (ping, port scan, traceroute)
+- `@MainActor @Observable` on state-holding services that publish to UI
+- `static` for stateless utilities (BackgroundTask, Notification, DataExport, DeviceNameResolver, MACVendor)
 
 <!-- MANUAL: -->

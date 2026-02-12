@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-01-29 | Updated: 2026-01-29 -->
+<!-- Generated: 2026-01-29 | Updated: 2026-02-12 -->
 
 # Views
 
@@ -13,7 +13,8 @@ SwiftUI views organized by feature area. Each subdirectory corresponds to a tab 
 | `NetworkMap/` | Device discovery and network topology view (see `NetworkMap/AGENTS.md`) |
 | `Tools/` | Network tool views — ping, port scan, DNS, traceroute, etc. (see `Tools/AGENTS.md`) |
 | `Components/` | Reusable UI components — cards, buttons, badges (see `Components/AGENTS.md`) |
-| `Settings/` | App settings views |
+| `Settings/` | App settings: SettingsView, MacPairingView, ConnectionSettingsSection, AcknowledgementsView |
+| `DeviceDetail/` | DeviceDetailView for individual device information |
 
 ## For AI Agents
 

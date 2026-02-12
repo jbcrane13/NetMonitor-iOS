@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-01-29 | Updated: 2026-01-29 -->
+<!-- Generated: 2026-01-29 | Updated: 2026-02-12 -->
 
 # Netmonitor (Source Root)
 
@@ -9,8 +9,8 @@ Application source code organized in a layered architecture: Models → Services
 ## Key Files
 | File | Description |
 |------|-------------|
-| `NetmonitorApp.swift` | App entry point, SwiftData container setup, environment injection |
-| `ContentView.swift` | Root TabView with Dashboard, Network Map, and Tools tabs |
+| `NetmonitorApp.swift` | App entry point, SwiftData container, forces `.dark` color scheme |
+| `ContentView.swift` | Root TabView with Dashboard, Network Map, Tools, and Settings tabs |
 | `Info.plist` | Bundle configuration, permissions, background modes |
 
 ## Subdirectories
@@ -40,5 +40,11 @@ View (@State var vm) → ViewModel (@Observable) → Service (async/await) → N
 
 ### Accessibility
 All interactive elements need identifiers: `{screen}_{element}_{descriptor}`
+
+### Codebase Stats
+- 75 Swift source files, ~44K LOC
+- 20 services, 13 ViewModels, 27 views
+- 9 unit test files (~2,626 LOC), 14 UI test files + 15 page objects
+- Dark-only UI — app forces `.dark` color scheme (Liquid Glass design)
 
 <!-- MANUAL: -->

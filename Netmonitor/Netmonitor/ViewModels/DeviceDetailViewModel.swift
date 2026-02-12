@@ -50,13 +50,18 @@ final class DeviceDetailViewModel {
 
         // Lookup manufacturer from MAC address (skip if empty)
         if device.manufacturer == nil, !macAddress.isEmpty {
-            let lookupTask = Task { await self.macLookupService.lookup(macAddress: macAddress) }
-            let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(5))
-                lookupTask.cancel()
+            let manufacturer: String? = await withTaskGroup(of: String?.self) { group in
+                group.addTask {
+                    await self.macLookupService.lookup(macAddress: macAddress)
+                }
+                group.addTask {
+                    try? await Task.sleep(for: .seconds(5))
+                    return nil
+                }
+                let result = await group.next()
+                group.cancelAll()
+                return result ?? nil
             }
-            let manufacturer = await lookupTask.value
-            timeoutTask.cancel()
             if !Task.isCancelled { device.manufacturer = manufacturer }
         }
 
@@ -64,15 +69,18 @@ final class DeviceDetailViewModel {
 
         // Resolve hostname with timeout to prevent hanging on DNS
         if device.resolvedHostname == nil {
-            let resolveTask = Task {
-                await self.nameResolver.resolve(ipAddress: ipAddress, bonjourServices: bonjourServices)
+            let hostname: String? = await withTaskGroup(of: String?.self) { group in
+                group.addTask {
+                    await self.nameResolver.resolve(ipAddress: ipAddress, bonjourServices: bonjourServices)
+                }
+                group.addTask {
+                    try? await Task.sleep(for: .seconds(8))
+                    return nil
+                }
+                let result = await group.next()
+                group.cancelAll()
+                return result ?? nil
             }
-            let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(8))
-                resolveTask.cancel()
-            }
-            let hostname = await resolveTask.value
-            timeoutTask.cancel()
             if !Task.isCancelled { device.resolvedHostname = hostname }
         }
     }
@@ -100,9 +108,8 @@ final class DeviceDetailViewModel {
         isDiscovering = true
         defer { isDiscovering = false }
 
-        var discoveredServiceNames: [String] = []
-
-        // Start discovery and collect services for 10 seconds
+        // Phase 1: Collect services from stream (up to 10 seconds)
+        var collectedServices: [BonjourService] = []
         let stream = bonjourService.discoveryStream()
 
         let timeoutTask = Task {
@@ -111,18 +118,32 @@ final class DeviceDetailViewModel {
         }
 
         for await service in stream {
-            // Resolve the service to get its IP address
-            if let resolved = await bonjourService.resolveService(service),
-               let hostName = resolved.hostName,
-               hostName.contains(device.ipAddress) || device.ipAddress.hasPrefix(hostName.components(separatedBy: ".").prefix(3).joined(separator: ".")) {
-                let serviceName = "\(service.name) (\(service.type))"
-                if !discoveredServiceNames.contains(serviceName) {
-                    discoveredServiceNames.append(serviceName)
+            collectedServices.append(service)
+        }
+        timeoutTask.cancel()
+
+        // Phase 2: Resolve all collected services concurrently
+        let deviceIP = device.ipAddress
+        var discoveredServiceNames: [String] = []
+
+        await withTaskGroup(of: String?.self) { group in
+            for service in collectedServices {
+                group.addTask {
+                    if let resolved = await self.bonjourService.resolveService(service),
+                       let hostName = resolved.hostName,
+                       hostName.contains(deviceIP) {
+                        return "\(service.name) (\(service.type))"
+                    }
+                    return nil
+                }
+            }
+            for await name in group {
+                if let name, !discoveredServiceNames.contains(name) {
+                    discoveredServiceNames.append(name)
                 }
             }
         }
 
-        timeoutTask.cancel()
         device.discoveredServices = discoveredServiceNames
     }
 }

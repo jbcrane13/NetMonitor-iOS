@@ -1,7 +1,6 @@
 import Foundation
 
 @MainActor
-@Observable
 final class DeviceNameResolver {
     private(set) var isResolving: Bool = false
     private let dnsService = DNSLookupService()

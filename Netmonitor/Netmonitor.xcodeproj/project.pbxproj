@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -229,13 +229,13 @@
 		87FFC87A4EBFEAB564F0178D /* WHOISService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISService.swift; sourceTree = "<group>"; };
 		88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
 		895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailUITests.swift; sourceTree = "<group>"; };
-		8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NetmonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NetmonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CF37CB8EA2B149229CD1189 /* BonjourToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourToolUITests.swift; sourceTree = "<group>"; };
-		92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolModels.swift; sourceTree = "<group>"; };
 		9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestService.swift; sourceTree = "<group>"; };
 		9DE3BC8C2E8587C19E12A25C /* ToolClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolClearButton.swift; sourceTree = "<group>"; };
-		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E923657203E10C881ED154E /* MonitoringTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringTarget.swift; sourceTree = "<group>"; };
 		A33559F156548EF73D7F1450 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolUITests.swift; sourceTree = "<group>"; };
@@ -690,7 +690,6 @@
 			);
 			mainGroup = 297C70D64E1D8B8B47D66ABA;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -945,10 +944,15 @@
 		13F26AB74BC59C4C133F370F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NetmonitorWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "NetMonitor Widget";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -960,10 +964,15 @@
 		2ADD4EB526B8120662E0D1AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NetmonitorWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "NetMonitor Widget";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1116,6 +1125,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1132,6 +1142,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

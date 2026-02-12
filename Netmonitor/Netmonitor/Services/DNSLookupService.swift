@@ -52,57 +52,59 @@ final class DNSLookupService {
 
     private func performAddressLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
-            var hints = addrinfo()
-            hints.ai_family = type == .a ? AF_INET : AF_INET6
-            hints.ai_socktype = SOCK_STREAM
+            let domainCopy = domain
+            let typeCopy = type
+            DispatchQueue.global(qos: .userInitiated).async {
+                var hints = addrinfo()
+                hints.ai_family = typeCopy == .a ? AF_INET : AF_INET6
+                hints.ai_socktype = SOCK_STREAM
 
-            var result: UnsafeMutablePointer<addrinfo>?
-            let status = getaddrinfo(domain, nil, &hints, &result)
+                var result: UnsafeMutablePointer<addrinfo>?
+                let status = getaddrinfo(domainCopy, nil, &hints, &result)
 
-            guard status == 0, let addrInfo = result else {
-                continuation.resume(throwing: DNSError.lookupFailed)
-                return
-            }
-
-            defer { freeaddrinfo(result) }
-
-            var records: [DNSRecord] = []
-            var current: UnsafeMutablePointer<addrinfo>? = addrInfo
-
-            while let info = current {
-                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-
-                let sockaddr = info.pointee.ai_addr
-                let socklen = info.pointee.ai_addrlen
-
-                getnameinfo(sockaddr, socklen, &hostname, socklen_t(hostname.count),
-                           nil, 0, NI_NUMERICHOST)
-
-                let address = String(cString: hostname)
-                let recordType: DNSRecordType = info.pointee.ai_family == AF_INET6 ? .aaaa : .a
-
-                if (type == .a && recordType == .a) || (type == .aaaa && recordType == .aaaa) {
-                    let record = DNSRecord(
-                        name: domain,
-                        type: recordType,
-                        value: address,
-                        ttl: 300
-                    )
-                    records.append(record)
+                guard status == 0, let addrInfo = result else {
+                    continuation.resume(throwing: DNSError.lookupFailed)
+                    return
                 }
 
-                current = info.pointee.ai_next
-            }
+                defer { freeaddrinfo(result) }
 
-            continuation.resume(returning: records)
+                var records: [DNSRecord] = []
+                var current: UnsafeMutablePointer<addrinfo>? = addrInfo
+
+                while let info = current {
+                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+
+                    let sockaddr = info.pointee.ai_addr
+                    let socklen = info.pointee.ai_addrlen
+
+                    getnameinfo(sockaddr, socklen, &hostname, socklen_t(hostname.count),
+                               nil, 0, NI_NUMERICHOST)
+
+                    let address = String(cString: hostname)
+                    let recordType: DNSRecordType = info.pointee.ai_family == AF_INET6 ? .aaaa : .a
+
+                    if (typeCopy == .a && recordType == .a) || (typeCopy == .aaaa && recordType == .aaaa) {
+                        let record = DNSRecord(
+                            name: domainCopy,
+                            type: recordType,
+                            value: address,
+                            ttl: 300
+                        )
+                        records.append(record)
+                    }
+
+                    current = info.pointee.ai_next
+                }
+
+                continuation.resume(returning: records)
+            }
         }
     }
 
     private func performDNSServiceLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
             var serviceRef: DNSServiceRef?
-            var records: [DNSRecord] = []
-            var resumed = false
 
             let rrtype = dnsRecordTypeToConstant(type)
 
@@ -110,10 +112,7 @@ final class DNSLookupService {
                 guard errorCode == kDNSServiceErr_NoError else { return }
                 guard let context = context else { return }
 
-                let contextPtr = context.assumingMemoryBound(to: QueryContext.self)
-                let queryContext = contextPtr.pointee
-
-                guard !queryContext.resumed else { return }
+                let queryContext = Unmanaged<QueryContext>.fromOpaque(context).takeUnretainedValue()
 
                 if let record = DNSLookupService.parseRecord(
                     domain: queryContext.domain,
@@ -127,61 +126,72 @@ final class DNSLookupService {
 
                 // If MoreComing flag is not set, we're done
                 if (flags & kDNSServiceFlagsMoreComing) == 0 {
-                    queryContext.resumed = true
-                    queryContext.continuation.resume(returning: queryContext.records)
+                    let records = queryContext.records
+                    let resumeState = queryContext.resumeState
+                    let cont = queryContext.continuation
+                    Task {
+                        guard await resumeState.tryResume() else { return }
+                        cont.resume(returning: records)
+                    }
                 }
             }
 
-            var context = QueryContext(
+            let queryContext = QueryContext(
                 domain: domain,
                 recordType: type,
                 records: [],
                 continuation: continuation,
-                resumed: false
+                resumeState: ResumeState()
             )
 
-            withUnsafeMutablePointer(to: &context) { contextPtr in
-                let error = DNSServiceQueryRecord(
-                    &serviceRef,
-                    0, // flags
-                    0, // interfaceIndex (0 = all interfaces)
-                    domain,
-                    UInt16(rrtype),
-                    UInt16(kDNSServiceClass_IN),
-                    callback,
-                    contextPtr
-                )
+            let unmanaged = Unmanaged.passRetained(queryContext)
+            let rawPtr = unmanaged.toOpaque()
 
-                guard error == kDNSServiceErr_NoError, let service = serviceRef else {
-                    if !resumed {
-                        resumed = true
-                        continuation.resume(throwing: DNSError.lookupFailed)
-                    }
-                    return
+            let error = DNSServiceQueryRecord(
+                &serviceRef,
+                0, // flags
+                0, // interfaceIndex (0 = all interfaces)
+                domain,
+                UInt16(rrtype),
+                UInt16(kDNSServiceClass_IN),
+                callback,
+                rawPtr
+            )
+
+            guard error == kDNSServiceErr_NoError, let service = serviceRef else {
+                let resumeState = queryContext.resumeState
+                Task {
+                    guard await resumeState.tryResume() else { return }
+                    continuation.resume(throwing: DNSError.lookupFailed)
                 }
+                unmanaged.release()
+                return
+            }
 
-                // Schedule on run loop
-                let socket = DNSServiceRefSockFD(service)
-                let source = DispatchSource.makeReadSource(fileDescriptor: socket)
+            // Schedule on run loop
+            let socket = DNSServiceRefSockFD(service)
+            let source = DispatchSource.makeReadSource(fileDescriptor: socket)
 
-                source.setEventHandler {
-                    DNSServiceProcessResult(service)
+            source.setEventHandler {
+                DNSServiceProcessResult(service)
+            }
+
+            source.setCancelHandler {
+                DNSServiceRefDeallocate(service)
+            }
+
+            source.resume()
+
+            // Set timeout
+            let resumeState = queryContext.resumeState
+            DispatchQueue.global().asyncAfter(deadline: .now() + 5.0) {
+                source.cancel()
+                let rs = resumeState
+                Task {
+                    guard await rs.tryResume() else { return }
+                    continuation.resume(throwing: DNSError.timeout)
                 }
-
-                source.setCancelHandler {
-                    DNSServiceRefDeallocate(service)
-                }
-
-                source.resume()
-
-                // Set timeout
-                DispatchQueue.global().asyncAfter(deadline: .now() + 5.0) {
-                    source.cancel()
-                    if !resumed {
-                        resumed = true
-                        continuation.resume(throwing: DNSError.timeout)
-                    }
-                }
+                Unmanaged<QueryContext>.fromOpaque(rawPtr).release()
             }
         }
     }
@@ -349,20 +359,20 @@ private class QueryContext {
     let recordType: DNSRecordType
     var records: [DNSRecord]
     let continuation: CheckedContinuation<[DNSRecord], Error>
-    var resumed: Bool
+    let resumeState: ResumeState
 
     init(
         domain: String,
         recordType: DNSRecordType,
         records: [DNSRecord],
         continuation: CheckedContinuation<[DNSRecord], Error>,
-        resumed: Bool
+        resumeState: ResumeState
     ) {
         self.domain = domain
         self.recordType = recordType
         self.records = records
         self.continuation = continuation
-        self.resumed = resumed
+        self.resumeState = resumeState
     }
 }
 
