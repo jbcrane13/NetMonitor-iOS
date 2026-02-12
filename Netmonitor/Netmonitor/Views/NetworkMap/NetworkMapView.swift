@@ -226,13 +226,13 @@ struct DeviceNode: View {
 
 struct DeviceListSection: View {
     let viewModel: NetworkMapViewModel
-    
+
     var body: some View {
         VStack(spacing: 0) {
             headerSection
             deviceList
         }
-        .background(.ultraThinMaterial)
+        .background(Theme.Colors.glassBackground.opacity(0.3))
         .accessibilityIdentifier("networkMap_deviceList")
     }
     

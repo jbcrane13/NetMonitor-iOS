@@ -14,10 +14,17 @@ final class SpeedTestToolViewModel {
     var progress: Double = 0
     var phase: SpeedTestService.Phase = .idle
     var errorMessage: String?
+    var selectedDuration: TimeInterval = UserDefaults.standard.double(forKey: "speedTestDuration") > 0
+        ? UserDefaults.standard.double(forKey: "speedTestDuration")
+        : 5.0 {
+        didSet {
+            UserDefaults.standard.set(selectedDuration, forKey: "speedTestDuration")
+        }
+    }
 
     // MARK: - Dependencies
 
-    private let service: any SpeedTestServiceProtocol
+    private var service: any SpeedTestServiceProtocol
     private var testTask: Task<Void, Never>?
 
     init(service: any SpeedTestServiceProtocol = SpeedTestService()) {
@@ -55,6 +62,7 @@ final class SpeedTestToolViewModel {
 
         errorMessage = nil
         isRunning = true
+        service.duration = selectedDuration
 
         testTask = Task {
             do {

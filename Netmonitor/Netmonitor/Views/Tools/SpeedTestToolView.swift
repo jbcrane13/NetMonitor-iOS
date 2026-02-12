@@ -119,20 +119,41 @@ struct SpeedTestToolView: View {
     // MARK: - Control Section
 
     private var controlSection: some View {
-        ToolRunButton(
-            title: "Start Test",
-            icon: "play.fill",
-            isRunning: viewModel.isRunning,
-            stopTitle: "Stop Test",
-            action: {
-                if viewModel.isRunning {
-                    viewModel.stopTest()
-                } else {
-                    viewModel.startTest(modelContext: modelContext)
+        VStack(spacing: 12) {
+            // Duration picker
+            HStack {
+                Text("Test Duration")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+                Spacer()
+                Picker("Duration", selection: Binding(
+                    get: { viewModel.selectedDuration },
+                    set: { viewModel.selectedDuration = $0 }
+                )) {
+                    Text("5s").tag(5.0)
+                    Text("10s").tag(10.0)
+                    Text("30s").tag(30.0)
                 }
+                .pickerStyle(.segmented)
+                .frame(width: 180)
             }
-        )
-        .accessibilityIdentifier("speedTest_button_run")
+            .padding(.horizontal, 4)
+
+            ToolRunButton(
+                title: "Start Test",
+                icon: "play.fill",
+                isRunning: viewModel.isRunning,
+                stopTitle: "Stop Test",
+                action: {
+                    if viewModel.isRunning {
+                        viewModel.stopTest()
+                    } else {
+                        viewModel.startTest(modelContext: modelContext)
+                    }
+                }
+            )
+            .accessibilityIdentifier("speedTest_button_run")
+        }
     }
 
     // MARK: - Current Result Section

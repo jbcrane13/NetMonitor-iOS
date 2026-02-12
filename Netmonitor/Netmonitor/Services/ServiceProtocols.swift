@@ -47,6 +47,7 @@ protocol SpeedTestServiceProtocol {
     var phase: SpeedTestService.Phase { get }
     var isRunning: Bool { get }
     var errorMessage: String? { get }
+    var duration: TimeInterval { get set }
     func startTest() async throws -> SpeedTestData
     func stopTest()
 }

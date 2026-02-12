@@ -7,7 +7,6 @@ final class BonjourDiscoveryService {
     private(set) var discoveredServices: [BonjourService] = []
     private(set) var isDiscovering: Bool = false
 
-    private var browser: NWBrowser?
     private var typeBrowsers: [NWBrowser] = []
     private let queue = DispatchQueue(label: "com.netmonitor.bonjour")
     private var serviceContinuation: AsyncStream<BonjourService>.Continuation?
@@ -57,52 +56,16 @@ final class BonjourDiscoveryService {
     }
 
     private func startBrowsing(serviceType: String? = nil) {
-        let descriptor: NWBrowser.Descriptor
         if let type = serviceType {
-            descriptor = .bonjour(type: type, domain: "local.")
+            browseServiceType(type)
         } else {
-            descriptor = .bonjour(type: "_services._dns-sd._udp", domain: "local.")
-        }
-        
-        let parameters = NWParameters()
-        parameters.includePeerToPeer = true
-        
-        browser = NWBrowser(for: descriptor, using: parameters)
-        
-        browser?.stateUpdateHandler = { [weak self] state in
-            Task { @MainActor [weak self] in
-                switch state {
-                case .failed(let error):
-                    print("Browser failed: \(error)")
-                    self?.isDiscovering = false
-                    self?.serviceContinuation?.finish()
-                    self?.serviceContinuation = nil
-                case .cancelled:
-                    self?.isDiscovering = false
-                default:
-                    break
-                }
-            }
-        }
-        
-        browser?.browseResultsChangedHandler = { [weak self] results, changes in
-            Task { @MainActor [weak self] in
-                self?.handleResults(results)
-            }
-        }
-        
-        browser?.start(queue: queue)
-
-        if serviceType == nil {
             for type in commonServiceTypes {
                 browseServiceType(type)
             }
 
-            // IMPROVED: More reasonable timeout for type browsers (30s instead of 10s)
-            // and better cleanup to prevent premature cancellation
+            // Timeout cleanup for type browsers
             DispatchQueue.global().asyncAfter(deadline: .now() + 30) { [weak self] in
                 Task { @MainActor [weak self] in
-                    // Only cancel if still discovering to avoid interfering with manual stops
                     guard let self = self, self.isDiscovering else { return }
                     for typeBrowser in self.typeBrowsers {
                         typeBrowser.cancel()
@@ -114,9 +77,6 @@ final class BonjourDiscoveryService {
     }
     
     func stopDiscovery() {
-        browser?.cancel()
-        browser = nil
-
         for typeBrowser in typeBrowsers {
             typeBrowser.cancel()
         }
@@ -134,9 +94,17 @@ final class BonjourDiscoveryService {
 
         let typeBrowser = NWBrowser(for: descriptor, using: parameters)
 
-        typeBrowser.browseResultsChangedHandler = { [weak self] results, _ in
+        typeBrowser.stateUpdateHandler = { [weak self] state in
             Task { @MainActor [weak self] in
-                self?.handleResults(results)
+                if case .failed(let error) = state {
+                    print("Browser failed for \(type): \(error)")
+                }
+            }
+        }
+
+        typeBrowser.browseResultsChangedHandler = { [weak self] results, changes in
+            Task { @MainActor [weak self] in
+                self?.handleChanges(changes)
             }
         }
 
@@ -144,19 +112,27 @@ final class BonjourDiscoveryService {
         typeBrowsers.append(typeBrowser)
     }
     
-    private func handleResults(_ results: Set<NWBrowser.Result>) {
-        for result in results {
-            if case let .service(name, type, domain, _) = result.endpoint {
-                let service = BonjourService(
-                    name: name,
-                    type: type,
-                    domain: domain
-                )
-                
-                if !discoveredServices.contains(where: { $0.name == name && $0.type == type }) {
-                    discoveredServices.append(service)
-                    serviceContinuation?.yield(service)
+    private func handleChanges(_ changes: Set<NWBrowser.Result.Change>) {
+        for change in changes {
+            switch change {
+            case .added(let result):
+                if case let .service(name, type, domain, _) = result.endpoint {
+                    let service = BonjourService(
+                        name: name,
+                        type: type,
+                        domain: domain
+                    )
+                    if !discoveredServices.contains(where: { $0.name == name && $0.type == type }) {
+                        discoveredServices.append(service)
+                        serviceContinuation?.yield(service)
+                    }
                 }
+            case .removed(let result):
+                if case let .service(name, type, _, _) = result.endpoint {
+                    discoveredServices.removeAll { $0.name == name && $0.type == type }
+                }
+            default:
+                break
             }
         }
     }

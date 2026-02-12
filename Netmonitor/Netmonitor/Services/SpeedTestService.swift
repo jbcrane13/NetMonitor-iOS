@@ -21,6 +21,7 @@ final class SpeedTestService: NSObject {
     var phase: Phase = .idle
     var isRunning: Bool = false
     var errorMessage: String?
+    var duration: TimeInterval = 5.0  // seconds per phase
 
     enum Phase: String, Sendable {
         case idle
@@ -34,14 +35,7 @@ final class SpeedTestService: NSObject {
 
     private var currentTask: Task<SpeedTestData, Error>?
     private var downloadBytesReceived: Int64 = 0
-    private var downloadStartTime: Date?
     private var uploadBytesSent: Int64 = 0
-    private var uploadStartTime: Date?
-    private var uploadTotalBytes: Int64 = 0
-
-    private static let downloadURL = URL(string: "https://speed.cloudflare.com/__down?bytes=25000000")!
-    private static let uploadURL = URL(string: "https://speed.cloudflare.com/__up")!
-    private static let uploadSize: Int = 10_000_000  // 10 MB
 
     // MARK: - Public API
 
@@ -110,10 +104,11 @@ final class SpeedTestService: NSObject {
         let iterations = 3
         var times: [Double] = []
         let session = URLSession.shared
+        let url = URL(string: "https://speed.cloudflare.com/__down?bytes=1000000")!
 
         for _ in 0..<iterations {
             let start = Date()
-            var request = URLRequest(url: Self.downloadURL)
+            var request = URLRequest(url: url)
             request.httpMethod = "HEAD"
             request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
             do {
@@ -132,69 +127,83 @@ final class SpeedTestService: NSObject {
     // MARK: - Download Measurement
 
     private func measureDownload() async throws -> Double {
-        let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForResource = 30
-        let session = URLSession(configuration: config)
-        defer { session.invalidateAndCancel() }
+        let url = URL(string: "https://speed.cloudflare.com/__down?bytes=1000000")!
+        let startTime = Date()
+        var totalBytes: Int64 = 0
+        var peakSpeed: Double = 0
 
-        var request = URLRequest(url: Self.downloadURL)
-        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        while Date().timeIntervalSince(startTime) < duration {
+            try Task.checkCancellation()
 
-        let start = Date()
+            var request = URLRequest(url: url)
+            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            request.timeoutInterval = 10
 
-        // Use data(for:) for efficient bulk download instead of byte-by-byte
-        let (data, response) = try await session.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                throw SpeedTestError.serverError
+            }
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
-            throw SpeedTestError.serverError
+            totalBytes += Int64(data.count)
+            let elapsed = Date().timeIntervalSince(startTime)
+            let currentSpeed = Double(totalBytes * 8) / elapsed / 1_000_000
+            peakSpeed = max(peakSpeed, currentSpeed)
+
+            downloadSpeed = currentSpeed
+            progress = min(elapsed / duration, 1.0)
+            downloadBytesReceived = totalBytes
         }
 
-        let elapsed = Date().timeIntervalSince(start)
-        guard elapsed > 0 else { return 0 }
-
-        let totalBytes = Int64(data.count)
-        downloadBytesReceived = totalBytes
+        let totalElapsed = Date().timeIntervalSince(startTime)
+        guard totalElapsed > 0, totalBytes > 0 else { return 0 }
+        let finalSpeed = Double(totalBytes * 8) / totalElapsed / 1_000_000
+        downloadSpeed = finalSpeed
         progress = 1.0
-
-        let speedMbps = Double(totalBytes * 8) / elapsed / 1_000_000
-        downloadSpeed = speedMbps
-        return speedMbps
+        return finalSpeed
     }
 
     // MARK: - Upload Measurement
 
     private func measureUpload() async throws -> Double {
-        let uploadData = Data(count: Self.uploadSize)
-        let config = URLSessionConfiguration.ephemeral
-        config.timeoutIntervalForResource = 30
-        let delegate = UploadProgressDelegate { [weak self] fractionCompleted, bytesSent in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                self.progress = fractionCompleted
+        let chunkSize = 256 * 1024 // 256KB
+        let url = URL(string: "https://speed.cloudflare.com/__up")!
+        let startTime = Date()
+        var totalBytes: Int64 = 0
+        var peakSpeed: Double = 0
+
+        while Date().timeIntervalSince(startTime) < duration {
+            try Task.checkCancellation()
+
+            let data = Data(count: chunkSize)
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.httpBody = data
+            request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+            request.timeoutInterval = 10
+
+            let (_, response) = try await URLSession.shared.upload(for: request, from: data)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                throw SpeedTestError.serverError
             }
-        }
-        let session = URLSession(configuration: config, delegate: delegate, delegateQueue: nil)
-        defer { session.invalidateAndCancel() }
 
-        var request = URLRequest(url: Self.uploadURL)
-        request.httpMethod = "POST"
-        request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+            totalBytes += Int64(chunkSize)
+            let elapsed = Date().timeIntervalSince(startTime)
+            let currentSpeed = Double(totalBytes * 8) / elapsed / 1_000_000
+            peakSpeed = max(peakSpeed, currentSpeed)
 
-        let start = Date()
-        let (_, response) = try await session.upload(for: request, from: uploadData)
-
-        let elapsed = Date().timeIntervalSince(start)
-        guard elapsed > 0 else { return 0 }
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SpeedTestError.serverError
+            uploadSpeed = currentSpeed
+            progress = min(elapsed / duration, 1.0)
+            uploadBytesSent = totalBytes
         }
 
-        let speedMbps = Double(Self.uploadSize * 8) / elapsed / 1_000_000
-        uploadSpeed = speedMbps
-        return speedMbps
+        let totalElapsed = Date().timeIntervalSince(startTime)
+        guard totalElapsed > 0, totalBytes > 0 else { return 0 }
+        let finalSpeed = Double(totalBytes * 8) / totalElapsed / 1_000_000
+        uploadSpeed = finalSpeed
+        progress = 1.0
+        return finalSpeed
     }
 
     // MARK: - Helpers
@@ -208,28 +217,6 @@ final class SpeedTestService: NSObject {
         errorMessage = nil
         downloadBytesReceived = 0
         uploadBytesSent = 0
-    }
-}
-
-// MARK: - Upload Progress Delegate
-
-private final class UploadProgressDelegate: NSObject, URLSessionTaskDelegate, Sendable {
-    let onProgress: @Sendable (Double, Int64) -> Void
-
-    init(onProgress: @escaping @Sendable (Double, Int64) -> Void) {
-        self.onProgress = onProgress
-    }
-
-    func urlSession(
-        _ session: URLSession,
-        task: URLSessionTask,
-        didSendBodyData bytesSent: Int64,
-        totalBytesSent: Int64,
-        totalBytesExpectedToSend: Int64
-    ) {
-        guard totalBytesExpectedToSend > 0 else { return }
-        let fraction = Double(totalBytesSent) / Double(totalBytesExpectedToSend)
-        onProgress(fraction, totalBytesSent)
     }
 }
 
