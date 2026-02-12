@@ -104,6 +104,29 @@ final class SettingsViewModel {
 
     // MARK: - Data Management
 
+    /// Deletes ToolResult and SpeedTestResult records older than the configured retention period
+    func pruneExpiredData(modelContext: ModelContext) {
+        let retentionDays = dataRetentionDays
+        guard retentionDays > 0 else { return }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -retentionDays, to: Date()) ?? Date()
+
+        do {
+            try modelContext.delete(model: ToolResult.self, where: #Predicate { $0.timestamp < cutoff })
+        } catch {
+            print("Failed to prune old tool results: \(error)")
+        }
+        do {
+            try modelContext.delete(model: SpeedTestResult.self, where: #Predicate { $0.timestamp < cutoff })
+        } catch {
+            print("Failed to prune old speed test results: \(error)")
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save after pruning: \(error)")
+        }
+    }
+
     func clearAllHistory(modelContext: ModelContext) {
         do {
             try modelContext.delete(model: ToolResult.self)

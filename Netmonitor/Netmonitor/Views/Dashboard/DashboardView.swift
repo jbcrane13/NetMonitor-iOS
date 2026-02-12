@@ -43,6 +43,10 @@ struct DashboardView: View {
             }
             .task {
                 await viewModel.refresh()
+                viewModel.startAutoRefresh()
+            }
+            .onDisappear {
+                viewModel.stopAutoRefresh()
             }
         }
         .accessibilityIdentifier("screen_dashboard")

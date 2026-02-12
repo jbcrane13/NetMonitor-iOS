@@ -216,6 +216,9 @@ struct PortScannerToolView: View {
 
 private struct PortResultRow: View {
     let result: PortScanResult
+    private var showDetailed: Bool {
+        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -232,7 +235,7 @@ private struct PortResultRow: View {
                     .font(.subheadline)
                     .foregroundStyle(Theme.Colors.textPrimary)
 
-                if let responseTime = result.responseTime {
+                if showDetailed, let responseTime = result.responseTime {
                     Text(String(format: "%.0f ms", responseTime))
                         .font(.caption)
                         .foregroundStyle(Theme.Colors.textTertiary)

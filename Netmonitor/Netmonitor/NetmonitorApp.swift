@@ -41,6 +41,10 @@ struct NetmonitorApp: App {
                     BackgroundTaskService.shared.registerTasks()
                     BackgroundTaskService.shared.scheduleRefreshTask()
                     BackgroundTaskService.shared.scheduleSyncTask()
+
+                    // Prune data older than the configured retention period
+                    let context = sharedModelContainer.mainContext
+                    SettingsViewModel().pruneExpiredData(modelContext: context)
                 }
         }
         .modelContainer(sharedModelContainer)

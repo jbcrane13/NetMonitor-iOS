@@ -136,6 +136,10 @@ struct PingToolView: View {
 
     // MARK: - Statistics Section
 
+    private var showDetailedResults: Bool {
+        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+    }
+
     @ViewBuilder
     private var statisticsSection: some View {
         if let stats = viewModel.statistics {
@@ -161,29 +165,31 @@ struct PingToolView: View {
             )
             .accessibilityIdentifier("pingTool_card_statistics")
 
-            ToolStatisticsCard(
-                title: "Packet Statistics",
-                icon: "arrow.up.arrow.down",
-                statistics: [
-                    ToolStatistic(
-                        label: "Sent",
-                        value: "\(stats.transmitted)",
-                        icon: "arrow.up"
-                    ),
-                    ToolStatistic(
-                        label: "Received",
-                        value: "\(stats.received)",
-                        icon: "arrow.down"
-                    ),
-                    ToolStatistic(
-                        label: "Loss",
-                        value: stats.packetLossText,
-                        icon: "xmark",
-                        valueColor: stats.packetLoss > 0 ? Theme.Colors.error : Theme.Colors.success
-                    )
-                ]
-            )
-            .accessibilityIdentifier("pingTool_card_packets")
+            if showDetailedResults {
+                ToolStatisticsCard(
+                    title: "Packet Statistics",
+                    icon: "arrow.up.arrow.down",
+                    statistics: [
+                        ToolStatistic(
+                            label: "Sent",
+                            value: "\(stats.transmitted)",
+                            icon: "arrow.up"
+                        ),
+                        ToolStatistic(
+                            label: "Received",
+                            value: "\(stats.received)",
+                            icon: "arrow.down"
+                        ),
+                        ToolStatistic(
+                            label: "Loss",
+                            value: stats.packetLossText,
+                            icon: "xmark",
+                            valueColor: stats.packetLoss > 0 ? Theme.Colors.error : Theme.Colors.success
+                        )
+                    ]
+                )
+                .accessibilityIdentifier("pingTool_card_packets")
+            }
         }
     }
 }
@@ -192,6 +198,9 @@ struct PingToolView: View {
 
 private struct PingResultRow: View {
     let result: PingResult
+    private var showDetailed: Bool {
+        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+    }
 
     var body: some View {
         HStack(spacing: Theme.Layout.itemSpacing) {
@@ -209,12 +218,14 @@ private struct PingResultRow: View {
                         .foregroundStyle(Theme.Colors.textPrimary)
                 }
 
-                HStack(spacing: Theme.Layout.smallCornerRadius) {
-                    Label("\(result.size) bytes", systemImage: "doc")
-                    Label("TTL \(result.ttl)", systemImage: "clock")
+                if showDetailed {
+                    HStack(spacing: Theme.Layout.smallCornerRadius) {
+                        Label("\(result.size) bytes", systemImage: "doc")
+                        Label("TTL \(result.ttl)", systemImage: "clock")
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(Theme.Colors.textTertiary)
                 }
-                .font(.caption2)
-                .foregroundStyle(Theme.Colors.textTertiary)
             }
 
             Spacer()

@@ -6,6 +6,7 @@ import SwiftUI
 final class DashboardViewModel {
     private(set) var isRefreshing = false
     private(set) var sessionStartTime: Date
+    private var autoRefreshTask: Task<Void, Never>?
     
     let networkMonitor: any NetworkMonitorServiceProtocol
     let wifiService: any WiFiInfoServiceProtocol
@@ -114,5 +115,29 @@ final class DashboardViewModel {
     
     var needsLocationPermission: Bool {
         !wifiService.isLocationAuthorized
+    }
+
+    // MARK: - Auto-Refresh
+
+    func startAutoRefresh() {
+        stopAutoRefresh()
+        autoRefreshTask = Task {
+            while !Task.isCancelled {
+                let interval = UserDefaults.standard.object(forKey: "autoRefreshInterval") as? Int ?? 60
+                guard interval > 0 else {
+                    // Manual mode — wait a bit then re-check in case user changes setting
+                    try? await Task.sleep(for: .seconds(5))
+                    continue
+                }
+                try? await Task.sleep(for: .seconds(interval))
+                guard !Task.isCancelled else { break }
+                await refresh()
+            }
+        }
+    }
+
+    func stopAutoRefresh() {
+        autoRefreshTask?.cancel()
+        autoRefreshTask = nil
     }
 }

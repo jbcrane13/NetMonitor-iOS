@@ -10,10 +10,36 @@ enum Theme {
         // Background gradient colors
         static let backgroundGradientStart = Color(hex: "0F172A") // slate-900
         static let backgroundGradientEnd = Color(hex: "1E3A5F")   // blue-900
-        
-        // Primary accent
-        static let accent = Color(hex: "06B6D4")      // cyan-500
-        static let accentLight = Color(hex: "22D3EE") // cyan-400
+
+        // Primary accent — reads user preference from UserDefaults
+        static var accent: Color {
+            accentColor(for: UserDefaults.standard.string(forKey: "selectedAccentColor") ?? "cyan")
+        }
+        static var accentLight: Color {
+            accentLightColor(for: UserDefaults.standard.string(forKey: "selectedAccentColor") ?? "cyan")
+        }
+
+        private static func accentColor(for name: String) -> Color {
+            switch name {
+            case "blue":   return Color(hex: "3B82F6") // blue-500
+            case "green":  return Color(hex: "10B981") // emerald-500
+            case "purple": return Color(hex: "8B5CF6") // violet-500
+            case "orange": return Color(hex: "F97316") // orange-500
+            case "red":    return Color(hex: "EF4444") // red-500
+            default:       return Color(hex: "06B6D4") // cyan-500
+            }
+        }
+
+        private static func accentLightColor(for name: String) -> Color {
+            switch name {
+            case "blue":   return Color(hex: "60A5FA") // blue-400
+            case "green":  return Color(hex: "34D399") // emerald-400
+            case "purple": return Color(hex: "A78BFA") // violet-400
+            case "orange": return Color(hex: "FB923C") // orange-400
+            case "red":    return Color(hex: "F87171") // red-400
+            default:       return Color(hex: "22D3EE") // cyan-400
+            }
+        }
         
         // Semantic colors
         static let success = Color(hex: "10B981")     // emerald-500
@@ -27,7 +53,7 @@ enum Theme {
         static let textTertiary = Color.white.opacity(0.4)
         
         // Glass card colors - subtle tint for true glass effect
-        static let glassBackground = Color(hex: "22D3EE").opacity(0.05) // cyan tint
+        static var glassBackground: Color { accentLight.opacity(0.05) }
         static let glassBorder = Color.white.opacity(0.15)
         static let glassHighlight = Color.white.opacity(0.1)
         
@@ -107,7 +133,7 @@ enum Theme {
         static let cardRadius: CGFloat = 15
         static let cardY: CGFloat = 5
         
-        static let glow = Colors.accent.opacity(0.3)
+        static var glow: Color { Colors.accent.opacity(0.3) }
         static let glowRadius: CGFloat = 20
     }
     

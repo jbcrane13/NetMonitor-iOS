@@ -32,6 +32,10 @@ final class BackgroundTaskService {
     // MARK: - Scheduling
 
     func scheduleRefreshTask() {
+        guard UserDefaults.standard.object(forKey: "backgroundRefreshEnabled") as? Bool ?? true else {
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.refreshTaskIdentifier)
+            return
+        }
         let request = BGAppRefreshTaskRequest(identifier: Self.refreshTaskIdentifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
         do {
