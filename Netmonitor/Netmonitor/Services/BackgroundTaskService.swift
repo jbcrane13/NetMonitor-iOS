@@ -2,6 +2,7 @@ import Foundation
 import BackgroundTasks
 import SwiftData
 import WidgetKit
+import Network
 
 /// Manages background task scheduling for periodic network checks
 @MainActor
@@ -37,7 +38,13 @@ final class BackgroundTaskService {
             return
         }
         let request = BGAppRefreshTaskRequest(identifier: Self.refreshTaskIdentifier)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
+
+        // Respect user's refresh interval setting, but enforce BGTaskScheduler minimum of 15 minutes
+        let userInterval = UserDefaults.standard.integer(forKey: "autoRefreshInterval")
+        let interval = userInterval > 0 ? TimeInterval(userInterval) : 60
+        let effectiveInterval = max(15 * 60, interval)
+
+        request.earliestBeginDate = Date(timeIntervalSinceNow: effectiveInterval)
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
@@ -66,8 +73,11 @@ final class BackgroundTaskService {
         let networkMonitor = NetworkMonitorService()
         let gatewayService = GatewayService()
 
+        var taskCancelled = false
+
         // Check network status and update widget data
         task.expirationHandler = {
+            taskCancelled = true
             task.setTaskCompleted(success: false)
         }
 
@@ -87,6 +97,10 @@ final class BackgroundTaskService {
             }
         }
 
+        // Check monitoring targets
+        guard !taskCancelled else { return }
+        await checkMonitoringTargets()
+
         // Reload widget timeline
         WidgetCenter.shared.reloadAllTimelines()
 
@@ -97,7 +111,10 @@ final class BackgroundTaskService {
         // Schedule the next sync
         scheduleSyncTask()
 
+        var taskCancelled = false
+
         task.expirationHandler = {
+            taskCancelled = true
             task.setTaskCompleted(success: false)
         }
 
@@ -107,6 +124,8 @@ final class BackgroundTaskService {
 
         // Full network check
         await gatewayService.detectGateway()
+
+        guard !taskCancelled else { return }
         await publicIPService.fetchPublicIP(forceRefresh: true)
 
         // Update shared UserDefaults for widget
@@ -122,9 +141,155 @@ final class BackgroundTaskService {
             defaults.set(isp.publicIP, forKey: "widget_publicIP")
         }
 
+        // Check monitoring targets
+        guard !taskCancelled else { return }
+        await checkMonitoringTargets()
+
         // Reload widget timeline
         WidgetCenter.shared.reloadAllTimelines()
 
         task.setTaskCompleted(success: true)
+    }
+
+    // MARK: - Monitoring Target Checks
+
+    private func checkMonitoringTargets() async {
+        // Create a new ModelContainer for background context with full schema
+        let schema = Schema([
+            PairedMac.self, LocalDevice.self, MonitoringTarget.self,
+            ToolResult.self, SpeedTestResult.self
+        ])
+        guard let modelContainer = try? ModelContainer(
+            for: schema,
+            configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)]
+        ) else {
+            print("Failed to create ModelContainer for background task")
+            return
+        }
+
+        let context = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<MonitoringTarget>(
+            predicate: #Predicate { $0.isEnabled }
+        )
+
+        guard let targets = try? context.fetch(descriptor) else {
+            print("Failed to fetch monitoring targets")
+            return
+        }
+
+        for target in targets {
+            let wasOnline = target.isOnline
+            let checkResult = await checkTarget(target)
+
+            if checkResult.success, let latency = checkResult.latency {
+                target.recordSuccess(latency: latency)
+
+                // Check for high latency
+                NotificationService.shared.notifyHighLatency(host: target.host, latency: latency)
+            } else {
+                target.recordFailure()
+
+                // Notify if target just went down
+                if wasOnline && !target.isOnline {
+                    NotificationService.shared.notifyTargetDown(name: target.name, host: target.host)
+                }
+            }
+        }
+
+        // Save context
+        try? context.save()
+    }
+
+    private func checkTarget(_ target: MonitoringTarget) async -> (success: Bool, latency: Double?) {
+        let startTime = Date()
+
+        switch target.targetProtocol {
+        case .tcp:
+            let port = target.port ?? 80
+            let result = await tcpConnect(host: target.host, port: port, timeout: target.timeout)
+            let latency = result ? Date().timeIntervalSince(startTime) * 1000 : nil
+            return (result, latency)
+
+        case .http, .https:
+            let result = await httpCheck(target: target)
+            let latency = result ? Date().timeIntervalSince(startTime) * 1000 : nil
+            return (result, latency)
+
+        case .icmp:
+            // ICMP requires raw sockets which may not work in background
+            // Fall back to TCP probe on a common port
+            let port = target.port ?? 80
+            let result = await tcpConnect(host: target.host, port: port, timeout: target.timeout)
+            let latency = result ? Date().timeIntervalSince(startTime) * 1000 : nil
+            return (result, latency)
+        }
+    }
+
+    private func tcpConnect(host: String, port: Int, timeout: TimeInterval) async -> Bool {
+        return await withTaskGroup(of: Bool?.self) { group in
+            let connection = NWConnection(
+                host: NWEndpoint.Host(host),
+                port: NWEndpoint.Port(integerLiteral: UInt16(port)),
+                using: .tcp
+            )
+
+            // Timeout task
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
+                connection.cancel()
+                return nil
+            }
+
+            // Connection task
+            group.addTask {
+                let resumeState = ResumeState()
+                return await withCheckedContinuation { continuation in
+                    connection.stateUpdateHandler = { state in
+                        Task {
+                            switch state {
+                            case .ready:
+                                if await resumeState.tryResume() {
+                                    continuation.resume(returning: true)
+                                }
+                            case .failed, .cancelled:
+                                if await resumeState.tryResume() {
+                                    continuation.resume(returning: false)
+                                }
+                            default:
+                                break
+                            }
+                        }
+                    }
+                    connection.start(queue: .global())
+                }
+            }
+
+            // Wait for first result
+            let result = await group.next() ?? false
+            group.cancelAll()
+            connection.cancel()
+            return result ?? false
+        }
+    }
+
+    private func httpCheck(target: MonitoringTarget) async -> Bool {
+        let scheme = target.targetProtocol == .https ? "https" : "http"
+        let port = target.port ?? (target.targetProtocol == .https ? 443 : 80)
+        let urlString = "\(scheme)://\(target.host):\(port)"
+
+        guard let url = URL(string: urlString) else { return false }
+
+        var request = URLRequest(url: url, timeoutInterval: target.timeout)
+        request.httpMethod = "HEAD"
+
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse {
+                return (200...399).contains(httpResponse.statusCode)
+            }
+            return false
+        } catch {
+            return false
+        }
     }
 }
