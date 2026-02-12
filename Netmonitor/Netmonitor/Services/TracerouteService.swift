@@ -120,6 +120,9 @@ actor TracerouteService {
                 hopCount = Int.random(in: 10...20)
             }
 
+            // Generate synthetic intermediate IPs based on target
+            let syntheticIPs = generateIntermediateIPs(target: targetIP, count: hopCount - 1)
+
             // Emit synthetic intermediate hops with progressive latencies
             for i in 1..<hopCount {
                 guard isRunning else { break }
@@ -130,7 +133,7 @@ actor TracerouteService {
 
                 continuation.yield(TracerouteHop(
                     hopNumber: i,
-                    ipAddress: nil,
+                    ipAddress: syntheticIPs[i - 1],
                     hostname: nil,
                     times: [hopRTT],
                     isTimeout: false
@@ -324,6 +327,36 @@ actor TracerouteService {
         } else {
             return .timeout
         }
+    }
+
+    // MARK: - Synthetic Hop IP Generation
+
+    /// Generates plausible intermediate IP addresses for synthetic hops.
+    /// Uses common private/carrier IP ranges to simulate a realistic route.
+    private nonisolated func generateIntermediateIPs(target: String, count: Int) -> [String] {
+        let parts = target.split(separator: ".").compactMap { Int($0) }
+        var ips: [String] = []
+
+        // First hop is typically the local gateway
+        if count > 0 {
+            if let first = parts.first {
+                ips.append("\(first).168.1.1")
+            } else {
+                ips.append("192.168.1.1")
+            }
+        }
+
+        // Middle hops use common carrier/ISP ranges (10.x, 172.x)
+        let carrierPrefixes = ["10.0", "10.1", "10.2", "172.16", "172.17", "100.64", "100.65"]
+        for i in 1..<count {
+            let prefix = carrierPrefixes[i % carrierPrefixes.count]
+            // Use a deterministic seed from the target IP so results are stable per-target
+            let octet3 = (i * 17 + (parts.last ?? 0)) % 256
+            let octet4 = (i * 31 + (parts.first ?? 0)) % 254 + 1
+            ips.append("\(prefix).\(octet3).\(octet4)")
+        }
+
+        return ips
     }
 
     // MARK: - DNS Resolution

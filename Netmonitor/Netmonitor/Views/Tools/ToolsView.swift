@@ -20,6 +20,7 @@ struct ToolsView: View {
             .navigationTitle("Tools")
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .navigationDestination(for: ToolDestination.self) { destination in
                 destination.view
             }

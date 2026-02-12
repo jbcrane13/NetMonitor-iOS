@@ -80,6 +80,11 @@ final class BackgroundTaskService {
 
         if let gateway = gatewayService.gateway {
             defaults.set(gateway.latencyText, forKey: "widget_gatewayLatency")
+
+            // Trigger high latency notification if above threshold
+            if let latency = gateway.latency {
+                NotificationService.shared.notifyHighLatency(host: gateway.ipAddress, latency: latency)
+            }
         }
 
         // Reload widget timeline

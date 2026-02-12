@@ -23,22 +23,31 @@ final class WiFiInfoService: NSObject {
     }
     
     func refreshWiFiInfo() {
+        #if targetEnvironment(simulator)
+        // Simulator always returns mock WiFi data without location permission
+        currentWiFi = fetchWiFiInfo()
+        #else
         guard isLocationAuthorized else {
             currentWiFi = nil
             return
         }
-        
         currentWiFi = fetchWiFiInfo()
+        #endif
     }
-    
+
     private func checkAuthorizationStatus() {
         authorizationStatus = locationManager.authorizationStatus
         isLocationAuthorized = authorizationStatus == .authorizedWhenInUse ||
                                authorizationStatus == .authorizedAlways
-        
+
+        #if targetEnvironment(simulator)
+        // Auto-populate WiFi info in simulator
+        refreshWiFiInfo()
+        #else
         if isLocationAuthorized {
             refreshWiFiInfo()
         }
+        #endif
     }
     
     private func fetchWiFiInfo() -> WiFiInfo? {

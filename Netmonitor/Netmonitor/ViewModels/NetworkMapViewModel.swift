@@ -4,11 +4,15 @@ import Foundation
 @Observable
 final class NetworkMapViewModel {
     var selectedDeviceIP: String?
-    
+
+    /// Cached devices that persist across tab switches
+    private(set) var cachedDevices: [DiscoveredDevice] = []
+    private var lastCacheDate: Date?
+
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     let gatewayService: any GatewayServiceProtocol
     let bonjourService: any BonjourDiscoveryServiceProtocol
-    
+
     init(
         deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService(),
         gatewayService: any GatewayServiceProtocol = GatewayService(),
@@ -18,58 +22,66 @@ final class NetworkMapViewModel {
         self.gatewayService = gatewayService
         self.bonjourService = bonjourService
     }
-    
+
     var discoveredDevices: [DiscoveredDevice] {
-        deviceDiscoveryService.discoveredDevices
+        // Return service devices if a scan is active or just finished, otherwise cached
+        let serviceDevices = deviceDiscoveryService.discoveredDevices
+        if !serviceDevices.isEmpty {
+            return serviceDevices
+        }
+        return cachedDevices
     }
-    
+
     var isScanning: Bool {
         deviceDiscoveryService.isScanning
     }
-    
+
     var scanProgress: Double {
         deviceDiscoveryService.scanProgress
     }
-    
+
     var deviceCount: Int {
         discoveredDevices.count
     }
-    
+
     var gateway: GatewayInfo? {
         gatewayService.gateway
     }
-    
+
     var bonjourServices: [BonjourService] {
         bonjourService.discoveredServices
     }
-    
+
     func startScan(forceRefresh: Bool = false) async {
-        // Skip if we already have results from a recent scan (within 60 seconds)
-        if !forceRefresh,
-           !discoveredDevices.isEmpty,
-           let lastScan = deviceDiscoveryService.lastScanDate,
-           Date().timeIntervalSince(lastScan) < 60 {
+        // Skip if we already have cached results and not forcing refresh
+        if !forceRefresh, !cachedDevices.isEmpty {
             return
         }
         await deviceDiscoveryService.scanNetwork(subnet: nil)
+        // Cache the results after scan completes
+        let results = deviceDiscoveryService.discoveredDevices
+        if !results.isEmpty {
+            cachedDevices = results
+            lastCacheDate = Date()
+        }
     }
-    
+
     func stopScan() {
         deviceDiscoveryService.stopScan()
     }
-    
+
     func selectDevice(_ ip: String?) {
         selectedDeviceIP = selectedDeviceIP == ip ? nil : ip
     }
-    
+
     func startBonjourDiscovery() {
         bonjourService.startDiscovery(serviceType: nil)
     }
-    
+
     func stopBonjourDiscovery() {
         bonjourService.stopDiscovery()
     }
-    
+
     func refresh() async {
         await gatewayService.detectGateway()
         await startScan(forceRefresh: true)

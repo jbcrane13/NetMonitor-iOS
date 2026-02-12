@@ -144,12 +144,12 @@ struct TracerouteServiceTests {
             times: [15.5, 16.2, 14.8],
             isTimeout: false
         )
-        
+
         #expect(successHop.displayAddress == "router.local")
         #expect(successHop.averageTime == 15.5)
         #expect(successHop.timeText == "15.5 ms")
         #expect(successHop.isTimeout == false)
-        
+
         // Test with a timeout hop
         let timeoutHop = TracerouteHop(
             hopNumber: 2,
@@ -158,12 +158,12 @@ struct TracerouteServiceTests {
             times: [],
             isTimeout: true
         )
-        
+
         #expect(timeoutHop.displayAddress == "*")
         #expect(timeoutHop.averageTime == nil)
         #expect(timeoutHop.timeText == "*")
         #expect(timeoutHop.isTimeout == true)
-        
+
         // Test with IP only
         let ipOnlyHop = TracerouteHop(
             hopNumber: 3,
@@ -172,9 +172,40 @@ struct TracerouteServiceTests {
             times: [25.0],
             isTimeout: false
         )
-        
+
         #expect(ipOnlyHop.displayAddress == "203.0.113.1")
         #expect(ipOnlyHop.averageTime == 25.0)
         #expect(ipOnlyHop.timeText == "25.0 ms")
+    }
+
+    // MARK: - Regression: Synthetic hops must not show * (NetMonitor-iOS-5ly)
+
+    @Test("Synthetic hop with IP but no hostname shows IP address, not *")
+    func syntheticHopShowsIP() async {
+        // A synthetic hop has ipAddress set, hostname nil, isTimeout false
+        let syntheticHop = TracerouteHop(
+            hopNumber: 3,
+            ipAddress: "10.0.17.42",
+            hostname: nil,
+            times: [8.5],
+            isTimeout: false
+        )
+
+        #expect(syntheticHop.displayAddress == "10.0.17.42")
+        #expect(syntheticHop.displayAddress != "*")
+        #expect(syntheticHop.timeText != "*")
+    }
+
+    @Test("Non-timeout hop without any address still shows *")
+    func noAddressHopShowsStar() async {
+        // Edge case: non-timeout but also no IP — should fall back to *
+        let hop = TracerouteHop(
+            hopNumber: 1,
+            ipAddress: nil,
+            hostname: nil,
+            times: [5.0],
+            isTimeout: false
+        )
+        #expect(hop.displayAddress == "*")
     }
 }
