@@ -74,7 +74,7 @@ final class DeviceDetailViewModel {
                     await self.nameResolver.resolve(ipAddress: ipAddress, bonjourServices: bonjourServices)
                 }
                 group.addTask {
-                    try? await Task.sleep(for: .seconds(8))
+                    try? await Task.sleep(for: .seconds(5))
                     return nil
                 }
                 let result = await group.next()

@@ -27,9 +27,13 @@ struct NetmonitorApp: App {
         }
     }()
 
-    // App uses dark backgrounds exclusively — always force dark mode
+    // Resolve color scheme from user preference
     private var resolvedColorScheme: ColorScheme? {
-        .dark
+        switch selectedTheme {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil  // "system" follows iOS setting
+        }
     }
 
     var body: some Scene {

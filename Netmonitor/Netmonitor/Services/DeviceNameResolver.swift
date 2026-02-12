@@ -1,9 +1,8 @@
 import Foundation
 
-@MainActor
-final class DeviceNameResolver {
-    private(set) var isResolving: Bool = false
-    private let dnsService = DNSLookupService()
+/// Resolves device hostnames using DNS PTR lookup and Bonjour service matching.
+/// Runs entirely off MainActor to avoid UI thread blocking.
+final class DeviceNameResolver: Sendable {
 
     /// Resolve a single device hostname using DNS PTR lookup and Bonjour services
     /// - Parameters:
@@ -11,8 +10,8 @@ final class DeviceNameResolver {
     ///   - bonjourServices: Available Bonjour services to match against
     /// - Returns: Resolved hostname or nil if not found
     func resolve(ipAddress: String, bonjourServices: [BonjourService]) async -> String? {
-        // Try DNS PTR lookup first
-        if let ptrName = await resolvePTR(ipAddress: ipAddress) {
+        // Try DNS PTR lookup first (with 3s timeout)
+        if let ptrName = await resolvePTRWithTimeout(ipAddress: ipAddress) {
             return ptrName
         }
 
@@ -29,33 +28,16 @@ final class DeviceNameResolver {
         devices: [(ipAddress: String, macAddress: String)],
         bonjourServices: [BonjourService]
     ) async -> [String: String] {
-        isResolving = true
-        defer { isResolving = false }
-
         var results: [String: String] = [:]
-        let maxConcurrency = 10
-        var currentCount = 0
 
         await withTaskGroup(of: (String, String?).self) { group in
             for device in devices {
-                // Wait if we've reached max concurrency
-                while currentCount >= maxConcurrency {
-                    if let (ip, name) = await group.next() {
-                        if let name = name {
-                            results[ip] = name
-                        }
-                        currentCount -= 1
-                    }
-                }
-
-                currentCount += 1
                 group.addTask {
                     let name = await self.resolve(ipAddress: device.ipAddress, bonjourServices: bonjourServices)
                     return (device.ipAddress, name)
                 }
             }
 
-            // Collect remaining results
             for await (ip, name) in group {
                 if let name = name {
                     results[ip] = name
@@ -68,42 +50,65 @@ final class DeviceNameResolver {
 
     // MARK: - Private Helpers
 
-    /// Perform DNS PTR lookup for an IP address
-    private func resolvePTR(ipAddress: String) async -> String? {
-        // Construct PTR domain by reversing IP octets
-        guard let ptrDomain = constructPTRDomain(ipAddress: ipAddress) else {
-            return nil
+    /// Perform DNS PTR lookup with a 3-second timeout
+    private func resolvePTRWithTimeout(ipAddress: String) async -> String? {
+        await withTaskGroup(of: String?.self) { group in
+            group.addTask {
+                await self.performPTRLookup(ipAddress: ipAddress)
+            }
+            group.addTask {
+                try? await Task.sleep(for: .seconds(3))
+                return nil
+            }
+            let result = await group.next()
+            group.cancelAll()
+            return result ?? nil
         }
-
-        // Query PTR record using DNSLookupService
-        guard let result = await dnsService.lookup(domain: ptrDomain, recordType: .ptr) else {
-            return nil
-        }
-
-        // Extract hostname from PTR records
-        guard let ptrRecord = result.records.first else {
-            return nil
-        }
-
-        // Strip trailing dot from PTR result if present
-        var hostname = ptrRecord.value
-        if hostname.hasSuffix(".") {
-            hostname.removeLast()
-        }
-
-        return hostname.isEmpty ? nil : hostname
     }
 
-    /// Construct PTR domain from IP address
-    /// For example: "192.168.1.1" -> "1.1.168.192.in-addr.arpa"
-    private func constructPTRDomain(ipAddress: String) -> String? {
-        let octets = ipAddress.split(separator: ".").map(String.init)
-        guard octets.count == 4 else {
-            return nil
-        }
+    /// Perform the actual PTR lookup using getnameinfo on a background thread.
+    /// This avoids the complex DNSServiceQueryRecord callback chain and runs
+    /// entirely off MainActor.
+    private func performPTRLookup(ipAddress: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                var addr = sockaddr_in()
+                addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+                addr.sin_family = sa_family_t(AF_INET)
 
-        let reversedOctets = octets.reversed().joined(separator: ".")
-        return "\(reversedOctets).in-addr.arpa"
+                guard inet_pton(AF_INET, ipAddress, &addr.sin_addr) == 1 else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+
+                let result = withUnsafePointer(to: &addr) { addrPtr in
+                    addrPtr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
+                        getnameinfo(
+                            sockaddrPtr,
+                            socklen_t(MemoryLayout<sockaddr_in>.size),
+                            &hostname,
+                            socklen_t(hostname.count),
+                            nil, 0,
+                            0
+                        )
+                    }
+                }
+
+                if result == 0 {
+                    let name = String(cString: hostname)
+                    // getnameinfo returns the IP itself if no reverse DNS exists
+                    if name != ipAddress && !name.isEmpty {
+                        continuation.resume(returning: name)
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
     }
 
     /// Match IP address against Bonjour services

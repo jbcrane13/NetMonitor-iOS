@@ -40,7 +40,7 @@ final class DNSLookupService {
         }
     }
     
-    private func performLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
+    nonisolated private func performLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         // Use getaddrinfo for A and AAAA records
         if type == .a || type == .aaaa {
             return try await performAddressLookup(domain: domain, type: type)
@@ -50,7 +50,7 @@ final class DNSLookupService {
         return try await performDNSServiceLookup(domain: domain, type: type)
     }
 
-    private func performAddressLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
+    nonisolated private func performAddressLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
             let domainCopy = domain
             let typeCopy = type
@@ -102,7 +102,7 @@ final class DNSLookupService {
         }
     }
 
-    private func performDNSServiceLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
+    nonisolated private func performDNSServiceLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
             var serviceRef: DNSServiceRef?
 
@@ -196,7 +196,7 @@ final class DNSLookupService {
         }
     }
 
-    private func dnsRecordTypeToConstant(_ type: DNSRecordType) -> Int32 {
+    nonisolated private func dnsRecordTypeToConstant(_ type: DNSRecordType) -> Int32 {
         switch type {
         case .a: return Int32(kDNSServiceType_A)
         case .aaaa: return Int32(kDNSServiceType_AAAA)
@@ -209,7 +209,7 @@ final class DNSLookupService {
         }
     }
 
-    private static func parseRecord(
+    nonisolated private static func parseRecord(
         domain: String,
         type: DNSRecordType,
         rdata: UnsafeRawPointer?,
@@ -234,7 +234,7 @@ final class DNSLookupService {
         }
     }
 
-    private static func parseMXRecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
+    nonisolated private static func parseMXRecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
         guard data.count >= 2 else { return nil }
 
         let priority = data.withUnsafeBytes { $0.load(as: UInt16.self).bigEndian }
@@ -251,7 +251,7 @@ final class DNSLookupService {
         )
     }
 
-    private static func parseTXTRecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
+    nonisolated private static func parseTXTRecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
         var offset = 0
         var strings: [String] = []
 
@@ -276,7 +276,7 @@ final class DNSLookupService {
         )
     }
 
-    private static func parseDomainNameRecord(domain: String, type: DNSRecordType, data: Data, ttl: UInt32) -> DNSRecord? {
+    nonisolated private static func parseDomainNameRecord(domain: String, type: DNSRecordType, data: Data, ttl: UInt32) -> DNSRecord? {
         guard let name = parseDNSName(from: data) else { return nil }
 
         return DNSRecord(
@@ -287,7 +287,7 @@ final class DNSLookupService {
         )
     }
 
-    private static func parseSOARecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
+    nonisolated private static func parseSOARecord(domain: String, data: Data, ttl: UInt32) -> DNSRecord? {
         var offset = 0
 
         // Parse mname (primary name server)
@@ -323,7 +323,7 @@ final class DNSLookupService {
         )
     }
 
-    private static func parseDNSName(from data: Data, offset: inout Int) -> String? {
+    nonisolated private static func parseDNSName(from data: Data, offset: inout Int) -> String? {
         var labels: [String] = []
         var currentOffset = offset
 
@@ -348,7 +348,7 @@ final class DNSLookupService {
         return nil
     }
 
-    private static func parseDNSName(from data: Data) -> String? {
+    nonisolated private static func parseDNSName(from data: Data) -> String? {
         var offset = 0
         return parseDNSName(from: data, offset: &offset)
     }

@@ -68,15 +68,14 @@ final class SettingsViewModel {
     }
 
     // MARK: - Appearance Settings
-    // App is dark-only; @AppStorage key retained for future use
     var selectedTheme: String {
-        get { "dark" }
+        get { defaults.string(forKey: "selectedTheme") ?? "dark" }
         set { defaults.set(newValue, forKey: "selectedTheme") }
     }
 
     var selectedAccentColor: String {
-        get { defaults.string(forKey: "selectedAccentColor") ?? "cyan" }
-        set { defaults.set(newValue, forKey: "selectedAccentColor") }
+        get { ThemeManager.shared.selectedAccentColor }
+        set { ThemeManager.shared.selectedAccentColor = newValue }
     }
 
     // MARK: - App Info
