@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Query private var speedTestResults: [SpeedTestResult]
     @Query private var devices: [LocalDevice]
     @State private var viewModel = SettingsViewModel()
+    // Observe ThemeManager so accent color changes re-render this view
+    private var themeManager = ThemeManager.shared
     @State private var showingClearHistoryAlert = false
     @State private var showingClearCacheAlert = false
     @State private var showingExportSheet = false
@@ -314,6 +316,8 @@ struct SettingsView: View {
         .themedBackground()
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .alert("Clear History", isPresented: $showingClearHistoryAlert) {
             Button("Cancel", role: .cancel) {}
             Button("Clear", role: .destructive) {
