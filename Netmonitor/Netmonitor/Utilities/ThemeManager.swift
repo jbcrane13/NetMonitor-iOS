@@ -1,8 +1,8 @@
 import SwiftUI
 
 @Observable
-final class ThemeManager {
-    nonisolated(unsafe) static let shared = ThemeManager()
+final class ThemeManager: @unchecked Sendable {
+    static let shared = ThemeManager()
 
     var selectedAccentColor: String {
         didSet {

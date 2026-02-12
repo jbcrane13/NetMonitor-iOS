@@ -1,6 +1,37 @@
 # CLAUDE.md
 
+**⚠️ READ RELEASE-MANDATE.md FIRST — today is the last day for 1.0 fixes. Nothing is out of scope.**
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## ⚠️ Beads Task Tracking — MANDATORY
+
+This project uses **beads** (`bd` CLI) for issue tracking. You MUST use it for every piece of work:
+
+```bash
+# Before starting ANY fix or feature:
+bd create --title "Short description" --type bug --priority 1
+bd update <BEAD-ID> --status in_progress
+
+# When done with a fix:
+bd close <BEAD-ID> --reason "What was done"
+
+# Check open issues:
+bd list --status open
+
+# Sync state after commits:
+bd sync
+```
+
+**Rules:**
+1. **Every bug fix or feature gets a bead.** No exceptions.
+2. **Set status to `in_progress` when you start working on it.**
+3. **Close with `--reason` when verified fixed.** Not when code compiles — when it actually works.
+4. **Check for existing open beads before creating duplicates:** `bd list --status open`
+5. **Include bead IDs in commit messages:** `git commit -m "Fix accent color reactivity (NetMonitor-iOS-xyz)"`
+6. **Run `bd sync` after pushing.**
+
+If you skip beads, your work is untracked and unverifiable. Use them.
 
 ## Build & Development Commands
 

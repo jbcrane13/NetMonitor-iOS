@@ -3,6 +3,8 @@ import SwiftData
 
 struct ContentView: View {
     @State private var selectedTab: Tab = .dashboard
+    // Observe ThemeManager so the entire view tree re-renders on accent color change
+    private var themeManager = ThemeManager.shared
     
     enum Tab: String, CaseIterable {
         case dashboard
@@ -46,7 +48,7 @@ struct ContentView: View {
                 }
                 .tag(Tab.tools)
         }
-        .tint(Theme.Colors.accent)
+        .tint(themeManager.accent)
         .accessibilityIdentifier("screen_main")
     }
 }

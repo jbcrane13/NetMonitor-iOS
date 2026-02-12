@@ -17,7 +17,7 @@ protocol PortScannerServiceProtocol: AnyObject, Sendable {
 
 /// Protocol for DNS lookup operations
 @MainActor
-protocol DNSLookupServiceProtocol {
+protocol DNSLookupServiceProtocol: AnyObject {
     var isLoading: Bool { get }
     var lastError: String? { get }
     func lookup(domain: String, recordType: DNSRecordType, server: String?) async -> DNSQueryResult?

@@ -1,13 +1,15 @@
 import Foundation
 import dnssd
 
-@MainActor
 @Observable
-final class DNSLookupService {
-    private(set) var lastResult: DNSQueryResult?
-    private(set) var isLoading: Bool = false
-    private(set) var lastError: String?
-    
+final class DNSLookupService: @unchecked Sendable {
+    @MainActor private(set) var lastResult: DNSQueryResult?
+    @MainActor private(set) var isLoading: Bool = false
+    @MainActor private(set) var lastError: String?
+
+    @MainActor init() {}
+
+    @MainActor
     func lookup(
         domain: String,
         recordType: DNSRecordType = .a,
@@ -15,15 +17,13 @@ final class DNSLookupService {
     ) async -> DNSQueryResult? {
         isLoading = true
         lastError = nil
-        
-        defer { isLoading = false }
-        
+
         let start = Date()
-        
+
         do {
             let records = try await performLookup(domain: domain, type: recordType)
             let queryTime = Date().timeIntervalSince(start) * 1000
-            
+
             let result = DNSQueryResult(
                 domain: domain,
                 server: server ?? "System DNS",
@@ -31,11 +31,13 @@ final class DNSLookupService {
                 records: records,
                 queryTime: queryTime
             )
-            
+
             lastResult = result
+            isLoading = false
             return result
         } catch {
             lastError = error.localizedDescription
+            isLoading = false
             return nil
         }
     }
