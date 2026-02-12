@@ -39,7 +39,7 @@ struct WHOISServiceTests {
         #expect(await service.serverForDomain("example.COM") == "whois.verisign-grs.com")
     }
 
-    @Test("WHOIS lookup for well-known domain works")
+    @Test("WHOIS lookup for well-known domain works", .disabled("Requires live network — integration test"))
     func lookupWellKnownDomain() async throws {
         let service = WHOISService()
         
@@ -54,7 +54,7 @@ struct WHOISServiceTests {
         #expect(result.registrar != nil || result.nameServers.isEmpty == false)
     }
 
-    @Test("WHOIS lookup for invalid domain handles gracefully")
+    @Test("WHOIS lookup for invalid domain handles gracefully", .disabled("Requires live network — integration test"))
     func lookupInvalidDomain() async {
         let service = WHOISService()
         
@@ -120,7 +120,7 @@ struct WHOISServiceTests {
         #expect(result.daysUntilExpiration == nil)
     }
 
-    @Test("WHOIS handles IP address queries")
+    @Test("WHOIS handles IP address queries", .disabled("Requires live network — integration test"))
     func lookupIPAddress() async {
         let service = WHOISService()
         
@@ -141,7 +141,7 @@ struct WHOISServiceTests {
         }
     }
 
-    @Test("WHOIS lookup timeout handling")
+    @Test("WHOIS lookup timeout handling", .disabled("Requires live network — integration test"))
     func lookupTimeout() async {
         let service = WHOISService()
         
@@ -163,7 +163,7 @@ struct WHOISServiceTests {
         }
     }
 
-    @Test("WHOIS handles empty query gracefully")
+    @Test("WHOIS handles empty query gracefully", .disabled("Requires live network — integration test"))
     func lookupEmptyQuery() async {
         let service = WHOISService()
         
@@ -179,7 +179,7 @@ struct WHOISServiceTests {
         }
     }
 
-    @Test("WHOIS raw data parsing edge cases")
+    @Test("WHOIS raw data parsing edge cases", .disabled("Requires live network — integration test"))
     func rawDataParsing() async {
         // Test that the service can handle various WHOIS response formats
         let service = WHOISService()
@@ -227,7 +227,7 @@ struct WHOISServiceTests {
         #expect(result2.rawData.contains("2019-12-25"))
     }
 
-    @Test("Concurrent WHOIS lookups work correctly")
+    @Test("Concurrent WHOIS lookups work correctly", .disabled("Requires live network — integration test"))
     func concurrentLookups() async {
         let service = WHOISService()
 

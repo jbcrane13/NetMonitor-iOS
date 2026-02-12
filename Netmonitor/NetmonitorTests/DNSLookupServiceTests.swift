@@ -16,7 +16,7 @@ struct DNSLookupServiceTests {
         #expect(lastError == nil)
     }
 
-    @Test("A record lookup for known domain works")
+    @Test("A record lookup for known domain works", .disabled("Requires live network — integration test"))
     func lookupARecord() async {
         let service = await DNSLookupService()
         
@@ -46,7 +46,7 @@ struct DNSLookupServiceTests {
         #expect(finalError == nil)
     }
 
-    @Test("AAAA record lookup for IPv6 works")
+    @Test("AAAA record lookup for IPv6 works", .disabled("Requires live network — integration test"))
     func lookupAAAARecord() async {
         let service = await DNSLookupService()
         
@@ -69,7 +69,7 @@ struct DNSLookupServiceTests {
         }
     }
 
-    @Test("MX record lookup works")
+    @Test("MX record lookup works", .disabled("Requires live network — integration test"))
     func lookupMXRecord() async {
         let service = await DNSLookupService()
         
@@ -92,7 +92,7 @@ struct DNSLookupServiceTests {
         }
     }
 
-    @Test("TXT record lookup works")
+    @Test("TXT record lookup works", .disabled("Requires live network — integration test"))
     func lookupTXTRecord() async {
         let service = await DNSLookupService()
         
@@ -113,7 +113,7 @@ struct DNSLookupServiceTests {
         }
     }
 
-    @Test("NS record lookup works")
+    @Test("NS record lookup works", .disabled("Requires live network — integration test"))
     func lookupNSRecord() async {
         let service = await DNSLookupService()
         
@@ -134,7 +134,7 @@ struct DNSLookupServiceTests {
         }
     }
 
-    @Test("CNAME record lookup works")
+    @Test("CNAME record lookup works", .disabled("Requires live network — integration test"))
     func lookupCNAMERecord() async {
         let service = await DNSLookupService()
         
@@ -157,7 +157,7 @@ struct DNSLookupServiceTests {
         }
     }
 
-    @Test("Lookup invalid domain handles gracefully")
+    @Test("Lookup invalid domain handles gracefully", .disabled("Requires live network — integration test"))
     func lookupInvalidDomain() async {
         let service = await DNSLookupService()
         
@@ -170,7 +170,7 @@ struct DNSLookupServiceTests {
         #expect(finalError != nil)
     }
 
-    @Test("Lookup empty domain handles gracefully")
+    @Test("Lookup empty domain handles gracefully", .disabled("Requires live network — integration test"))
     func lookupEmptyDomain() async {
         let service = await DNSLookupService()
         
@@ -182,7 +182,7 @@ struct DNSLookupServiceTests {
         #expect(finalError != nil)
     }
 
-    @Test("Service tracks loading state correctly")
+    @Test("Service tracks loading state correctly", .disabled("Requires live network — integration test"))
     func loadingStateTracking() async {
         let service = await DNSLookupService()
 
@@ -212,7 +212,7 @@ struct DNSLookupServiceTests {
         #expect(lastResult?.domain == "cloudflare.com")
     }
 
-    @Test("Multiple record types for same domain")
+    @Test("Multiple record types for same domain", .disabled("Requires live network — integration test"))
     func multipleRecordTypes() async {
         let service = await DNSLookupService()
         
@@ -300,7 +300,7 @@ struct DNSLookupServiceTests {
         #expect(DNSRecordType.ptr.displayName == "PTR")
     }
 
-    @Test("Concurrent DNS lookups work correctly")
+    @Test("Concurrent DNS lookups work correctly", .disabled("Requires live network — integration test"))
     func concurrentLookups() async {
         let service = await DNSLookupService()
         

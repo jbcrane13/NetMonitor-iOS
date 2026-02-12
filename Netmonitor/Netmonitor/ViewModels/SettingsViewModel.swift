@@ -68,8 +68,9 @@ final class SettingsViewModel {
     }
 
     // MARK: - Appearance Settings
+    // App is dark-only; @AppStorage key retained for future use
     var selectedTheme: String {
-        get { defaults.string(forKey: "selectedTheme") ?? "system" }
+        get { "dark" }
         set { defaults.set(newValue, forKey: "selectedTheme") }
     }
 
