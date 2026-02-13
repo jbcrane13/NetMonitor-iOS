@@ -449,10 +449,11 @@ final class DeviceDiscoveryService {
                                     conn.cancel()
                                     continuation.resume(returning: elapsed)
                                 }
-                            case .failed, .cancelled:
+                            case .failed, .cancelled, .waiting:
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
+                                    conn.cancel()
                                     continuation.resume(returning: nil)
                                 }
                             default:

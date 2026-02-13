@@ -85,47 +85,66 @@ actor PingService {
         }
     }
     
+    /// Try connecting to multiple common ports concurrently — succeed if ANY responds.
+    /// This is far more reliable than single-port (80) since many hosts only listen on
+    /// 443 (HTTPS) or 22 (SSH) but not 80.
     private func connectTest(host: String, timeout: TimeInterval) async -> Bool {
-        let endpoint = NWEndpoint.hostPort(
-            host: NWEndpoint.Host(host),
-            port: .http
-        )
+        let ports: [NWEndpoint.Port] = [.https, .http, NWEndpoint.Port(rawValue: 22)!]
+        let hostEndpoint = NWEndpoint.Host(host)
         
-        let connection = NWConnection(to: endpoint, using: .tcp)
-        defer { connection.cancel() }
-        nonisolated(unsafe) let conn = connection
+        let connections = ports.map { port -> NWConnection in
+            NWConnection(to: .hostPort(host: hostEndpoint, port: port), using: .tcp)
+        }
+        defer { connections.forEach { $0.cancel() } }
         
-        return await withCheckedContinuation { continuation in
-            let resumed = ResumeState()
-            
-            let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(timeout))
-                guard await resumed.tryResume() else { return }
-                conn.cancel()
-                continuation.resume(returning: false)
-            }
-            
-            conn.stateUpdateHandler = { state in
-                switch state {
-                case .ready:
-                    Task {
-                        guard await resumed.tryResume() else { return }
-                        timeoutTask.cancel()
-                        conn.cancel()
-                        continuation.resume(returning: true)
+        return await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+            for connection in connections {
+                nonisolated(unsafe) let conn = connection
+                group.addTask {
+                    await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                        let resumed = ResumeState()
+                        
+                        let timeoutTask = Task {
+                            try? await Task.sleep(for: .seconds(timeout))
+                            guard await resumed.tryResume() else { return }
+                            conn.cancel()
+                            continuation.resume(returning: false)
+                        }
+                        
+                        conn.stateUpdateHandler = { state in
+                            switch state {
+                            case .ready:
+                                Task {
+                                    guard await resumed.tryResume() else { return }
+                                    timeoutTask.cancel()
+                                    conn.cancel()
+                                    continuation.resume(returning: true)
+                                }
+                            case .failed, .cancelled, .waiting:
+                                Task {
+                                    guard await resumed.tryResume() else { return }
+                                    timeoutTask.cancel()
+                                    conn.cancel()
+                                    continuation.resume(returning: false)
+                                }
+                            default:
+                                break
+                            }
+                        }
+                        
+                        conn.start(queue: .global())
                     }
-                case .failed, .cancelled:
-                    Task {
-                        guard await resumed.tryResume() else { return }
-                        timeoutTask.cancel()
-                        continuation.resume(returning: false)
-                    }
-                default:
-                    break
                 }
             }
             
-            conn.start(queue: .global())
+            // Return true as soon as any port succeeds
+            for await result in group {
+                if result {
+                    group.cancelAll()
+                    return true
+                }
+            }
+            return false
         }
     }
     

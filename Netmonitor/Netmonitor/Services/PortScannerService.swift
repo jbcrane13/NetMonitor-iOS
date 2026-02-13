@@ -3,7 +3,7 @@ import Network
 
 actor PortScannerService {
     private var isRunning = false
-    private let maxConcurrent = 50
+    private let maxConcurrent = 20
     
     func scan(
         host: String,
@@ -91,6 +91,15 @@ actor PortScannerService {
                         } else {
                             continuation.resume(returning: .filtered)
                         }
+                    }
+                case .waiting:
+                    // .waiting means path exists but connection can't proceed
+                    // (e.g. no route, DNS failure) — treat as filtered, don't hang
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        conn.cancel()
+                        continuation.resume(returning: .filtered)
                     }
                 case .cancelled:
                     Task {
