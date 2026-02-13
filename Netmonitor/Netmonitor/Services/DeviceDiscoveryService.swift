@@ -395,40 +395,73 @@ final class DeviceDiscoveryService {
         scanTask?.cancel()
     }
 
+    /// Result of probing a group of ports on a single host.
+    private enum ProbeGroupResult: Sendable {
+        /// At least one port responded (ready or refused) — host is alive.
+        case reachable(latency: Double)
+        /// All ports timed out — host is likely offline.
+        case allTimedOut
+        /// All ports failed with errors other than refusal/timeout.
+        case allFailed
+    }
+
     /// Probe a host with staged port groups and return first successful latency.
+    /// If all primary ports time out (no connection-refused), skip secondary ports
+    /// because the host is likely offline.
     private nonisolated func probeHost(_ ip: String) async -> DiscoveredDevice? {
-        if let fastLatency = await Self.firstReachableLatency(
+        let primaryResult = await Self.probePortGroup(
             ip: ip,
             ports: Self.primaryProbePorts,
             timeout: Self.primaryProbeTimeout,
             maxConcurrentPorts: Self.maxConcurrentPortProbes
-        ) {
-            return DiscoveredDevice(ipAddress: ip, latency: fastLatency, discoveredAt: Date())
+        )
+
+        switch primaryResult {
+        case .reachable(let latency):
+            return DiscoveredDevice(ipAddress: ip, latency: latency, discoveredAt: Date())
+        case .allTimedOut:
+            // All primary ports timed out — host is likely offline, skip secondary probes.
+            return nil
+        case .allFailed:
+            // Got fast failures (not timeouts) — host may be alive, try secondary ports.
+            break
         }
 
-        guard let broadLatency = await Self.firstReachableLatency(
+        let secondaryResult = await Self.probePortGroup(
             ip: ip,
             ports: Self.secondaryProbePorts,
             timeout: Self.secondaryProbeTimeout,
             maxConcurrentPorts: Self.maxConcurrentPortProbes
-        ) else {
-            return nil
+        )
+
+        if case .reachable(let latency) = secondaryResult {
+            return DiscoveredDevice(ipAddress: ip, latency: latency, discoveredAt: Date())
         }
 
-        return DiscoveredDevice(ipAddress: ip, latency: broadLatency, discoveredAt: Date())
+        return nil
     }
 
-    private nonisolated static func firstReachableLatency(
+    /// Per-port probe outcome used to decide whether to continue to secondary ports.
+    private enum PortProbeOutcome: Sendable {
+        case reachable(latency: Double)
+        case refused(latency: Double)
+        case timeout
+        case failed
+    }
+
+    private nonisolated static func probePortGroup(
         ip: String,
         ports: [UInt16],
         timeout: Duration,
         maxConcurrentPorts: Int
-    ) async -> Double? {
-        guard !ports.isEmpty else { return nil }
+    ) async -> ProbeGroupResult {
+        guard !ports.isEmpty else { return .allFailed }
 
-        return await withTaskGroup(of: Double?.self, returning: Double?.self) { group in
+        return await withTaskGroup(of: PortProbeOutcome.self, returning: ProbeGroupResult.self) { group in
             var pending = 0
             var iterator = ports.makeIterator()
+            var sawRefusal = false
+            var sawTimeout = false
 
             while pending < maxConcurrentPorts, let port = iterator.next() {
                 pending += 1
@@ -441,9 +474,20 @@ final class DeviceDiscoveryService {
                 guard let result = await group.next() else { break }
                 pending -= 1
 
-                if let latency = result {
+                switch result {
+                case .reachable(let latency):
                     group.cancelAll()
-                    return latency
+                    return .reachable(latency: latency)
+                case .refused(let latency):
+                    sawRefusal = true
+                    // Connection refused = host is alive. Return this latency
+                    // as reachable since we know the host is up.
+                    group.cancelAll()
+                    return .reachable(latency: latency)
+                case .timeout:
+                    sawTimeout = true
+                case .failed:
+                    break
                 }
 
                 if let port = iterator.next() {
@@ -454,11 +498,14 @@ final class DeviceDiscoveryService {
                 }
             }
 
-            return nil
+            if sawTimeout && !sawRefusal {
+                return .allTimedOut
+            }
+            return .allFailed
         }
     }
 
-    private nonisolated static func probePort(ip: String, port: UInt16, timeout: Duration) async -> Double? {
+    private nonisolated static func probePort(ip: String, port: UInt16, timeout: Duration) async -> PortProbeOutcome {
         let host = NWEndpoint.Host(ip)
         let endpoint = NWEndpoint.hostPort(host: host, port: NWEndpoint.Port(rawValue: port)!)
         let params = NWParameters.tcp
@@ -467,14 +514,14 @@ final class DeviceDiscoveryService {
         let connection = NWConnection(to: endpoint, using: params)
         defer { connection.cancel() }
 
-        return await withCheckedContinuation { (continuation: CheckedContinuation<Double?, Never>) in
+        return await withCheckedContinuation { (continuation: CheckedContinuation<PortProbeOutcome, Never>) in
             let resumed = ResumeState()
 
             let timeoutTask = Task {
                 try? await Task.sleep(for: timeout)
                 guard await resumed.tryResume() else { return }
                 connection.cancel()
-                continuation.resume(returning: nil)
+                continuation.resume(returning: .timeout)
             }
 
             // Capture start time immediately before starting the connection so we
@@ -489,7 +536,7 @@ final class DeviceDiscoveryService {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
                         connection.cancel()
-                        continuation.resume(returning: elapsed)
+                        continuation.resume(returning: .reachable(latency: elapsed))
                     }
                 case .failed(let error):
                     let elapsed = Date().timeIntervalSince(start) * 1000
@@ -501,9 +548,9 @@ final class DeviceDiscoveryService {
                         // A fast refusal indicates the host is reachable even if the
                         // probed service is closed.
                         if case NWError.posix(let code) = error, code == .ECONNREFUSED {
-                            continuation.resume(returning: elapsed)
+                            continuation.resume(returning: .refused(latency: elapsed))
                         } else {
-                            continuation.resume(returning: nil)
+                            continuation.resume(returning: .failed)
                         }
                     }
                 case .cancelled:
@@ -511,7 +558,7 @@ final class DeviceDiscoveryService {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
                         connection.cancel()
-                        continuation.resume(returning: nil)
+                        continuation.resume(returning: .failed)
                     }
                 default:
                     break
