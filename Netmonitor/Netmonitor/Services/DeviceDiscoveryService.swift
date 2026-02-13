@@ -24,7 +24,7 @@ final class DeviceDiscoveryService {
     }
     
     private var scanTask: Task<Void, Never>?
-    private let maxConcurrent = 40
+    private let maxConcurrent = 15
     private let nameResolver = DeviceNameResolver()
     private nonisolated static let probeQueue = DispatchQueue(label: "com.netmonitor.probe", qos: .userInitiated, attributes: .concurrent)
     
@@ -265,32 +265,30 @@ final class DeviceDiscoveryService {
         }
     }
     
-    /// Remove duplicate entries for the same IP, keeping the most enriched version.
+    /// Remove duplicate entries for the same IP, merging fields from all entries.
     private func deduplicateByIP() {
         var seen: [String: Int] = [:]
         var toRemove: IndexSet = []
-        
+
         for (index, device) in discoveredDevices.enumerated() {
             if let existingIndex = seen[device.ipAddress] {
-                // Keep whichever has more info
+                // Merge: keep the first non-nil value for each field
                 let existing = discoveredDevices[existingIndex]
-                let newHasMore = (device.hostname != nil && existing.hostname == nil)
-                    || (device.vendor != nil && existing.vendor == nil)
-                    || (device.macAddress != nil && existing.macAddress == nil)
-                
-                if newHasMore {
-                    // Replace existing with this richer entry
-                    toRemove.insert(existingIndex)
-                    seen[device.ipAddress] = index
-                } else {
-                    // Discard this duplicate
-                    toRemove.insert(index)
-                }
+                discoveredDevices[existingIndex] = DiscoveredDevice(
+                    ipAddress: existing.ipAddress,
+                    hostname: existing.hostname ?? device.hostname,
+                    vendor: existing.vendor ?? device.vendor,
+                    macAddress: existing.macAddress ?? device.macAddress,
+                    latency: existing.latency ?? device.latency,
+                    discoveredAt: existing.discoveredAt,
+                    source: existing.source
+                )
+                toRemove.insert(index)
             } else {
                 seen[device.ipAddress] = index
             }
         }
-        
+
         // Remove in reverse order to preserve indices
         for index in toRemove.sorted().reversed() {
             discoveredDevices.remove(at: index)
@@ -408,59 +406,61 @@ final class DeviceDiscoveryService {
             }
         }
         
-        let reachable = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+        // Task group returns latency (ms) on first successful connection, nil if unreachable
+        let latency: Double? = await withTaskGroup(of: Double?.self, returning: Double?.self) { group in
             for (connection, _) in connections {
                 // nonisolated(unsafe) needed: NWConnection is non-Sendable but we need
                 // it inside the @Sendable addTask closure and its nested callbacks
                 nonisolated(unsafe) let conn = connection
                 group.addTask {
-                    await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                    await withCheckedContinuation { (continuation: CheckedContinuation<Double?, Never>) in
                         let resumed = ResumeState()
-                        
+
                         let timeoutTask = Task {
                             try? await Task.sleep(for: .milliseconds(800))
                             guard await resumed.tryResume() else { return }
                             conn.cancel()
-                            continuation.resume(returning: false)
+                            continuation.resume(returning: nil)
                         }
-                        
+
                         conn.stateUpdateHandler = { state in
                             switch state {
                             case .ready:
+                                // Capture latency NOW on the dispatch queue, before
+                                // any Task/continuation overhead inflates the value
+                                let elapsed = Date().timeIntervalSince(start) * 1000
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
                                     conn.cancel()
-                                    continuation.resume(returning: true)
+                                    continuation.resume(returning: elapsed)
                                 }
                             case .failed, .cancelled:
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
-                                    continuation.resume(returning: false)
+                                    continuation.resume(returning: nil)
                                 }
                             default:
                                 break
                             }
                         }
-                        
+
                         conn.start(queue: Self.probeQueue)
                     }
                 }
             }
-            
+
             for await result in group {
-                if result {
+                if let ms = result {
                     group.cancelAll()
-                    return true
+                    return ms
                 }
             }
-            return false
+            return nil
         }
-        
-        guard reachable else { return nil }
-        
-        let latency = Date().timeIntervalSince(start) * 1000
+
+        guard let latency else { return nil }
         return DiscoveredDevice(ipAddress: ip, latency: latency, discoveredAt: Date())
     }
     
