@@ -30,7 +30,9 @@ enum NetworkUtilities {
                         0,
                         NI_NUMERICHOST
                     )
-                    return String(cString: hostname)
+                    let length = strnlen(hostname, hostname.count)
+                    let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
+                    return String(decoding: bytes, as: UTF8.self)
                 }
             }
         }

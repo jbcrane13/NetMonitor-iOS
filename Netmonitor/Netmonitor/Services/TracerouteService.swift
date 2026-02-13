@@ -391,7 +391,9 @@ actor TracerouteService {
             0,
             NI_NUMERICHOST
         ) == 0 {
-            return String(cString: hostnameBuffer)
+            let length = strnlen(hostnameBuffer, hostnameBuffer.count)
+            let bytes = hostnameBuffer.prefix(length).map { UInt8(bitPattern: $0) }
+            return String(decoding: bytes, as: UTF8.self)
         }
 
         return nil

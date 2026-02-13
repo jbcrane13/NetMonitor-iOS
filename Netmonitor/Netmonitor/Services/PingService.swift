@@ -11,13 +11,13 @@ actor PingService {
     ) -> AsyncStream<PingResult> {
         AsyncStream { continuation in
             Task {
-                await self.setRunning(true)
-                defer { Task { await self.setRunning(false) } }
+                self.setRunning(true)
+                defer { Task { self.setRunning(false) } }
 
                 let resolvedIP = await resolveHost(host)
 
                 for seq in 1...count {
-                    guard await self.isRunning else { break }
+                    guard self.isRunning else { break }
 
                     let start = Date()
                     let success = await connectTest(
@@ -78,7 +78,9 @@ actor PingService {
                            nil, 0, NI_NUMERICHOST)
             }
             
-            let ip = String(cString: hostname)
+            let length = strnlen(hostname, hostname.count)
+            let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
+            let ip = String(decoding: bytes, as: UTF8.self)
             continuation.resume(returning: ip.isEmpty ? nil : ip)
         }
     }

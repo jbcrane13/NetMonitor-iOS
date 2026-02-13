@@ -97,12 +97,9 @@ final class DeviceNameResolver: Sendable {
                 }
 
                 if result == 0 {
-                    let name = hostname.withUnsafeBufferPointer { buffer in
-                        let count = buffer.firstIndex(of: 0) ?? buffer.count
-                        return buffer.prefix(count).withUnsafeBytes { bytes in
-                            String(decoding: bytes, as: UTF8.self)
-                        }
-                    }
+                    let length = strnlen(hostname, hostname.count)
+                    let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
+                    let name = String(decoding: bytes, as: UTF8.self)
                     // getnameinfo returns the IP itself if no reverse DNS exists
                     if name != ipAddress && !name.isEmpty {
                         continuation.resume(returning: name)

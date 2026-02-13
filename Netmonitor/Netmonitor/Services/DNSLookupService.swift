@@ -83,7 +83,9 @@ final class DNSLookupService: @unchecked Sendable {
                     getnameinfo(sockaddr, socklen, &hostname, socklen_t(hostname.count),
                                nil, 0, NI_NUMERICHOST)
 
-                    let address = String(cString: hostname)
+                    let length = strnlen(hostname, hostname.count)
+                    let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
+                    let address = String(decoding: bytes, as: UTF8.self)
                     let recordType: DNSRecordType = info.pointee.ai_family == AF_INET6 ? .aaaa : .a
 
                     if (typeCopy == .a && recordType == .a) || (typeCopy == .aaaa && recordType == .aaaa) {
