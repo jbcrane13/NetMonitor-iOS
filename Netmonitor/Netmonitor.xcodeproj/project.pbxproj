@@ -1128,6 +1128,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Netmonitor/Netmonitor.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
@@ -1145,6 +1146,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Netmonitor/Netmonitor.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;

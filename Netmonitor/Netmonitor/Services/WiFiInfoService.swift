@@ -12,6 +12,7 @@ final class WiFiInfoService: NSObject {
     private(set) var authorizationStatus: CLAuthorizationStatus = .notDetermined
     
     private let locationManager = CLLocationManager()
+    private var retryTask: Task<Void, Never>?
     
     override init() {
         super.init()
@@ -24,6 +25,8 @@ final class WiFiInfoService: NSObject {
     }
     
     func refreshWiFiInfo() {
+        retryTask?.cancel()
+        
         #if targetEnvironment(simulator)
         currentWiFi = mockWiFiInfo()
         #else
@@ -31,9 +34,27 @@ final class WiFiInfoService: NSObject {
             currentWiFi = nil
             return
         }
-        // Use modern NEHotspotNetwork API
-        Task {
-            currentWiFi = await fetchWiFiInfoModern() ?? fetchWiFiInfoLegacy()
+        // NEHotspotNetwork.fetchCurrent() can return nil on first call —
+        // retry a few times with increasing delay to handle iOS quirks
+        retryTask = Task {
+            for attempt in 0..<4 {
+                if attempt > 0 {
+                    try? await Task.sleep(for: .milliseconds(500 * attempt))
+                    guard !Task.isCancelled else { return }
+                }
+                
+                if let info = await fetchWiFiInfoModern() {
+                    currentWiFi = info
+                    return
+                }
+                
+                if let info = fetchWiFiInfoLegacy() {
+                    currentWiFi = info
+                    return
+                }
+            }
+            // All retries exhausted — clear any stale data
+            currentWiFi = nil
         }
         #endif
     }
