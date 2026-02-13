@@ -13,13 +13,29 @@ final class DeviceDiscoveryService {
     private(set) var lastScanDate: Date?
     
     private var scanTask: Task<Void, Never>?
-    private let maxConcurrent = 20
+    private let maxConcurrent = 40
     private let nameResolver = DeviceNameResolver()
     private nonisolated static let probeQueue = DispatchQueue(label: "com.netmonitor.probe", qos: .userInitiated, attributes: .concurrent)
     
     /// Key ports to probe — covers most device types without creating too many connections.
     /// HTTP, HTTPS, SSH, SMB, AirPlay
-    private nonisolated static let probePorts: [UInt16] = [80, 443, 22, 445, 7000]
+    // Broad port list to catch more device types:
+    // 80/443: web UIs (routers, NAS, cameras)
+    // 22: SSH (Linux, Mac, NAS)
+    // 445: SMB (Windows, NAS)
+    // 7000: AirPlay
+    // 8080/8443: alt web (cameras, smart home hubs)
+    // 5353: mDNS (Apple devices, Chromecasts)
+    // 62078: Apple lockdownd (iPhones/iPads)
+    // 9100: printers
+    // 1883: MQTT (IoT hubs)
+    // 554: RTSP (IP cameras)
+    // 548: AFP (older Macs/NAS)
+    private nonisolated static let probePorts: [UInt16] = [
+        80, 443, 22, 445, 7000,
+        8080, 8443, 62078, 5353,
+        9100, 1883, 554, 548
+    ]
     
     func scanNetwork(subnet: String? = nil) async {
         guard !isScanning else { return }
@@ -245,7 +261,7 @@ final class DeviceDiscoveryService {
                         let resumed = ResumeState()
                         
                         let timeoutTask = Task {
-                            try? await Task.sleep(for: .milliseconds(600))
+                            try? await Task.sleep(for: .milliseconds(800))
                             guard await resumed.tryResume() else { return }
                             conn.cancel()
                             continuation.resume(returning: false)

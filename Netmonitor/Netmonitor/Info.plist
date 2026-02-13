@@ -36,14 +36,37 @@
 		<string>_ssh._tcp</string>
 		<string>_smb._tcp</string>
 		<string>_afpovertcp._tcp</string>
+		<string>_sftp-ssh._tcp</string>
+		<string>_ftp._tcp</string>
+		<string>_nfs._tcp</string>
+		<string>_webdav._tcp</string>
 		<string>_printer._tcp</string>
 		<string>_ipp._tcp</string>
+		<string>_ipps._tcp</string>
+		<string>_pdl-datastream._tcp</string>
+		<string>_scanner._tcp</string>
 		<string>_airplay._tcp</string>
 		<string>_raop._tcp</string>
-		<string>_googlecast._tcp</string>
-		<string>_spotify-connect._tcp</string>
 		<string>_homekit._tcp</string>
 		<string>_hap._tcp</string>
+		<string>_companion-link._tcp</string>
+		<string>_apple-mobdev2._tcp</string>
+		<string>_sleep-proxy._udp</string>
+		<string>_device-info._tcp</string>
+		<string>_googlecast._tcp</string>
+		<string>_spotify-connect._tcp</string>
+		<string>_sonos._tcp</string>
+		<string>_roku._tcp</string>
+		<string>_daap._tcp</string>
+		<string>_mqtt._tcp</string>
+		<string>_hue._tcp</string>
+		<string>_matter._tcp</string>
+		<string>_coap._udp</string>
+		<string>_rtsp._tcp</string>
+		<string>_workstation._tcp</string>
+		<string>_net-assistant._udp</string>
+		<string>_rfb._tcp</string>
+		<string>_rdp._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>NetMonitor needs local network access to discover devices on your network, connect to the NetMonitor Mac companion app, and perform network diagnostics.</string>
