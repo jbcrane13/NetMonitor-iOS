@@ -4,6 +4,9 @@ import Network
 actor PingService {
     private var isRunning = false
     private var activeRunID: UUID?
+
+    /// Dedicated queue isolates ping measurements from device scan traffic on .global().
+    private nonisolated let pingQueue = DispatchQueue(label: "com.netmonitor.ping", qos: .userInteractive)
     
     func ping(
         host: String,
@@ -112,19 +115,20 @@ actor PingService {
         }
         defer { connections.forEach { $0.cancel() } }
         
+        let queue = pingQueue
         return await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
             for connection in connections {
                 group.addTask {
                     await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
                         let resumed = ResumeState()
-                        
+
                         let timeoutTask = Task {
                             try? await Task.sleep(for: .seconds(timeout))
                             guard await resumed.tryResume() else { return }
                             connection.cancel()
                             continuation.resume(returning: false)
                         }
-                        
+
                         connection.stateUpdateHandler = { state in
                             switch state {
                             case .ready:
@@ -158,8 +162,8 @@ actor PingService {
                                 break
                             }
                         }
-                        
-                        connection.start(queue: .global())
+
+                        connection.start(queue: queue)
                     }
                 }
             }
