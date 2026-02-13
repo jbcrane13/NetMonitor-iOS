@@ -27,13 +27,9 @@ struct NetmonitorApp: App {
         }
     }()
 
-    // Resolve color scheme from user preference
+    // Force dark mode — the app is designed for dark UI only
     private var resolvedColorScheme: ColorScheme? {
-        switch selectedTheme {
-        case "light": return .light
-        case "dark": return .dark
-        default: return nil  // "system" follows iOS setting
-        }
+        return .dark
     }
 
     var body: some Scene {
