@@ -170,7 +170,7 @@ final class BonjourDiscoveryService {
             let resumed = ResumeState()
 
             let timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(5))
+                try? await Task.sleep(for: .seconds(2))
                 guard await resumed.tryResume() else { return }
                 conn.cancel()
                 continuation.resume(returning: nil)
@@ -199,10 +199,11 @@ final class BonjourDiscoveryService {
                             continuation.resume(returning: nil)
                         }
                     }
-                case .failed, .cancelled:
+                case .failed, .cancelled, .waiting:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
+                        conn.cancel()
                         continuation.resume(returning: nil)
                     }
                 default:

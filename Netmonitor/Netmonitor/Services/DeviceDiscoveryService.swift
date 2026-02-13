@@ -174,19 +174,30 @@ final class DeviceDiscoveryService {
         defer { connection.cancel() }
         nonisolated(unsafe) let conn = connection
         
-        // Wait for connection ready
+        // Wait for connection ready (with timeout to prevent hang)
         let ready: Bool = await withCheckedContinuation { continuation in
             let resumed = ResumeState()
+
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(2))
+                guard await resumed.tryResume() else { return }
+                conn.cancel()
+                continuation.resume(returning: false)
+            }
+
             conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
                         continuation.resume(returning: true)
                     }
-                case .failed, .cancelled:
+                case .failed, .cancelled, .waiting:
                     Task {
                         guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        conn.cancel()
                         continuation.resume(returning: false)
                     }
                 default:
@@ -388,9 +399,8 @@ final class DeviceDiscoveryService {
     /// Probe a host by trying a few common ports concurrently.
     /// Returns as soon as ANY port responds. All connections are explicitly cancelled on exit.
     private nonisolated func probeHost(_ ip: String) async -> DiscoveredDevice? {
-        let start = Date()
         let host = NWEndpoint.Host(ip)
-        
+
         // Create all connections upfront so we can cancel them all on exit
         let connections: [(NWConnection, UInt16)] = Self.probePorts.map { port in
             let endpoint = NWEndpoint.hostPort(host: host, port: NWEndpoint.Port(rawValue: port)!)
@@ -398,14 +408,14 @@ final class DeviceDiscoveryService {
             params.requiredInterfaceType = .wifi
             return (NWConnection(to: endpoint, using: params), port)
         }
-        
+
         // Ensure ALL connections are cancelled when we exit, no matter what
         defer {
             for (conn, _) in connections {
                 conn.cancel()
             }
         }
-        
+
         // Task group returns latency (ms) on first successful connection, nil if unreachable
         let latency: Double? = await withTaskGroup(of: Double?.self, returning: Double?.self) { group in
             for (connection, _) in connections {
@@ -423,12 +433,16 @@ final class DeviceDiscoveryService {
                             continuation.resume(returning: nil)
                         }
 
+                        // Capture start time immediately before starting the connection
+                        // so we measure only the TCP handshake, not task/group overhead
+                        let connStart = Date()
+
                         conn.stateUpdateHandler = { state in
                             switch state {
                             case .ready:
                                 // Capture latency NOW on the dispatch queue, before
                                 // any Task/continuation overhead inflates the value
-                                let elapsed = Date().timeIntervalSince(start) * 1000
+                                let elapsed = Date().timeIntervalSince(connStart) * 1000
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
@@ -469,8 +483,8 @@ final class DeviceDiscoveryService {
     private func mergeBonjourDevices(_ bonjourService: BonjourDiscoveryService) async {
         var knownIPs = Set(discoveredDevices.map(\.ipAddress))
         
-        // Limit resolution to avoid creating too many NWConnections
-        let services = Array(bonjourService.discoveredServices.prefix(30))
+        // Limit resolution to avoid slow sequential resolves
+        let services = Array(bonjourService.discoveredServices.prefix(20))
         for service in services {
             if let resolved = await bonjourService.resolveService(service) {
                 if let host = resolved.hostName {
