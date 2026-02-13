@@ -18,16 +18,9 @@ final class BonjourDiscoveryService {
         "_ssh._tcp",
         "_smb._tcp",
         "_afpovertcp._tcp",
-        "_sftp-ssh._tcp",
-        "_ftp._tcp",
-        "_nfs._tcp",
-        "_webdav._tcp",
         // Printing
         "_printer._tcp",
         "_ipp._tcp",
-        "_ipps._tcp",
-        "_pdl-datastream._tcp",
-        "_scanner._tcp",
         // Apple ecosystem
         "_airplay._tcp",
         "_raop._tcp",
@@ -35,25 +28,13 @@ final class BonjourDiscoveryService {
         "_hap._tcp",
         "_companion-link._tcp",
         "_apple-mobdev2._tcp",
-        "_sleep-proxy._udp",
         "_device-info._tcp",
         // Media / streaming
         "_googlecast._tcp",
         "_spotify-connect._tcp",
         "_sonos._tcp",
-        "_roku._tcp",
-        "_daap._tcp",
-        // IoT / smart home
-        "_mqtt._tcp",
-        "_hue._tcp",
-        "_matter._tcp",
-        "_coap._udp",
         // Other
-        "_rtsp._tcp",
-        "_workstation._tcp",
-        "_net-assistant._udp",
-        "_rfb._tcp",
-        "_rdp._tcp"
+        "_workstation._tcp"
     ]
 
     /// Returns an AsyncStream that yields newly discovered services as they are found.
