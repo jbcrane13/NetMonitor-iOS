@@ -118,19 +118,28 @@ final class MacConnectionService: MacConnectionServiceProtocol {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 switch state {
-                case .failed:
+                case .ready:
+                    print("[MacConnectionService] Browser ready — actively searching for \(Self.serviceType)")
+                case .failed(let error):
+                    print("[MacConnectionService] Browser failed: \(error)")
                     self.isBrowsing = false
                 case .cancelled:
                     self.isBrowsing = false
+                case .waiting(let error):
+                    print("[MacConnectionService] Browser waiting: \(error)")
                 default:
                     break
                 }
             }
         }
 
-        newBrowser.browseResultsChangedHandler = { [weak self] results, _ in
+        newBrowser.browseResultsChangedHandler = { [weak self] results, changes in
             Task { @MainActor [weak self] in
                 guard let self else { return }
+                print("[MacConnectionService] Browse results changed: \(results.count) result(s)")
+                for result in results {
+                    print("[MacConnectionService]   → \(result.endpoint.debugDescription)")
+                }
                 self.handleBrowseResults(results)
             }
         }

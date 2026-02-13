@@ -96,6 +96,10 @@ final class DeviceDiscoveryService {
         await mergeBonjourDevices(bonjourService)
         bonjourService.stopDiscovery()
         
+        // Phase 3.5: SSDP/UPnP multicast discovery — catches devices that don't have
+        // open TCP ports (smart TVs, game consoles, media players, Hue bridges, etc.)
+        await mergeSSDP(baseIP: subnet ?? NetworkUtilities.detectSubnet() ?? "192.168.1")
+        
         // Phase 4: Merge Mac companion devices (ARP scan results we can't get on iOS)
         mergeCompanionDevices()
         
@@ -106,6 +110,127 @@ final class DeviceDiscoveryService {
         deduplicateByIP()
         
         discoveredDevices.sort { $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey }
+    }
+    
+    // MARK: - SSDP / UPnP Discovery
+    
+    /// Send SSDP M-SEARCH multicast and collect responding device IPs.
+    /// This catches UPnP devices (TVs, Rokus, Hue bridges, game consoles, etc.)
+    /// that don't listen on common TCP ports.
+    private nonisolated func discoverSSDP() async -> [String] {
+        let multicastGroup = "239.255.255.250"
+        let multicastPort: UInt16 = 1900
+        let searchMessage = [
+            "M-SEARCH * HTTP/1.1",
+            "HOST: 239.255.255.250:1900",
+            "MAN: \"ssdp:discover\"",
+            "MX: 3",
+            "ST: ssdp:all",
+            "", ""
+        ].joined(separator: "\r\n")
+        
+        guard let messageData = searchMessage.data(using: .utf8) else { return [] }
+        
+        let endpoint = NWEndpoint.hostPort(
+            host: NWEndpoint.Host(multicastGroup),
+            port: NWEndpoint.Port(rawValue: multicastPort)!
+        )
+        let params = NWParameters.udp
+        params.requiredInterfaceType = .wifi
+        
+        let connection = NWConnection(to: endpoint, using: params)
+        defer { connection.cancel() }
+        nonisolated(unsafe) let conn = connection
+        
+        // Wait for connection ready
+        let ready: Bool = await withCheckedContinuation { continuation in
+            let resumed = ResumeState()
+            conn.stateUpdateHandler = { state in
+                switch state {
+                case .ready:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        continuation.resume(returning: true)
+                    }
+                case .failed, .cancelled:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        continuation.resume(returning: false)
+                    }
+                default:
+                    break
+                }
+            }
+            conn.start(queue: Self.probeQueue)
+        }
+        
+        guard ready else { return [] }
+        
+        // Send M-SEARCH
+        conn.send(content: messageData, completion: .contentProcessed { _ in })
+        
+        // Collect responses for 3 seconds
+        var discoveredIPs: Set<String> = []
+        let deadline = Date().addingTimeInterval(3.0)
+        
+        while Date() < deadline {
+            let response: Data? = await withCheckedContinuation { continuation in
+                let resumed = ResumeState()
+                
+                let timeoutTask = Task {
+                    try? await Task.sleep(for: .milliseconds(500))
+                    guard await resumed.tryResume() else { return }
+                    continuation.resume(returning: nil)
+                }
+                
+                conn.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, _, _ in
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        continuation.resume(returning: data)
+                    }
+                }
+            }
+            
+            guard let data = response,
+                  let text = String(data: data, encoding: .utf8) else {
+                continue
+            }
+            
+            // Extract the IP from the LOCATION header (e.g. "LOCATION: http://192.168.1.5:8080/...")
+            // or from the response source (harder with NWConnection, so use LOCATION)
+            if let locationRange = text.range(of: "LOCATION: http://", options: .caseInsensitive) {
+                let afterPrefix = text[locationRange.upperBound...]
+                if let colonOrSlash = afterPrefix.firstIndex(where: { $0 == ":" || $0 == "/" }) {
+                    let ip = String(afterPrefix[afterPrefix.startIndex..<colonOrSlash])
+                    if !ip.isEmpty {
+                        discoveredIPs.insert(ip)
+                    }
+                }
+            }
+        }
+        
+        return Array(discoveredIPs)
+    }
+    
+    /// Merge SSDP-discovered devices into the main list (only adds new IPs).
+    private func mergeSSDP(baseIP: String) async {
+        let ssdpIPs = await discoverSSDP()
+        let existingIPs = Set(discoveredDevices.map(\.ipAddress))
+        
+        for ip in ssdpIPs {
+            // Only add if on our subnet and not already found
+            guard ip.hasPrefix(baseIP + "."), !existingIPs.contains(ip) else { continue }
+            discoveredDevices.append(DiscoveredDevice(
+                ipAddress: ip,
+                hostname: nil,
+                vendor: nil,
+                macAddress: nil,
+                latency: nil,
+                discoveredAt: Date(),
+                source: .ssdp
+            ))
+        }
     }
     
     /// Remove duplicate entries for the same IP, keeping the most enriched version.
@@ -367,6 +492,8 @@ final class DeviceDiscoveryService {
 enum DeviceSource: Sendable {
     case local
     case macCompanion
+    case bonjour
+    case ssdp
 }
 
 struct DiscoveredDevice: Identifiable, Sendable {
@@ -407,7 +534,12 @@ struct DiscoveredDevice: Identifiable, Sendable {
     
     var latencyText: String {
         guard let latency else {
-            return source == .macCompanion ? "via Mac" : "—"
+            switch source {
+            case .macCompanion: return "via Mac"
+            case .ssdp: return "UPnP"
+            case .bonjour: return "Bonjour"
+            default: return "—"
+            }
         }
         if latency < 1 {
             return "<1 ms"
