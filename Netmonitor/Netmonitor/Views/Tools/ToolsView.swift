@@ -43,6 +43,7 @@ enum ToolDestination: Hashable {
     case networkMonitor
 
     @ViewBuilder
+    @MainActor
     var view: some View {
         switch self {
         case .ping:

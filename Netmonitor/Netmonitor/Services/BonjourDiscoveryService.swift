@@ -94,8 +94,8 @@ final class BonjourDiscoveryService {
 
         let typeBrowser = NWBrowser(for: descriptor, using: parameters)
 
-        typeBrowser.stateUpdateHandler = { [weak self] state in
-            Task { @MainActor [weak self] in
+        typeBrowser.stateUpdateHandler = { state in
+            Task { @MainActor in
                 if case .failed(let error) = state {
                     print("Browser failed for \(type): \(error)")
                 }

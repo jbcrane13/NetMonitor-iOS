@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MacPairingView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var connectionService = MacConnectionService()
+    @State private var connectionService = MacConnectionService.shared
     @State private var selectedMac: DiscoveredMac?
     @State private var manualHost: String = ""
     @State private var manualPort: String = "8849"

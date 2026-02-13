@@ -62,6 +62,10 @@ protocol MacConnectionServiceProtocol: AnyObject {
 @Observable
 final class MacConnectionService: MacConnectionServiceProtocol {
 
+    // MARK: - Shared Instance
+
+    static let shared = MacConnectionService()
+
     // MARK: - Public State
 
     private(set) var connectionState: MacConnectionState = .disconnected

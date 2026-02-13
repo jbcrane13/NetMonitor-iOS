@@ -19,7 +19,7 @@ final class DashboardViewModel {
         wifiService: any WiFiInfoServiceProtocol = WiFiInfoService(),
         gatewayService: any GatewayServiceProtocol = GatewayService(),
         publicIPService: any PublicIPServiceProtocol = PublicIPService(),
-        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService()
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared
     ) {
         self.networkMonitor = networkMonitor
         self.wifiService = wifiService

@@ -143,7 +143,7 @@ struct DeviceDetailView: View {
                                     .foregroundStyle(Theme.Colors.textPrimary)
                                     .font(.subheadline)
 
-                                if let serviceName = wellKnownServiceName(for: port) {
+                                if wellKnownServiceName(for: port) != nil {
                                     Text("Port \(port)")
                                         .foregroundStyle(Theme.Colors.textTertiary)
                                         .font(.caption)

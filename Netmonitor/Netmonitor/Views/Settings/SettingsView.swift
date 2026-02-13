@@ -14,7 +14,7 @@ struct SettingsView: View {
     @State private var showingExportSheet = false
     @State private var exportFileURL: URL?
     @State private var showingPairingSheet = false
-    @State var connectionService: MacConnectionService?
+    @State var connectionService = MacConnectionService.shared
 
     var body: some View {
         List {
@@ -23,8 +23,7 @@ struct SettingsView: View {
                 connectionService: connectionService,
                 showPairingSheet: $showingPairingSheet,
                 onDisconnect: {
-                    connectionService?.disconnect()
-                    connectionService = nil
+                    connectionService.disconnect()
                 }
             )
 
@@ -341,9 +340,7 @@ struct SettingsView: View {
             }
         }
         .sheet(isPresented: $showingPairingSheet) {
-            MacPairingView { service in
-                connectionService = service
-            }
+            MacPairingView()
         }
     }
 

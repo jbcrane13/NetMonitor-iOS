@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ConnectionSettingsSection: View {
-    let connectionService: MacConnectionService?
+    let connectionService: MacConnectionService
     @Binding var showPairingSheet: Bool
     var onDisconnect: (() -> Void)?
 
@@ -15,8 +15,8 @@ struct ConnectionSettingsSection: View {
                     .frame(width: 28)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    if let macName = connectionService?.connectedMacName,
-                       connectionService?.connectionState.isConnected == true {
+                    if let macName = connectionService.connectedMacName,
+                       connectionService.connectionState.isConnected == true {
                         Text(macName)
                             .font(.body)
                             .fontWeight(.medium)
@@ -24,7 +24,7 @@ struct ConnectionSettingsSection: View {
                         Text("Connected")
                             .font(.caption)
                             .foregroundStyle(Theme.Colors.success)
-                    } else if case .connecting = connectionService?.connectionState {
+                    } else if case .connecting = connectionService.connectionState {
                         Text("Connecting…")
                             .font(.body)
                             .foregroundStyle(Theme.Colors.textPrimary)
@@ -44,14 +44,14 @@ struct ConnectionSettingsSection: View {
                 Spacer()
 
                 StatusDot(
-                    status: connectionService?.connectionState.isConnected == true ? .online : .offline,
-                    animated: connectionService?.connectionState.isConnected == true
+                    status: connectionService.connectionState.isConnected == true ? .online : .offline,
+                    animated: connectionService.connectionState.isConnected == true
                 )
             }
             .accessibilityIdentifier("settings_row_connectionStatus")
 
             // Connect / Disconnect Button
-            if connectionService?.connectionState.isConnected == true {
+            if connectionService.connectionState.isConnected == true {
                 Button {
                     onDisconnect?()
                 } label: {
@@ -83,7 +83,7 @@ struct ConnectionSettingsSection: View {
             }
 
             // Last Connected Timestamp
-            if let lastStatus = connectionService?.lastStatusUpdate {
+            if let lastStatus = connectionService.lastStatusUpdate {
                 HStack {
                     Text("Monitoring")
                         .font(.caption)
@@ -117,10 +117,7 @@ struct ConnectionSettingsSection: View {
     // MARK: - Computed
 
     private var statusIcon: String {
-        guard let state = connectionService?.connectionState else {
-            return "desktopcomputer"
-        }
-        switch state {
+        switch connectionService.connectionState {
         case .connected: return "desktopcomputer"
         case .connecting: return "arrow.triangle.2.circlepath"
         case .error: return "exclamationmark.triangle"
@@ -129,10 +126,7 @@ struct ConnectionSettingsSection: View {
     }
 
     private var statusColor: Color {
-        guard let state = connectionService?.connectionState else {
-            return Theme.Colors.textTertiary
-        }
-        switch state {
+        switch connectionService.connectionState {
         case .connected: return Theme.Colors.success
         case .connecting: return Theme.Colors.accent
         case .error: return Theme.Colors.error
@@ -144,7 +138,7 @@ struct ConnectionSettingsSection: View {
 #Preview {
     List {
         ConnectionSettingsSection(
-            connectionService: nil,
+            connectionService: .shared,
             showPairingSheet: .constant(false)
         )
     }

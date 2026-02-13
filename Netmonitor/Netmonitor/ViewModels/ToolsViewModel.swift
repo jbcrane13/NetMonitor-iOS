@@ -23,7 +23,7 @@ final class ToolsViewModel {
         portScannerService: any PortScannerServiceProtocol = PortScannerService(),
         dnsLookupService: any DNSLookupServiceProtocol = DNSLookupService(),
         wakeOnLANService: any WakeOnLANServiceProtocol = WakeOnLANService(),
-        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService(),
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared,
         gatewayService: any GatewayServiceProtocol = GatewayService()
     ) {
         self.pingService = pingService

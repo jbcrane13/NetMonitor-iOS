@@ -148,7 +148,7 @@ actor WHOISService {
     private nonisolated func receiveAll(
         connection: NWConnection,
         accumulated: Data = Data(),
-        completion: @escaping (Result<String, Error>) -> Void
+        completion: @escaping @Sendable (Result<String, Error>) -> Void
     ) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { data, _, isComplete, error in
             if let error = error {

@@ -12,14 +12,14 @@ actor PortScannerService {
     ) -> AsyncStream<PortScanResult> {
         AsyncStream { continuation in
             Task {
-                await self.setRunning(true)
-                defer { Task { await self.setRunning(false) } }
+                self.setRunning(true)
+                defer { Task { self.setRunning(false) } }
                 
                 await withTaskGroup(of: PortScanResult.self) { group in
                     var pending = 0
                     var portIterator = ports.makeIterator()
                     
-                    while await self.isRunning {
+                    while self.isRunning {
                         while pending < maxConcurrent, let port = portIterator.next() {
                             pending += 1
                             group.addTask {
@@ -40,7 +40,7 @@ actor PortScannerService {
     }
     
     func stop() {
-        Task { await setRunning(false) }
+        Task { setRunning(false) }
     }
     
     private func setRunning(_ value: Bool) {

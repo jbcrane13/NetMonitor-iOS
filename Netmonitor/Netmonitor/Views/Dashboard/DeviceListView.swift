@@ -1,7 +1,35 @@
 import SwiftUI
 
+enum DeviceSortOrder: String, CaseIterable {
+    case ip = "IP Address"
+    case name = "Name"
+    case latency = "Latency"
+    case source = "Source"
+}
+
 struct DeviceListView: View {
     let discoveredDevices: [DiscoveredDevice]
+    @State private var sortOrder: DeviceSortOrder = .ip
+
+    private var sortedDevices: [DiscoveredDevice] {
+        switch sortOrder {
+        case .ip:
+            discoveredDevices.sorted { $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey }
+        case .name:
+            discoveredDevices.sorted {
+                ($0.displayName).localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+            }
+        case .latency:
+            discoveredDevices.sorted { ($0.latency ?? 9999) < ($1.latency ?? 9999) }
+        case .source:
+            discoveredDevices.sorted {
+                if $0.source == $1.source {
+                    return $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey
+                }
+                return $0.source == .local
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -14,7 +42,24 @@ struct DeviceListView: View {
                 .accessibilityIdentifier("deviceList_label_empty")
             } else {
                 VStack(spacing: Theme.Layout.itemSpacing) {
-                    ForEach(discoveredDevices) { device in
+                    // Sort control
+                    HStack {
+                        Text("\(discoveredDevices.count) devices")
+                            .font(.subheadline)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                        Spacer()
+                        Picker("Sort", selection: $sortOrder) {
+                            ForEach(DeviceSortOrder.allCases, id: \.self) { order in
+                                Text(order.rawValue).tag(order)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .tint(Theme.Colors.accent)
+                        .accessibilityIdentifier("deviceList_picker_sort")
+                    }
+                    .padding(.horizontal, Theme.Layout.screenPadding)
+
+                    ForEach(sortedDevices) { device in
                         NavigationLink(destination: DeviceDetailView(ipAddress: device.ipAddress)) {
                             deviceRow(device: device)
                         }
@@ -36,19 +81,33 @@ struct DeviceListView: View {
     private func deviceRow(device: DiscoveredDevice) -> some View {
         GlassCard {
             HStack(spacing: Theme.Layout.itemSpacing) {
-                Image(systemName: "desktopcomputer")
+                Image(systemName: device.source == .macCompanion ? "desktopcomputer.and.arrow.down" : "desktopcomputer")
                     .foregroundStyle(Theme.Colors.accent)
                     .font(.title2)
                     .frame(width: 40)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(device.ipAddress)
+                    Text(device.displayName)
                         .font(.headline)
                         .foregroundStyle(Theme.Colors.textPrimary)
 
-                    Text(device.latencyText)
-                        .font(.caption)
-                        .foregroundStyle(Theme.Colors.textSecondary)
+                    HStack(spacing: 8) {
+                        if device.hostname != nil {
+                            Text(device.ipAddress)
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.textTertiary)
+                        }
+
+                        Text(device.latencyText)
+                            .font(.caption)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+
+                    if let vendor = device.vendor, !vendor.isEmpty {
+                        Text(vendor)
+                            .font(.caption2)
+                            .foregroundStyle(Theme.Colors.textTertiary)
+                    }
                 }
 
                 Spacer()

@@ -14,7 +14,7 @@ final class NetworkMapViewModel {
     let bonjourService: any BonjourDiscoveryServiceProtocol
 
     init(
-        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService(),
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared,
         gatewayService: any GatewayServiceProtocol = GatewayService(),
         bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()
     ) {
@@ -53,7 +53,12 @@ final class NetworkMapViewModel {
     }
 
     func startScan(forceRefresh: Bool = false) async {
-        // Skip if we already have cached results and not forcing refresh
+        // Always detect gateway so the summary card shows it
+        if gatewayService.gateway == nil {
+            await gatewayService.detectGateway()
+        }
+        
+        // Skip device scan if we already have cached results and not forcing refresh
         if !forceRefresh, !cachedDevices.isEmpty {
             return
         }
