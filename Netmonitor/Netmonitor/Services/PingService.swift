@@ -110,16 +110,18 @@ actor PingService {
         let ports: [NWEndpoint.Port] = [.https, .http, NWEndpoint.Port(rawValue: 22)!]
         let hostEndpoint = NWEndpoint.Host(host)
         
-        let connections = ports.map { port -> NWConnection in
-            NWConnection(to: .hostPort(host: hostEndpoint, port: port), using: .tcp)
-        }
-        defer { connections.forEach { $0.cancel() } }
-        
         let queue = pingQueue
         return await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
-            for connection in connections {
+            for port in ports {
                 group.addTask {
-                    await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                    await ConnectionBudget.shared.acquire()
+                    let connection = NWConnection(to: .hostPort(host: hostEndpoint, port: port), using: .tcp)
+                    defer {
+                        connection.cancel()
+                        Task { await ConnectionBudget.shared.release() }
+                    }
+
+                    return await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
                         let resumed = ResumeState()
 
                         let timeoutTask = Task {
@@ -167,7 +169,7 @@ actor PingService {
                     }
                 }
             }
-            
+
             // Return true as soon as any port succeeds
             for await result in group {
                 if result {

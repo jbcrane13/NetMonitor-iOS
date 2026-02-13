@@ -228,8 +228,12 @@ final class DeviceDiscoveryService {
         let params = NWParameters.udp
         params.requiredInterfaceType = .wifi
 
+        await ConnectionBudget.shared.acquire()
         let connection = NWConnection(to: endpoint, using: params)
-        defer { connection.cancel() }
+        defer {
+            connection.cancel()
+            Task { await ConnectionBudget.shared.release() }
+        }
 
         // Wait for connection ready (with timeout to prevent hang).
         let ready: Bool = await withCheckedContinuation { continuation in
@@ -506,6 +510,9 @@ final class DeviceDiscoveryService {
     }
 
     private nonisolated static func probePort(ip: String, port: UInt16, timeout: Duration) async -> PortProbeOutcome {
+        await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
+
         let host = NWEndpoint.Host(ip)
         let endpoint = NWEndpoint.hostPort(host: host, port: NWEndpoint.Port(rawValue: port)!)
         let params = NWParameters.tcp
@@ -633,6 +640,9 @@ final class DeviceDiscoveryService {
     }
 
     private nonisolated static func resolveBonjourHost(for service: BonjourService) async -> String? {
+        await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
+
         let endpoint = NWEndpoint.service(
             name: service.name,
             type: service.type,

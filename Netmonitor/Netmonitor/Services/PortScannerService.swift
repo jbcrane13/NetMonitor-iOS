@@ -63,16 +63,19 @@ actor PortScannerService {
     }
     
     private func scanPort(host: String, port: Int, timeout: TimeInterval) async -> PortScanResult {
+        await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
+
         let start = Date()
-        
+
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
             port: NWEndpoint.Port(rawValue: UInt16(port))!
         )
-        
+
         let parameters = NWParameters.tcp
         parameters.allowLocalEndpointReuse = true
-        
+
         let connection = NWConnection(to: endpoint, using: parameters)
         defer { connection.cancel() }
         
