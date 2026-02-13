@@ -23,30 +23,31 @@ final class BonjourDiscoveryService: @unchecked Sendable {
     /// Coalescing task that batches MainActor flushes.
     private var flushTask: Task<Void, Never>?
 
-    private let commonServiceTypes = [
-        // Web / file sharing
+    /// Tier 1: highest-yield service types — browsed immediately.
+    private let tier1ServiceTypes = [
         "_http._tcp",
         "_https._tcp",
-        "_ssh._tcp",
         "_smb._tcp",
-        "_afpovertcp._tcp",
-        // Printing
-        "_printer._tcp",
-        "_ipp._tcp",
-        // Apple ecosystem
+        "_ssh._tcp",
         "_airplay._tcp",
         "_raop._tcp",
+    ]
+
+    /// Tier 2: remaining types — browsed after a 5-second delay to reduce
+    /// initial resource pressure during the critical scan window.
+    private let tier2ServiceTypes = [
+        "_afpovertcp._tcp",
+        "_printer._tcp",
+        "_ipp._tcp",
         "_homekit._tcp",
         "_hap._tcp",
         "_companion-link._tcp",
         "_apple-mobdev2._tcp",
         "_device-info._tcp",
-        // Media / streaming
         "_googlecast._tcp",
         "_spotify-connect._tcp",
         "_sonos._tcp",
-        // Other
-        "_workstation._tcp"
+        "_workstation._tcp",
     ]
 
     // MARK: - Public API
@@ -86,12 +87,26 @@ final class BonjourDiscoveryService: @unchecked Sendable {
     /// Task for auto-cleanup of browsers after timeout
     private var browserCleanupTask: Task<Void, Never>?
 
+    /// Task that starts tier-2 browsers after a delay.
+    private var tier2Task: Task<Void, Never>?
+
     private func startBrowsing(serviceType: String? = nil) {
         if let type = serviceType {
             browseServiceType(type)
         } else {
-            for type in commonServiceTypes {
+            // Tier 1: browse highest-yield types immediately
+            for type in tier1ServiceTypes {
                 browseServiceType(type)
+            }
+
+            // Tier 2: browse remaining types after 5-second delay
+            tier2Task?.cancel()
+            tier2Task = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled, let self else { return }
+                for type in self.tier2ServiceTypes {
+                    self.browseServiceType(type)
+                }
             }
 
             // Timeout cleanup for type browsers
@@ -106,6 +121,8 @@ final class BonjourDiscoveryService: @unchecked Sendable {
 
     @MainActor
     func stopDiscovery() {
+        tier2Task?.cancel()
+        tier2Task = nil
         browserCleanupTask?.cancel()
         browserCleanupTask = nil
         flushTask?.cancel()
