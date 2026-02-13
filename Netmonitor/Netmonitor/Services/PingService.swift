@@ -3,6 +3,7 @@ import Network
 
 actor PingService {
     private var isRunning = false
+    private var activeRunID: UUID?
     
     func ping(
         host: String,
@@ -11,13 +12,12 @@ actor PingService {
     ) -> AsyncStream<PingResult> {
         AsyncStream { continuation in
             Task {
-                self.setRunning(true)
-                defer { Task { self.setRunning(false) } }
+                let runID = self.beginRun()
 
                 let resolvedIP = await resolveHost(host)
 
                 for seq in 1...count {
-                    guard self.isRunning else { break }
+                    guard self.shouldContinue(runID: runID) else { break }
 
                     let start = Date()
                     let success = await connectTest(
@@ -42,6 +42,7 @@ actor PingService {
                     }
                 }
 
+                self.endRun(runID: runID)
                 continuation.finish()
             }
         }
@@ -49,10 +50,24 @@ actor PingService {
     
     func stop() async {
         isRunning = false
+        activeRunID = nil
     }
     
-    private func setRunning(_ value: Bool) {
-        isRunning = value
+    private func beginRun() -> UUID {
+        let runID = UUID()
+        activeRunID = runID
+        isRunning = true
+        return runID
+    }
+
+    private func shouldContinue(runID: UUID) -> Bool {
+        isRunning && activeRunID == runID
+    }
+
+    private func endRun(runID: UUID) {
+        guard activeRunID == runID else { return }
+        activeRunID = nil
+        isRunning = false
     }
     
     private func resolveHost(_ host: String) async -> String? {
@@ -99,7 +114,6 @@ actor PingService {
         
         return await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
             for connection in connections {
-                nonisolated(unsafe) let conn = connection
                 group.addTask {
                     await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
                         let resumed = ResumeState()
@@ -107,24 +121,37 @@ actor PingService {
                         let timeoutTask = Task {
                             try? await Task.sleep(for: .seconds(timeout))
                             guard await resumed.tryResume() else { return }
-                            conn.cancel()
+                            connection.cancel()
                             continuation.resume(returning: false)
                         }
                         
-                        conn.stateUpdateHandler = { state in
+                        connection.stateUpdateHandler = { state in
                             switch state {
                             case .ready:
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
-                                    conn.cancel()
+                                    connection.cancel()
                                     continuation.resume(returning: true)
                                 }
-                            case .failed, .cancelled, .waiting:
+                            case .failed(let error):
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
-                                    conn.cancel()
+                                    connection.cancel()
+
+                                    // A refused TCP handshake still proves the host is reachable.
+                                    if case NWError.posix(let code) = error, code == .ECONNREFUSED {
+                                        continuation.resume(returning: true)
+                                    } else {
+                                        continuation.resume(returning: false)
+                                    }
+                                }
+                            case .cancelled:
+                                Task {
+                                    guard await resumed.tryResume() else { return }
+                                    timeoutTask.cancel()
+                                    connection.cancel()
                                     continuation.resume(returning: false)
                                 }
                             default:
@@ -132,7 +159,7 @@ actor PingService {
                             }
                         }
                         
-                        conn.start(queue: .global())
+                        connection.start(queue: .global())
                     }
                 }
             }
@@ -186,4 +213,3 @@ actor PingService {
         )
     }
 }
-

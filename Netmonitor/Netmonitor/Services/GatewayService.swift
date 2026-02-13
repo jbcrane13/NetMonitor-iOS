@@ -40,7 +40,6 @@ final class GatewayService {
 
         let connection = NWConnection(to: endpoint, using: .tcp)
         defer { connection.cancel() }
-        nonisolated(unsafe) let conn = connection
 
         return await withCheckedContinuation { continuation in
             let resumed = ResumeState()
@@ -48,18 +47,18 @@ final class GatewayService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(5))
                 guard await resumed.tryResume() else { return }
-                conn.cancel()
+                connection.cancel()
                 continuation.resume(returning: nil)
             }
 
-            conn.stateUpdateHandler = { state in
+            connection.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
                         let latency = Date().timeIntervalSince(start) * 1000
-                        conn.cancel()
+                        connection.cancel()
                         continuation.resume(returning: latency)
                     }
                 case .failed, .cancelled:
@@ -73,7 +72,7 @@ final class GatewayService {
                 }
             }
 
-            conn.start(queue: .global())
+            connection.start(queue: .global())
         }
     }
 }

@@ -2,6 +2,79 @@ import Foundation
 
 /// Shared network interface utilities for detecting local IP addresses and subnets.
 enum NetworkUtilities {
+    struct IPv4Network: Sendable {
+        let networkAddress: UInt32
+        let broadcastAddress: UInt32
+        let interfaceAddress: UInt32
+        let netmask: UInt32
+
+        var prefixLength: Int {
+            netmask.nonzeroBitCount
+        }
+
+        /// Returns whether the given IPv4 address belongs to this network.
+        func contains(ipAddress: String) -> Bool {
+            guard let value = NetworkUtilities.ipv4ToUInt32(ipAddress) else {
+                return false
+            }
+            return (value & netmask) == networkAddress
+        }
+
+        /// Generates host addresses within the network.
+        /// For very large subnets, returns a bounded window centered on the interface IP.
+        func hostAddresses(limit: Int, excludingInterface: Bool = true) -> [String] {
+            guard limit > 0 else { return [] }
+            guard networkAddress < broadcastAddress else { return [] }
+            guard broadcastAddress - networkAddress > 1 else { return [] }
+
+            let firstHost = networkAddress &+ 1
+            let lastHost = broadcastAddress &- 1
+            let totalHosts = Int(UInt64(lastHost) - UInt64(firstHost) + 1)
+            let targetCount = min(limit, totalHosts)
+
+            let localHost = min(max(interfaceAddress, firstHost), lastHost)
+            var rangeStart = firstHost
+            var rangeEnd = lastHost
+
+            if totalHosts > targetCount {
+                let halfWindow = UInt32(targetCount / 2)
+                rangeStart = localHost > firstHost &+ halfWindow ? localHost &- halfWindow : firstHost
+                let maxStart = lastHost &- UInt32(targetCount - 1)
+                if rangeStart > maxStart {
+                    rangeStart = maxStart
+                }
+                rangeEnd = rangeStart &+ UInt32(targetCount - 1)
+            }
+
+            var addresses: [String] = []
+            addresses.reserveCapacity(targetCount)
+
+            func appendRange(from start: UInt32, to end: UInt32) {
+                guard start <= end else { return }
+                var current = start
+                while current <= end, addresses.count < targetCount {
+                    if !(excludingInterface && current == interfaceAddress) {
+                        addresses.append(NetworkUtilities.uint32ToIPv4(current))
+                    }
+                    if current == UInt32.max { break }
+                    current &+= 1
+                }
+            }
+
+            appendRange(from: rangeStart, to: rangeEnd)
+
+            if addresses.count < targetCount, rangeStart > firstHost {
+                appendRange(from: firstHost, to: rangeStart &- 1)
+            }
+
+            if addresses.count < targetCount, rangeEnd < lastHost {
+                appendRange(from: rangeEnd &+ 1, to: lastHost)
+            }
+
+            return addresses
+        }
+    }
+
     /// Detects the local IP address for a given network interface.
     /// - Parameter interface: The interface name (default: "en0" for WiFi)
     /// - Returns: The IP address string, or nil if not found
@@ -39,6 +112,43 @@ enum NetworkUtilities {
         return nil
     }
 
+    /// Detects the full IPv4 network (interface IP + netmask-derived range).
+    /// - Parameter interface: The interface name (default: "en0" for WiFi)
+    /// - Returns: An `IPv4Network` descriptor, or nil if unavailable.
+    static func detectLocalIPv4Network(interface: String = "en0") -> IPv4Network? {
+        var ifaddr: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else {
+            return nil
+        }
+        defer { freeifaddrs(ifaddr) }
+
+        for ptr in sequence(first: firstAddr, next: { $0.pointee.ifa_next }) {
+            let iface = ptr.pointee
+            let addrFamily = iface.ifa_addr.pointee.sa_family
+            guard addrFamily == UInt8(AF_INET) else { continue }
+
+            let name = String(cString: iface.ifa_name)
+            guard name == interface else { continue }
+            guard let addrPtr = iface.ifa_addr, let netmaskPtr = iface.ifa_netmask else { continue }
+
+            let address = UnsafeRawPointer(addrPtr).assumingMemoryBound(to: sockaddr_in.self).pointee
+            let mask = UnsafeRawPointer(netmaskPtr).assumingMemoryBound(to: sockaddr_in.self).pointee
+
+            let interfaceAddress = UInt32(bigEndian: address.sin_addr.s_addr)
+            let netmask = UInt32(bigEndian: mask.sin_addr.s_addr)
+            let networkAddress = interfaceAddress & netmask
+            let broadcastAddress = networkAddress | ~netmask
+
+            return IPv4Network(
+                networkAddress: networkAddress,
+                broadcastAddress: broadcastAddress,
+                interfaceAddress: interfaceAddress,
+                netmask: netmask
+            )
+        }
+        return nil
+    }
+
     /// Detects the subnet prefix for a given network interface.
     /// - Parameter interface: The interface name (default: "en0" for WiFi)
     /// - Returns: The subnet prefix (e.g., "192.168.1"), or nil if not found
@@ -57,9 +167,34 @@ enum NetworkUtilities {
     /// - Parameter interface: The interface name (default: "en0" for WiFi)
     /// - Returns: The gateway IP address, or nil if not found
     static func detectDefaultGateway(interface: String = "en0") -> String? {
+        if let network = detectLocalIPv4Network(interface: interface),
+           network.broadcastAddress > network.networkAddress {
+            return uint32ToIPv4(network.networkAddress &+ 1)
+        }
+
         guard let subnet = detectSubnet(interface: interface) else {
             return nil
         }
         return "\(subnet).1"
+    }
+
+    private static func ipv4ToUInt32(_ address: String) -> UInt32? {
+        let components = address.split(separator: ".")
+        guard components.count == 4 else { return nil }
+
+        var value: UInt32 = 0
+        for component in components {
+            guard let octet = UInt8(component) else { return nil }
+            value = (value << 8) | UInt32(octet)
+        }
+        return value
+    }
+
+    private static func uint32ToIPv4(_ value: UInt32) -> String {
+        let octet1 = (value >> 24) & 0xFF
+        let octet2 = (value >> 16) & 0xFF
+        let octet3 = (value >> 8) & 0xFF
+        let octet4 = value & 0xFF
+        return "\(octet1).\(octet2).\(octet3).\(octet4)"
     }
 }

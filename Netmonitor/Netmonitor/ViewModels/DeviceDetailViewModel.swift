@@ -14,6 +14,8 @@ final class DeviceDetailViewModel {
     private let nameResolver = DeviceNameResolver()
     private let portScanner = PortScannerService()
     private let bonjourService = BonjourDiscoveryService()
+    private let maxServiceResolves = 80
+    private let maxServiceResolveConcurrency = 8
 
     // Common ports to scan
     private let commonPorts = [
@@ -122,28 +124,135 @@ final class DeviceDetailViewModel {
         }
         timeoutTask.cancel()
 
-        // Phase 2: Resolve all collected services concurrently
+        // Phase 2: Resolve and match services (bounded concurrency)
         let deviceIP = device.ipAddress
         var discoveredServiceNames: [String] = []
+        let servicesToResolve = Array(uniqueServices(from: collectedServices).prefix(maxServiceResolves))
 
         await withTaskGroup(of: String?.self) { group in
-            for service in collectedServices {
-                group.addTask {
-                    if let resolved = await self.bonjourService.resolveService(service),
-                       let hostName = resolved.hostName,
-                       hostName.contains(deviceIP) {
-                        return "\(service.name) (\(service.type))"
+            var pending = 0
+            var iterator = servicesToResolve.makeIterator()
+
+            while pending < maxServiceResolveConcurrency, let service = iterator.next() {
+                pending += 1
+                group.addTask { [deviceIP] in
+                    guard let resolved = await self.bonjourService.resolveService(service),
+                          await Self.serviceMatchesDeviceIP(resolved, deviceIP: deviceIP) else {
+                        return nil
                     }
-                    return nil
+                    return "\(service.name) (\(service.type))"
                 }
             }
-            for await name in group {
+
+            while pending > 0 {
+                guard let name = await group.next() else { break }
+                pending -= 1
+
                 if let name, !discoveredServiceNames.contains(name) {
                     discoveredServiceNames.append(name)
+                }
+
+                if let nextService = iterator.next() {
+                    pending += 1
+                    group.addTask { [deviceIP] in
+                        guard let resolved = await self.bonjourService.resolveService(nextService),
+                              await Self.serviceMatchesDeviceIP(resolved, deviceIP: deviceIP) else {
+                            return nil
+                        }
+                        return "\(nextService.name) (\(nextService.type))"
+                    }
                 }
             }
         }
 
         device.discoveredServices = discoveredServiceNames
+    }
+
+    private func uniqueServices(from services: [BonjourService]) -> [BonjourService] {
+        var seen: Set<String> = []
+        var unique: [BonjourService] = []
+        unique.reserveCapacity(services.count)
+
+        for service in services {
+            let key = "\(service.name)|\(service.type)|\(service.domain)"
+            if seen.insert(key).inserted {
+                unique.append(service)
+            }
+        }
+        return unique
+    }
+
+    private nonisolated static func serviceMatchesDeviceIP(_ resolved: BonjourService, deviceIP: String) async -> Bool {
+        var candidates: Set<String> = []
+
+        for address in resolved.addresses where isIPv4Address(address) {
+            candidates.insert(address)
+        }
+
+        if let hostName = resolved.hostName {
+            let normalizedHost = normalizeHostName(hostName)
+            if isIPv4Address(normalizedHost) {
+                candidates.insert(normalizedHost)
+            } else if !normalizedHost.isEmpty {
+                let resolvedIPs = await resolveIPv4Addresses(for: normalizedHost)
+                for ip in resolvedIPs {
+                    candidates.insert(ip)
+                }
+            }
+        }
+
+        return candidates.contains(deviceIP)
+    }
+
+    private nonisolated static func normalizeHostName(_ host: String) -> String {
+        host.split(separator: "%", maxSplits: 1).first.map(String.init) ?? host
+    }
+
+    private nonisolated static func isIPv4Address(_ value: String) -> Bool {
+        let components = value.split(separator: ".")
+        guard components.count == 4 else { return false }
+        return components.allSatisfy { UInt8($0) != nil }
+    }
+
+    private nonisolated static func resolveIPv4Addresses(for host: String) async -> [String] {
+        await withCheckedContinuation { continuation in
+            let cfHost = CFHostCreateWithName(nil, host as CFString).takeRetainedValue()
+            var streamError = CFStreamError()
+
+            guard CFHostStartInfoResolution(cfHost, .addresses, &streamError),
+                  let addresses = CFHostGetAddressing(cfHost, nil)?.takeUnretainedValue() as? [Data] else {
+                continuation.resume(returning: [])
+                return
+            }
+
+            var resolved: Set<String> = []
+            resolved.reserveCapacity(addresses.count)
+
+            for addressData in addresses {
+                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                addressData.withUnsafeBytes { ptr in
+                    guard let sockaddr = ptr.bindMemory(to: sockaddr.self).baseAddress else { return }
+                    getnameinfo(
+                        sockaddr,
+                        socklen_t(addressData.count),
+                        &hostname,
+                        socklen_t(hostname.count),
+                        nil,
+                        0,
+                        NI_NUMERICHOST
+                    )
+                }
+
+                let length = strnlen(hostname, hostname.count)
+                let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
+                let ip = String(decoding: bytes, as: UTF8.self)
+
+                if isIPv4Address(ip) {
+                    resolved.insert(ip)
+                }
+            }
+
+            continuation.resume(returning: Array(resolved))
+        }
     }
 }

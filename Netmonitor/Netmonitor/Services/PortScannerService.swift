@@ -3,6 +3,7 @@ import Network
 
 actor PortScannerService {
     private var isRunning = false
+    private var activeRunID: UUID?
     private let maxConcurrent = 20
     
     func scan(
@@ -12,14 +13,13 @@ actor PortScannerService {
     ) -> AsyncStream<PortScanResult> {
         AsyncStream { continuation in
             Task {
-                self.setRunning(true)
-                defer { Task { self.setRunning(false) } }
+                let runID = self.beginRun()
                 
                 await withTaskGroup(of: PortScanResult.self) { group in
                     var pending = 0
                     var portIterator = ports.makeIterator()
                     
-                    while self.isRunning {
+                    while self.shouldContinue(runID: runID) {
                         while pending < maxConcurrent, let port = portIterator.next() {
                             pending += 1
                             group.addTask {
@@ -34,17 +34,32 @@ actor PortScannerService {
                     }
                 }
                 
+                self.endRun(runID: runID)
                 continuation.finish()
             }
         }
     }
     
     func stop() {
-        Task { setRunning(false) }
+        isRunning = false
+        activeRunID = nil
     }
     
-    private func setRunning(_ value: Bool) {
-        isRunning = value
+    private func beginRun() -> UUID {
+        let runID = UUID()
+        activeRunID = runID
+        isRunning = true
+        return runID
+    }
+
+    private func shouldContinue(runID: UUID) -> Bool {
+        isRunning && activeRunID == runID
+    }
+
+    private func endRun(runID: UUID) {
+        guard activeRunID == runID else { return }
+        activeRunID = nil
+        isRunning = false
     }
     
     private func scanPort(host: String, port: Int, timeout: TimeInterval) async -> PortScanResult {
@@ -60,7 +75,6 @@ actor PortScannerService {
         
         let connection = NWConnection(to: endpoint, using: parameters)
         defer { connection.cancel() }
-        nonisolated(unsafe) let conn = connection
         
         let portState = await withCheckedContinuation { (continuation: CheckedContinuation<PortState, Never>) in
             let resumed = ResumeState()
@@ -68,38 +82,29 @@ actor PortScannerService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(timeout))
                 guard await resumed.tryResume() else { return }
-                conn.cancel()
+                connection.cancel()
                 continuation.resume(returning: .filtered)
             }
             
-            conn.stateUpdateHandler = { state in
+            connection.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        conn.cancel()
+                        connection.cancel()
                         continuation.resume(returning: .open)
                     }
                 case .failed(let error):
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        conn.cancel()
+                        connection.cancel()
                         if case NWError.posix(let code) = error, code == .ECONNREFUSED {
                             continuation.resume(returning: .closed)
                         } else {
                             continuation.resume(returning: .filtered)
                         }
-                    }
-                case .waiting:
-                    // .waiting means path exists but connection can't proceed
-                    // (e.g. no route, DNS failure) — treat as filtered, don't hang
-                    Task {
-                        guard await resumed.tryResume() else { return }
-                        timeoutTask.cancel()
-                        conn.cancel()
-                        continuation.resume(returning: .filtered)
                     }
                 case .cancelled:
                     Task {
@@ -112,7 +117,7 @@ actor PortScannerService {
                 }
             }
             
-            conn.start(queue: .global())
+            connection.start(queue: .global())
         }
         
         let elapsed = Date().timeIntervalSince(start) * 1000
@@ -126,4 +131,3 @@ actor PortScannerService {
         )
     }
 }
-

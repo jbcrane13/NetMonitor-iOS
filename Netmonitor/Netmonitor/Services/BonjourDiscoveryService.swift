@@ -164,7 +164,6 @@ final class BonjourDiscoveryService {
 
         let connection = NWConnection(to: endpoint, using: .tcp)
         defer { connection.cancel() }
-        nonisolated(unsafe) let conn = connection
 
         return await withCheckedContinuation { continuation in
             let resumed = ResumeState()
@@ -172,30 +171,34 @@ final class BonjourDiscoveryService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(2))
                 guard await resumed.tryResume() else { return }
-                conn.cancel()
+                connection.cancel()
                 continuation.resume(returning: nil)
             }
 
-            conn.stateUpdateHandler = { state in
+            connection.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
 
-                        if let innerEndpoint = conn.currentPath?.remoteEndpoint,
+                        if let innerEndpoint = connection.currentPath?.remoteEndpoint,
                            case let .hostPort(host, port) = innerEndpoint {
+                            let hostText = "\(host)"
+                            let normalizedHost = Self.normalizeHostName(hostText)
+                            let addresses = Self.isIPv4Address(normalizedHost) ? [normalizedHost] : []
                             let resolved = BonjourService(
                                 name: service.name,
                                 type: service.type,
                                 domain: service.domain,
-                                hostName: "\(host)",
-                                port: Int(port.rawValue)
+                                hostName: hostText,
+                                port: Int(port.rawValue),
+                                addresses: addresses
                             )
-                            conn.cancel()
+                            connection.cancel()
                             continuation.resume(returning: resolved)
                         } else {
-                            conn.cancel()
+                            connection.cancel()
                             continuation.resume(returning: nil)
                         }
                     }
@@ -203,7 +206,7 @@ final class BonjourDiscoveryService {
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        conn.cancel()
+                        connection.cancel()
                         continuation.resume(returning: nil)
                     }
                 default:
@@ -211,7 +214,17 @@ final class BonjourDiscoveryService {
                 }
             }
 
-            conn.start(queue: .global())
+            connection.start(queue: .global())
         }
+    }
+
+    private nonisolated static func normalizeHostName(_ host: String) -> String {
+        host.split(separator: "%", maxSplits: 1).first.map(String.init) ?? host
+    }
+
+    private nonisolated static func isIPv4Address(_ value: String) -> Bool {
+        let components = value.split(separator: ".")
+        guard components.count == 4 else { return false }
+        return components.allSatisfy { UInt8($0) != nil }
     }
 }
