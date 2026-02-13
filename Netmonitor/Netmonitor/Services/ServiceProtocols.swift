@@ -65,15 +65,14 @@ protocol NetworkMonitorServiceProtocol {
 }
 
 /// Protocol for device discovery
-@MainActor
-protocol DeviceDiscoveryServiceProtocol {
-    var discoveredDevices: [DiscoveredDevice] { get }
-    var isScanning: Bool { get }
-    var scanProgress: Double { get }
-    var scanPhase: DeviceDiscoveryService.ScanPhase { get }
-    var lastScanDate: Date? { get }
+protocol DeviceDiscoveryServiceProtocol: AnyObject, Sendable {
+    @MainActor var discoveredDevices: [DiscoveredDevice] { get }
+    @MainActor var isScanning: Bool { get }
+    @MainActor var scanProgress: Double { get }
+    @MainActor var scanPhase: DeviceDiscoveryService.ScanPhase { get }
+    @MainActor var lastScanDate: Date? { get }
     func scanNetwork(subnet: String?) async
-    func stopScan()
+    @MainActor func stopScan()
 }
 
 /// Protocol for gateway detection
@@ -102,13 +101,12 @@ protocol WiFiInfoServiceProtocol {
 }
 
 /// Protocol for Bonjour discovery
-@MainActor
-protocol BonjourDiscoveryServiceProtocol {
-    var discoveredServices: [BonjourService] { get }
-    var isDiscovering: Bool { get }
-    func discoveryStream(serviceType: String?) -> AsyncStream<BonjourService>
-    func startDiscovery(serviceType: String?)
-    func stopDiscovery()
+protocol BonjourDiscoveryServiceProtocol: AnyObject, Sendable {
+    @MainActor var discoveredServices: [BonjourService] { get }
+    @MainActor var isDiscovering: Bool { get }
+    @MainActor func discoveryStream(serviceType: String?) -> AsyncStream<BonjourService>
+    @MainActor func startDiscovery(serviceType: String?)
+    @MainActor func stopDiscovery()
     func resolveService(_ service: BonjourService) async -> BonjourService?
 }
 
