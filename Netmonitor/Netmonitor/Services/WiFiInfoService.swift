@@ -2,6 +2,7 @@ import Foundation
 import SystemConfiguration.CaptiveNetwork
 import CoreLocation
 import Network
+import NetworkExtension
 
 @MainActor
 @Observable
@@ -24,14 +25,16 @@ final class WiFiInfoService: NSObject {
     
     func refreshWiFiInfo() {
         #if targetEnvironment(simulator)
-        // Simulator always returns mock WiFi data without location permission
-        currentWiFi = fetchWiFiInfo()
+        currentWiFi = mockWiFiInfo()
         #else
         guard isLocationAuthorized else {
             currentWiFi = nil
             return
         }
-        currentWiFi = fetchWiFiInfo()
+        // Use modern NEHotspotNetwork API
+        Task {
+            currentWiFi = await fetchWiFiInfoModern() ?? fetchWiFiInfoLegacy()
+        }
         #endif
     }
 
@@ -41,7 +44,6 @@ final class WiFiInfoService: NSObject {
                                authorizationStatus == .authorizedAlways
 
         #if targetEnvironment(simulator)
-        // Auto-populate WiFi info in simulator
         refreshWiFiInfo()
         #else
         if isLocationAuthorized {
@@ -50,19 +52,28 @@ final class WiFiInfoService: NSObject {
         #endif
     }
     
-    private func fetchWiFiInfo() -> WiFiInfo? {
-        #if targetEnvironment(simulator)
+    // MARK: - Modern API (iOS 14+)
+    
+    private func fetchWiFiInfoModern() async -> WiFiInfo? {
+        guard let network = await NEHotspotNetwork.fetchCurrent() else {
+            return nil
+        }
+        
         return WiFiInfo(
-            ssid: "Simulator WiFi",
-            bssid: "00:00:00:00:00:00",
-            signalStrength: nil,
-            signalDBm: -45,
-            channel: 6,
+            ssid: network.ssid,
+            bssid: network.bssid,
+            signalStrength: Int(network.signalStrength * 100),
+            signalDBm: nil,
+            channel: nil,
             frequency: nil,
-            band: .band2_4GHz,
-            securityType: "WPA3"
+            band: nil,
+            securityType: network.isSecure ? "Secured" : "Open"
         )
-        #else
+    }
+    
+    // MARK: - Legacy API (fallback)
+    
+    private func fetchWiFiInfoLegacy() -> WiFiInfo? {
         guard let interfaces = CNCopySupportedInterfaces() as? [String],
               let interface = interfaces.first,
               let info = CNCopyCurrentNetworkInfo(interface as CFString) as? [String: Any],
@@ -82,7 +93,21 @@ final class WiFiInfoService: NSObject {
             band: nil,
             securityType: nil
         )
-        #endif
+    }
+    
+    // MARK: - Simulator Mock
+    
+    private func mockWiFiInfo() -> WiFiInfo {
+        WiFiInfo(
+            ssid: "Simulator WiFi",
+            bssid: "00:00:00:00:00:00",
+            signalStrength: nil,
+            signalDBm: -45,
+            channel: 6,
+            frequency: nil,
+            band: .band2_4GHz,
+            securityType: "WPA3"
+        )
     }
 }
 
@@ -93,3 +118,5 @@ extension WiFiInfoService: CLLocationManagerDelegate {
         }
     }
 }
+
+// WiFiInfoServiceProtocol conformance declared in ServiceProtocols.swift
