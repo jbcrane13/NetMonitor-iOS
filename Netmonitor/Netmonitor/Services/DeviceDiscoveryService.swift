@@ -10,7 +10,18 @@ final class DeviceDiscoveryService {
     private(set) var discoveredDevices: [DiscoveredDevice] = []
     private(set) var isScanning: Bool = false
     private(set) var scanProgress: Double = 0
+    private(set) var scanPhase: ScanPhase = .idle
     private(set) var lastScanDate: Date?
+    
+    enum ScanPhase: String {
+        case idle = ""
+        case tcpProbe = "Probing ports…"
+        case bonjour = "Bonjour discovery…"
+        case ssdp = "UPnP discovery…"
+        case companion = "Mac companion…"
+        case resolving = "Resolving names…"
+        case done = "Complete"
+    }
     
     private var scanTask: Task<Void, Never>?
     private let maxConcurrent = 40
@@ -42,28 +53,28 @@ final class DeviceDiscoveryService {
         
         isScanning = true
         scanProgress = 0
+        scanPhase = .tcpProbe
         discoveredDevices = []
         
         defer {
             isScanning = false
+            scanPhase = .idle
             lastScanDate = Date()
         }
         
-        // If paired with Mac, request its device list (ARP + Bonjour)
+        let baseIP = subnet ?? NetworkUtilities.detectSubnet() ?? "192.168.1"
+        
+        // If paired with Mac, kick off its scan early (it runs in parallel)
         let macConnection = MacConnectionService.shared
         if macConnection.connectionState.isConnected {
             await macConnection.send(command: CommandPayload(action: .scanDevices))
-            // Give Mac a moment to scan, then request results
-            try? await Task.sleep(for: .seconds(2))
-            await macConnection.send(command: CommandPayload(action: .refreshDevices))
         }
         
-        // Phase 1: Bonjour discovery (runs concurrently with TCP probes)
+        // Phase 1: Bonjour discovery — start early, let it accumulate during TCP probes
         let bonjourService = BonjourDiscoveryService()
         bonjourService.startDiscovery()
         
         // Phase 2: Multi-port TCP probes
-        let baseIP = subnet ?? NetworkUtilities.detectSubnet() ?? "192.168.1"
         let totalHosts = 254
         var scannedCount = 0
         
@@ -84,7 +95,8 @@ final class DeviceDiscoveryService {
                 guard let result = await group.next() else { break }
                 pending -= 1
                 scannedCount += 1
-                scanProgress = Double(scannedCount) / Double(totalHosts)
+                // TCP probes are 0–70% of progress
+                scanProgress = Double(scannedCount) / Double(totalHosts) * 0.70
                 
                 if let device = result {
                     discoveredDevices.append(device)
@@ -92,24 +104,44 @@ final class DeviceDiscoveryService {
             }
         }
         
-        // Phase 3: Merge Bonjour-discovered devices
+        // Phase 3: Give Bonjour extra time if it hasn't had enough
+        // TCP probes take ~5-7s; Bonjour needs at least 8s to discover most devices
+        scanPhase = .bonjour
+        scanProgress = 0.72
+        try? await Task.sleep(for: .seconds(3))
+        
+        // Merge Bonjour-discovered devices
         await mergeBonjourDevices(bonjourService)
         bonjourService.stopDiscovery()
+        scanProgress = 0.78
         
-        // Phase 3.5: SSDP/UPnP multicast discovery — catches devices that don't have
+        // Phase 4: SSDP/UPnP multicast discovery — catches devices that don't have
         // open TCP ports (smart TVs, game consoles, media players, Hue bridges, etc.)
-        await mergeSSDP(baseIP: subnet ?? NetworkUtilities.detectSubnet() ?? "192.168.1")
+        scanPhase = .ssdp
+        await mergeSSDP(baseIP: baseIP)
+        scanProgress = 0.84
         
-        // Phase 4: Merge Mac companion devices (ARP scan results we can't get on iOS)
+        // Phase 5: Merge Mac companion devices (ARP scan results we can't get on iOS)
+        scanPhase = .companion
+        if macConnection.connectionState.isConnected {
+            // Request refreshed results now that Mac has had time to scan
+            await macConnection.send(command: CommandPayload(action: .refreshDevices))
+            try? await Task.sleep(for: .seconds(1))
+        }
         mergeCompanionDevices()
+        scanProgress = 0.90
         
-        // Phase 5: Resolve hostnames via reverse DNS for devices that don't have one
+        // Phase 6: Resolve hostnames via reverse DNS for devices that don't have one
+        scanPhase = .resolving
         await resolveHostnames()
+        scanProgress = 0.98
         
         // Final dedup by IP — keep the entry with the most info (hostname > no hostname)
         deduplicateByIP()
         
         discoveredDevices.sort { $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey }
+        scanPhase = .done
+        scanProgress = 1.0
     }
     
     // MARK: - SSDP / UPnP Discovery

@@ -39,6 +39,18 @@ final class NetworkMapViewModel {
     var scanProgress: Double {
         deviceDiscoveryService.scanProgress
     }
+    
+    var scanPhaseText: String {
+        let phase = deviceDiscoveryService.scanPhase
+        switch phase {
+        case .tcpProbe:
+            return "Scanning… \(Int(deviceDiscoveryService.scanProgress * 100))%"
+        case .idle, .done:
+            return ""
+        default:
+            return phase.rawValue
+        }
+    }
 
     var deviceCount: Int {
         discoveredDevices.count

@@ -136,7 +136,7 @@ struct NetworkMapView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: Theme.Colors.accent))
                         .scaleEffect(0.7)
-                    Text("Scanning… \(Int(viewModel.scanProgress * 100))%")
+                    Text(viewModel.scanPhaseText)
                         .font(.subheadline)
                         .foregroundStyle(Theme.Colors.textSecondary)
                 }

@@ -170,6 +170,7 @@ final class MockDeviceDiscoveryService: DeviceDiscoveryServiceProtocol {
     var discoveredDevices: [DiscoveredDevice] = []
     var isScanning: Bool = false
     var scanProgress: Double = 0
+    var scanPhase: DeviceDiscoveryService.ScanPhase = .idle
     var lastScanDate: Date?
 
     var scanNetworkCalled = false

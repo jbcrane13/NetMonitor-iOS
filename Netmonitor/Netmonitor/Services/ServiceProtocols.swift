@@ -70,6 +70,7 @@ protocol DeviceDiscoveryServiceProtocol {
     var discoveredDevices: [DiscoveredDevice] { get }
     var isScanning: Bool { get }
     var scanProgress: Double { get }
+    var scanPhase: DeviceDiscoveryService.ScanPhase { get }
     var lastScanDate: Date? { get }
     func scanNetwork(subnet: String?) async
     func stopScan()
