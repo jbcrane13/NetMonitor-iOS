@@ -231,13 +231,15 @@ final class DeviceDiscoveryService {
         // Ensure ALL connections are cancelled when we exit, no matter what
         defer {
             for (conn, _) in connections {
-                conn.stateUpdateHandler = nil
                 conn.cancel()
             }
         }
         
         let reachable = await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
             for (connection, _) in connections {
+                // nonisolated(unsafe) needed: NWConnection is non-Sendable but we need
+                // it inside the @Sendable addTask closure and its nested callbacks
+                nonisolated(unsafe) let conn = connection
                 group.addTask {
                     await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
                         let resumed = ResumeState()
@@ -245,17 +247,17 @@ final class DeviceDiscoveryService {
                         let timeoutTask = Task {
                             try? await Task.sleep(for: .milliseconds(600))
                             guard await resumed.tryResume() else { return }
-                            connection.cancel()
+                            conn.cancel()
                             continuation.resume(returning: false)
                         }
                         
-                        connection.stateUpdateHandler = { [weak connection] state in
+                        conn.stateUpdateHandler = { state in
                             switch state {
                             case .ready:
                                 Task {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
-                                    connection?.cancel()
+                                    conn.cancel()
                                     continuation.resume(returning: true)
                                 }
                             case .failed, .cancelled:
@@ -269,7 +271,7 @@ final class DeviceDiscoveryService {
                             }
                         }
                         
-                        connection.start(queue: Self.probeQueue)
+                        conn.start(queue: Self.probeQueue)
                     }
                 }
             }

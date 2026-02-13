@@ -92,10 +92,8 @@ actor PingService {
         )
         
         let connection = NWConnection(to: endpoint, using: .tcp)
-        defer {
-            connection.stateUpdateHandler = nil
-            connection.cancel()
-        }
+        defer { connection.cancel() }
+        nonisolated(unsafe) let conn = connection
         
         return await withCheckedContinuation { continuation in
             let resumed = ResumeState()
@@ -103,17 +101,17 @@ actor PingService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(timeout))
                 guard await resumed.tryResume() else { return }
-                connection.cancel()
+                conn.cancel()
                 continuation.resume(returning: false)
             }
             
-            connection.stateUpdateHandler = { [weak connection] state in
+            conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        connection?.cancel()
+                        conn.cancel()
                         continuation.resume(returning: true)
                     }
                 case .failed, .cancelled:
@@ -127,7 +125,7 @@ actor PingService {
                 }
             }
             
-            connection.start(queue: .global())
+            conn.start(queue: .global())
         }
     }
     

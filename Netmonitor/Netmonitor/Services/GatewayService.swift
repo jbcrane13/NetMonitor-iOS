@@ -39,29 +39,27 @@ final class GatewayService {
         )
 
         let connection = NWConnection(to: endpoint, using: .tcp)
-        // Ensure connection is always cancelled on exit — no dangling NWConnections
         defer { connection.cancel() }
+        nonisolated(unsafe) let conn = connection
 
         return await withCheckedContinuation { continuation in
             let resumed = ResumeState()
 
-            // Timeout task — will be implicitly cancelled when this scope exits
-            // if the connection resolves first
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(5))
                 guard await resumed.tryResume() else { return }
-                connection.cancel()
+                conn.cancel()
                 continuation.resume(returning: nil)
             }
 
-            connection.stateUpdateHandler = { [weak connection] state in
+            conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
                         let latency = Date().timeIntervalSince(start) * 1000
-                        connection?.cancel()
+                        conn.cancel()
                         continuation.resume(returning: latency)
                     }
                 case .failed, .cancelled:
@@ -75,7 +73,7 @@ final class GatewayService {
                 }
             }
 
-            connection.start(queue: .global())
+            conn.start(queue: .global())
         }
     }
 }

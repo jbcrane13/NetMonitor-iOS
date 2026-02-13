@@ -153,10 +153,8 @@ final class BonjourDiscoveryService {
         )
 
         let connection = NWConnection(to: endpoint, using: .tcp)
-        defer {
-            connection.stateUpdateHandler = nil
-            connection.cancel()
-        }
+        defer { connection.cancel() }
+        nonisolated(unsafe) let conn = connection
 
         return await withCheckedContinuation { continuation in
             let resumed = ResumeState()
@@ -164,18 +162,18 @@ final class BonjourDiscoveryService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(5))
                 guard await resumed.tryResume() else { return }
-                connection.cancel()
+                conn.cancel()
                 continuation.resume(returning: nil)
             }
 
-            connection.stateUpdateHandler = { [weak connection] state in
+            conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
 
-                        if let innerEndpoint = connection?.currentPath?.remoteEndpoint,
+                        if let innerEndpoint = conn.currentPath?.remoteEndpoint,
                            case let .hostPort(host, port) = innerEndpoint {
                             let resolved = BonjourService(
                                 name: service.name,
@@ -184,10 +182,10 @@ final class BonjourDiscoveryService {
                                 hostName: "\(host)",
                                 port: Int(port.rawValue)
                             )
-                            connection?.cancel()
+                            conn.cancel()
                             continuation.resume(returning: resolved)
                         } else {
-                            connection?.cancel()
+                            conn.cancel()
                             continuation.resume(returning: nil)
                         }
                     }
@@ -202,7 +200,7 @@ final class BonjourDiscoveryService {
                 }
             }
 
-            connection.start(queue: .global())
+            conn.start(queue: .global())
         }
     }
 }

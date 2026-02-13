@@ -59,10 +59,8 @@ actor PortScannerService {
         parameters.allowLocalEndpointReuse = true
         
         let connection = NWConnection(to: endpoint, using: parameters)
-        defer {
-            connection.stateUpdateHandler = nil
-            connection.cancel()
-        }
+        defer { connection.cancel() }
+        nonisolated(unsafe) let conn = connection
         
         let portState = await withCheckedContinuation { (continuation: CheckedContinuation<PortState, Never>) in
             let resumed = ResumeState()
@@ -70,24 +68,24 @@ actor PortScannerService {
             let timeoutTask = Task {
                 try? await Task.sleep(for: .seconds(timeout))
                 guard await resumed.tryResume() else { return }
-                connection.cancel()
+                conn.cancel()
                 continuation.resume(returning: .filtered)
             }
             
-            connection.stateUpdateHandler = { [weak connection] state in
+            conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        connection?.cancel()
+                        conn.cancel()
                         continuation.resume(returning: .open)
                     }
                 case .failed(let error):
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
-                        connection?.cancel()
+                        conn.cancel()
                         if case NWError.posix(let code) = error, code == .ECONNREFUSED {
                             continuation.resume(returning: .closed)
                         } else {
@@ -105,7 +103,7 @@ actor PortScannerService {
                 }
             }
             
-            connection.start(queue: .global())
+            conn.start(queue: .global())
         }
         
         let elapsed = Date().timeIntervalSince(start) * 1000
