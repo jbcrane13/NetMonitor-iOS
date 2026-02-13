@@ -190,8 +190,13 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         // Flush all TCP probe results
         await flushToMainActor(progress: 0.70, phase: .bonjour)
 
-        // Phase 3: Give Bonjour extra time if it hasn't had enough
-        try? await Task.sleep(for: .seconds(3))
+        // Phase 3: Bonjour post-probe wait + SSDP discovery run in parallel.
+        // Start SSDP collection immediately so it overlaps with the Bonjour wait.
+        let ssdpFilter = scanTarget.filter
+        async let ssdpIPs = discoverSSDP()
+
+        // Give Bonjour 5 seconds to catch late-arriving mDNS responses
+        try? await Task.sleep(for: .seconds(5))
 
         // Merge Bonjour-discovered devices
         let bonjourServices = await MainActor.run { bonjourService.discoveredServices }
@@ -199,8 +204,19 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         await MainActor.run { bonjourService.stopDiscovery() }
         await flushToMainActor(progress: 0.78, phase: .ssdp)
 
-        // Phase 4: SSDP/UPnP multicast discovery
-        await mergeSSDP(filter: scanTarget.filter)
+        // Phase 4: Merge SSDP results (already collected in parallel)
+        let collectedSSDP = await ssdpIPs
+        for ip in collectedSSDP where ssdpFilter.contains(ipAddress: ip) {
+            upsertPendingDevice(DiscoveredDevice(
+                ipAddress: ip,
+                hostname: nil,
+                vendor: nil,
+                macAddress: nil,
+                latency: nil,
+                discoveredAt: Date(),
+                source: .ssdp
+            ))
+        }
         await flushToMainActor(progress: 0.84, phase: .companion)
 
         // Phase 5: Merge Mac companion devices
@@ -278,7 +294,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
             "M-SEARCH * HTTP/1.1",
             "HOST: 239.255.255.250:1900",
             "MAN: \"ssdp:discover\"",
-            "MX: 3",
+            "MX: 5",
             "ST: ssdp:all",
             "", ""
         ].joined(separator: "\r\n")
@@ -337,9 +353,9 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         // Send M-SEARCH
         connection.send(content: messageData, completion: .contentProcessed { _ in })
 
-        // Collect responses for 3 seconds.
+        // Collect responses for 5 seconds.
         var discoveredIPs: Set<String> = []
-        let deadline = Date().addingTimeInterval(3.0)
+        let deadline = Date().addingTimeInterval(5.0)
 
         while Date() < deadline {
             let response: Data? = await withCheckedContinuation { continuation in
@@ -371,23 +387,6 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         }
 
         return Array(discoveredIPs)
-    }
-
-    /// Merge SSDP-discovered devices into the pending list.
-    private func mergeSSDP(filter: ScanFilter) async {
-        let ssdpIPs = await discoverSSDP()
-
-        for ip in ssdpIPs where filter.contains(ipAddress: ip) {
-            upsertPendingDevice(DiscoveredDevice(
-                ipAddress: ip,
-                hostname: nil,
-                vendor: nil,
-                macAddress: nil,
-                latency: nil,
-                discoveredAt: Date(),
-                source: .ssdp
-            ))
-        }
     }
 
     /// Resolve hostnames for devices missing one via reverse DNS (PTR) lookup.
