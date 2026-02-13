@@ -55,6 +55,9 @@ final class BonjourDiscoveryService {
         startBrowsing(serviceType: serviceType)
     }
 
+    /// Task for auto-cleanup of browsers after timeout
+    private var browserCleanupTask: Task<Void, Never>?
+
     private func startBrowsing(serviceType: String? = nil) {
         if let type = serviceType {
             browseServiceType(type)
@@ -63,20 +66,24 @@ final class BonjourDiscoveryService {
                 browseServiceType(type)
             }
 
-            // Timeout cleanup for type browsers
-            DispatchQueue.global().asyncAfter(deadline: .now() + 30) { [weak self] in
-                Task { @MainActor [weak self] in
-                    guard let self = self, self.isDiscovering else { return }
-                    for typeBrowser in self.typeBrowsers {
-                        typeBrowser.cancel()
-                    }
-                    self.typeBrowsers.removeAll()
+            // Timeout cleanup for type browsers — use structured Task so we can cancel it
+            browserCleanupTask?.cancel()
+            browserCleanupTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled else { return }
+                guard let self, self.isDiscovering else { return }
+                for typeBrowser in self.typeBrowsers {
+                    typeBrowser.cancel()
                 }
+                self.typeBrowsers.removeAll()
             }
         }
     }
     
     func stopDiscovery() {
+        browserCleanupTask?.cancel()
+        browserCleanupTask = nil
+
         for typeBrowser in typeBrowsers {
             typeBrowser.cancel()
         }
@@ -138,25 +145,37 @@ final class BonjourDiscoveryService {
     }
     
     func resolveService(_ service: BonjourService) async -> BonjourService? {
+        let endpoint = NWEndpoint.service(
+            name: service.name,
+            type: service.type,
+            domain: service.domain,
+            interface: nil
+        )
+
+        let connection = NWConnection(to: endpoint, using: .tcp)
+        defer {
+            connection.stateUpdateHandler = nil
+            connection.cancel()
+        }
+
         return await withCheckedContinuation { continuation in
-            let endpoint = NWEndpoint.service(
-                name: service.name,
-                type: service.type,
-                domain: service.domain,
-                interface: nil
-            )
+            let resumed = ResumeState()
 
-            let connection = NWConnection(to: endpoint, using: .tcp)
-            let resumeState = ResumeState()
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                guard await resumed.tryResume() else { return }
+                connection.cancel()
+                continuation.resume(returning: nil)
+            }
 
-            connection.stateUpdateHandler = { state in
-                Task {
-                    switch state {
-                    case .ready:
-                        guard await !resumeState.hasResumed else { return }
-                        await resumeState.setResumed()
+            connection.stateUpdateHandler = { [weak connection] state in
+                switch state {
+                case .ready:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
 
-                        if let innerEndpoint = connection.currentPath?.remoteEndpoint,
+                        if let innerEndpoint = connection?.currentPath?.remoteEndpoint,
                            case let .hostPort(host, port) = innerEndpoint {
                             let resolved = BonjourService(
                                 name: service.name,
@@ -165,32 +184,25 @@ final class BonjourDiscoveryService {
                                 hostName: "\(host)",
                                 port: Int(port.rawValue)
                             )
-                            connection.cancel()
+                            connection?.cancel()
                             continuation.resume(returning: resolved)
                         } else {
-                            connection.cancel()
+                            connection?.cancel()
                             continuation.resume(returning: nil)
                         }
-                    case .failed, .cancelled:
-                        guard await !resumeState.hasResumed else { return }
-                        await resumeState.setResumed()
-                        continuation.resume(returning: nil)
-                    default:
-                        break
                     }
+                case .failed, .cancelled:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        continuation.resume(returning: nil)
+                    }
+                default:
+                    break
                 }
             }
 
             connection.start(queue: .global())
-
-            DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
-                Task {
-                    guard await !resumeState.hasResumed else { return }
-                    await resumeState.setResumed()
-                    connection.cancel()
-                    continuation.resume(returning: nil)
-                }
-            }
         }
     }
 }

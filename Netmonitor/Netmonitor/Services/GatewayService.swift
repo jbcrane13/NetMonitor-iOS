@@ -39,37 +39,43 @@ final class GatewayService {
         )
 
         let connection = NWConnection(to: endpoint, using: .tcp)
-        let resumeState = ResumeState()
+        // Ensure connection is always cancelled on exit — no dangling NWConnections
+        defer { connection.cancel() }
 
         return await withCheckedContinuation { continuation in
-            connection.stateUpdateHandler = { state in
-                Task {
-                    guard await !resumeState.hasResumed else { return }
+            let resumed = ResumeState()
 
-                    switch state {
-                    case .ready:
-                        await resumeState.setResumed()
+            // Timeout task — will be implicitly cancelled when this scope exits
+            // if the connection resolves first
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                guard await resumed.tryResume() else { return }
+                connection.cancel()
+                continuation.resume(returning: nil)
+            }
+
+            connection.stateUpdateHandler = { [weak connection] state in
+                switch state {
+                case .ready:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
                         let latency = Date().timeIntervalSince(start) * 1000
-                        connection.cancel()
+                        connection?.cancel()
                         continuation.resume(returning: latency)
-                    case .failed, .cancelled:
-                        await resumeState.setResumed()
-                        continuation.resume(returning: nil)
-                    default:
-                        break
                     }
+                case .failed, .cancelled:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        continuation.resume(returning: nil)
+                    }
+                default:
+                    break
                 }
             }
 
             connection.start(queue: .global())
-
-            Task {
-                try? await Task.sleep(for: .seconds(5))
-                guard await !resumeState.hasResumed else { return }
-                await resumeState.setResumed()
-                connection.cancel()
-                continuation.resume(returning: nil)
-            }
         }
     }
 }

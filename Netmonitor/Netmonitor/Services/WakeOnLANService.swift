@@ -68,51 +68,56 @@ final class WakeOnLANService {
     }
     
     private func sendPacket(_ packet: Data, to address: String, port: UInt16) async -> Bool {
-        let resumeState = ResumeState()
+        let endpoint = NWEndpoint.hostPort(
+            host: NWEndpoint.Host(address),
+            port: NWEndpoint.Port(rawValue: port)!
+        )
+        
+        let parameters = NWParameters.udp
+        parameters.allowLocalEndpointReuse = true
+        
+        let connection = NWConnection(to: endpoint, using: parameters)
+        defer {
+            connection.stateUpdateHandler = nil
+            connection.cancel()
+        }
+        
+        // Capture connection as nonisolated(unsafe) to allow cross-actor use in NWConnection callbacks
+        nonisolated(unsafe) let conn = connection
         
         return await withCheckedContinuation { continuation in
-            let endpoint = NWEndpoint.hostPort(
-                host: NWEndpoint.Host(address),
-                port: NWEndpoint.Port(rawValue: port)!
-            )
+            let resumed = ResumeState()
             
-            let parameters = NWParameters.udp
-            parameters.allowLocalEndpointReuse = true
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(5))
+                guard await resumed.tryResume() else { return }
+                conn.cancel()
+                continuation.resume(returning: false)
+            }
             
-            let connection = NWConnection(to: endpoint, using: parameters)
-            
-            connection.stateUpdateHandler = { [resumeState] state in
+            conn.stateUpdateHandler = { state in
                 switch state {
                 case .ready:
-                    connection.send(content: packet, completion: .contentProcessed { [resumeState] error in
+                    conn.send(content: packet, completion: .contentProcessed { error in
                         Task {
-                            if await resumeState.tryResume() {
-                                connection.cancel()
-                                continuation.resume(returning: error == nil)
-                            }
+                            guard await resumed.tryResume() else { return }
+                            timeoutTask.cancel()
+                            conn.cancel()
+                            continuation.resume(returning: error == nil)
                         }
                     })
                 case .failed, .cancelled:
                     Task {
-                        if await resumeState.tryResume() {
-                            continuation.resume(returning: false)
-                        }
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        continuation.resume(returning: false)
                     }
                 default:
                     break
                 }
             }
             
-            connection.start(queue: .global())
-            
-            // Timeout after 5 seconds
-            Task {
-                try? await Task.sleep(for: .seconds(5))
-                if await resumeState.tryResume() {
-                    connection.cancel()
-                    continuation.resume(returning: false)
-                }
-            }
+            conn.start(queue: .global())
         }
     }
 }

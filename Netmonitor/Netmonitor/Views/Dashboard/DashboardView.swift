@@ -40,10 +40,10 @@ struct DashboardView: View {
                 }
             }
             .refreshable {
-                await viewModel.refresh()
+                await viewModel.refresh(forceIP: true)
             }
             .task {
-                await viewModel.refresh()
+                await viewModel.refresh(forceIP: true)
                 viewModel.startAutoRefresh()
             }
             .onDisappear {

@@ -86,7 +86,7 @@ final class DashboardViewModel {
         return "Today, \(formatter.string(from: sessionStartTime))"
     }
     
-    func refresh() async {
+    func refresh(forceIP: Bool = false) async {
         guard !isRefreshing else { return }
         isRefreshing = true
         defer { isRefreshing = false }
@@ -94,7 +94,8 @@ final class DashboardViewModel {
         wifiService.refreshWiFiInfo()
         
         await gatewayService.detectGateway()
-        await publicIPService.fetchPublicIP(forceRefresh: true)
+        // Auto-refresh uses cache (5-min TTL); manual pull-to-refresh forces a fresh fetch
+        await publicIPService.fetchPublicIP(forceRefresh: forceIP)
     }
     
     func startDeviceScan() async {

@@ -231,6 +231,7 @@ final class DeviceDiscoveryService {
         // Ensure ALL connections are cancelled when we exit, no matter what
         defer {
             for (conn, _) in connections {
+                conn.stateUpdateHandler = nil
                 conn.cancel()
             }
         }
@@ -241,32 +242,34 @@ final class DeviceDiscoveryService {
                     await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
                         let resumed = ResumeState()
                         
-                        connection.stateUpdateHandler = { state in
-                            Task {
-                                guard await !resumed.hasResumed else { return }
-                                switch state {
-                                case .ready:
-                                    await resumed.setResumed()
+                        let timeoutTask = Task {
+                            try? await Task.sleep(for: .milliseconds(600))
+                            guard await resumed.tryResume() else { return }
+                            connection.cancel()
+                            continuation.resume(returning: false)
+                        }
+                        
+                        connection.stateUpdateHandler = { [weak connection] state in
+                            switch state {
+                            case .ready:
+                                Task {
+                                    guard await resumed.tryResume() else { return }
+                                    timeoutTask.cancel()
+                                    connection?.cancel()
                                     continuation.resume(returning: true)
-                                case .failed, .cancelled:
-                                    await resumed.setResumed()
-                                    continuation.resume(returning: false)
-                                default:
-                                    break
                                 }
+                            case .failed, .cancelled:
+                                Task {
+                                    guard await resumed.tryResume() else { return }
+                                    timeoutTask.cancel()
+                                    continuation.resume(returning: false)
+                                }
+                            default:
+                                break
                             }
                         }
                         
                         connection.start(queue: Self.probeQueue)
-                        
-                        // Timeout
-                        Task {
-                            try? await Task.sleep(for: .milliseconds(600))
-                            guard await !resumed.hasResumed else { return }
-                            await resumed.setResumed()
-                            connection.cancel()
-                            continuation.resume(returning: false)
-                        }
                     }
                 }
             }

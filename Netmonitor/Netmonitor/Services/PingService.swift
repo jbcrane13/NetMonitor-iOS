@@ -92,36 +92,42 @@ actor PingService {
         )
         
         let connection = NWConnection(to: endpoint, using: .tcp)
-        let resumeState = ResumeState()
+        defer {
+            connection.stateUpdateHandler = nil
+            connection.cancel()
+        }
         
         return await withCheckedContinuation { continuation in
-            connection.stateUpdateHandler = { state in
-                Task {
-                    guard await !resumeState.hasResumed else { return }
-                    
-                    switch state {
-                    case .ready:
-                        await resumeState.setResumed()
-                        connection.cancel()
+            let resumed = ResumeState()
+            
+            let timeoutTask = Task {
+                try? await Task.sleep(for: .seconds(timeout))
+                guard await resumed.tryResume() else { return }
+                connection.cancel()
+                continuation.resume(returning: false)
+            }
+            
+            connection.stateUpdateHandler = { [weak connection] state in
+                switch state {
+                case .ready:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        connection?.cancel()
                         continuation.resume(returning: true)
-                    case .failed, .cancelled:
-                        await resumeState.setResumed()
-                        continuation.resume(returning: false)
-                    default:
-                        break
                     }
+                case .failed, .cancelled:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        continuation.resume(returning: false)
+                    }
+                default:
+                    break
                 }
             }
             
             connection.start(queue: .global())
-            
-            Task {
-                try? await Task.sleep(for: .seconds(timeout))
-                guard await !resumeState.hasResumed else { return }
-                await resumeState.setResumed()
-                connection.cancel()
-                continuation.resume(returning: false)
-            }
         }
     }
     
