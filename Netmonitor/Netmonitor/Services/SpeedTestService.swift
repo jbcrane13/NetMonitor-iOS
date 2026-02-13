@@ -1,4 +1,5 @@
 import Foundation
+import libkern
 
 /// Plain data struct returned from speed test (Sendable)
 struct SpeedTestData: Sendable {
@@ -126,36 +127,55 @@ final class SpeedTestService: NSObject {
 
     // MARK: - Download Measurement
 
+    /// Use parallel connections to saturate the link (like real speed tests do)
     private func measureDownload() async throws -> Double {
-        let url = URL(string: "https://speed.cloudflare.com/__down?bytes=1000000")!
+        let chunkSize = 10_000_000 // 10MB chunks for better throughput
+        let parallelStreams = 6
         let startTime = Date()
-        var totalBytes: Int64 = 0
-        var peakSpeed: Double = 0
+        let totalBytesAtomic = AtomicInt64()
 
-        while Date().timeIntervalSince(startTime) < duration {
-            try Task.checkCancellation()
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<parallelStreams {
+                group.addTask { [duration] in
+                    let session = URLSession(configuration: .ephemeral)
+                    defer { session.invalidateAndCancel() }
+                    let url = URL(string: "https://speed.cloudflare.com/__down?bytes=\(chunkSize)")!
 
-            var request = URLRequest(url: url)
-            request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
-            request.timeoutInterval = 10
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                throw SpeedTestError.serverError
+                    while Date().timeIntervalSince(startTime) < duration {
+                        try Task.checkCancellation()
+                        var request = URLRequest(url: url)
+                        request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+                        request.timeoutInterval = 10
+                        let (data, response) = try await session.data(for: request)
+                        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+                            continue
+                        }
+                        totalBytesAtomic.add(Int64(data.count))
+                    }
+                }
             }
 
-            totalBytes += Int64(data.count)
-            let elapsed = Date().timeIntervalSince(startTime)
-            let currentSpeed = Double(totalBytes * 8) / elapsed / 1_000_000
-            peakSpeed = max(peakSpeed, currentSpeed)
+            // Progress updater
+            group.addTask { [duration] in
+                while Date().timeIntervalSince(startTime) < duration {
+                    try Task.checkCancellation()
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    let bytes = totalBytesAtomic.load()
+                    let speed = elapsed > 0 ? Double(bytes * 8) / elapsed / 1_000_000 : 0
+                    await MainActor.run { [speed, elapsed, bytes, duration] in
+                        self.downloadSpeed = speed
+                        self.progress = min(elapsed / duration, 1.0)
+                        self.downloadBytesReceived = bytes
+                    }
+                    try await Task.sleep(for: .milliseconds(200))
+                }
+            }
 
-            downloadSpeed = currentSpeed
-            progress = min(elapsed / duration, 1.0)
-            downloadBytesReceived = totalBytes
+            try await group.waitForAll()
         }
 
         let totalElapsed = Date().timeIntervalSince(startTime)
+        let totalBytes = totalBytesAtomic.load()
         guard totalElapsed > 0, totalBytes > 0 else { return 0 }
         let finalSpeed = Double(totalBytes * 8) / totalElapsed / 1_000_000
         downloadSpeed = finalSpeed
@@ -166,39 +186,57 @@ final class SpeedTestService: NSObject {
     // MARK: - Upload Measurement
 
     private func measureUpload() async throws -> Double {
-        let chunkSize = 256 * 1024 // 256KB
-        let url = URL(string: "https://speed.cloudflare.com/__up")!
+        let chunkSize = 1_000_000 // 1MB upload chunks
+        let parallelStreams = 4
         let startTime = Date()
-        var totalBytes: Int64 = 0
-        var peakSpeed: Double = 0
+        let totalBytesAtomic = AtomicInt64()
 
-        while Date().timeIntervalSince(startTime) < duration {
-            try Task.checkCancellation()
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<parallelStreams {
+                group.addTask { [duration] in
+                    let session = URLSession(configuration: .ephemeral)
+                    defer { session.invalidateAndCancel() }
+                    let url = URL(string: "https://speed.cloudflare.com/__up")!
+                    let uploadData = Data(count: chunkSize)
 
-            let data = Data(count: chunkSize)
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.httpBody = data
-            request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
-            request.timeoutInterval = 10
-
-            let (_, response) = try await URLSession.shared.upload(for: request, from: data)
-            guard let httpResponse = response as? HTTPURLResponse,
-                  (200...299).contains(httpResponse.statusCode) else {
-                throw SpeedTestError.serverError
+                    while Date().timeIntervalSince(startTime) < duration {
+                        try Task.checkCancellation()
+                        var request = URLRequest(url: url)
+                        request.httpMethod = "POST"
+                        request.httpBody = uploadData
+                        request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+                        request.timeoutInterval = 10
+                        let (_, response) = try await session.upload(for: request, from: uploadData)
+                        guard let http = response as? HTTPURLResponse,
+                              (200...299).contains(http.statusCode) else {
+                            continue
+                        }
+                        totalBytesAtomic.add(Int64(chunkSize))
+                    }
+                }
             }
 
-            totalBytes += Int64(chunkSize)
-            let elapsed = Date().timeIntervalSince(startTime)
-            let currentSpeed = Double(totalBytes * 8) / elapsed / 1_000_000
-            peakSpeed = max(peakSpeed, currentSpeed)
+            // Progress updater
+            group.addTask { [duration] in
+                while Date().timeIntervalSince(startTime) < duration {
+                    try Task.checkCancellation()
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    let bytes = totalBytesAtomic.load()
+                    let speed = elapsed > 0 ? Double(bytes * 8) / elapsed / 1_000_000 : 0
+                    await MainActor.run { [speed, elapsed, bytes, duration] in
+                        self.uploadSpeed = speed
+                        self.progress = min(elapsed / duration, 1.0)
+                        self.uploadBytesSent = bytes
+                    }
+                    try await Task.sleep(for: .milliseconds(200))
+                }
+            }
 
-            uploadSpeed = currentSpeed
-            progress = min(elapsed / duration, 1.0)
-            uploadBytesSent = totalBytes
+            try await group.waitForAll()
         }
 
         let totalElapsed = Date().timeIntervalSince(startTime)
+        let totalBytes = totalBytesAtomic.load()
         guard totalElapsed > 0, totalBytes > 0 else { return 0 }
         let finalSpeed = Double(totalBytes * 8) / totalElapsed / 1_000_000
         uploadSpeed = finalSpeed
@@ -217,6 +255,24 @@ final class SpeedTestService: NSObject {
         errorMessage = nil
         downloadBytesReceived = 0
         uploadBytesSent = 0
+    }
+}
+
+// MARK: - Thread-Safe Counter
+
+/// Lock-free atomic counter for parallel stream byte tracking
+final class AtomicInt64: @unchecked Sendable {
+    private let value = UnsafeMutablePointer<Int64>.allocate(capacity: 1)
+
+    init() { value.initialize(to: 0) }
+    deinit { value.deallocate() }
+
+    func add(_ delta: Int64) {
+        OSAtomicAdd64(delta, value)
+    }
+
+    func load() -> Int64 {
+        OSAtomicAdd64(0, value)
     }
 }
 
