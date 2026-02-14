@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -85,6 +85,7 @@
 		A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */; };
 		A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D89D07B0E8D95EB1314E86 /* SettingsView.swift */; };
 		A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66834196F05AEFC207F67B35 /* NetworkMapView.swift */; };
+		AB4496BD9D13B8A54ACCC2EF /* ARPCacheScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1DB9C95D20C48E6D2EB157 /* ARPCacheScanner.swift */; };
 		AB95EB4D3560B73FBB78E6DD /* MonitoringTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E923657203E10C881ED154E /* MonitoringTarget.swift */; };
 		ABC118726ED04F028A998A90 /* NetworkMapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */; };
 		AC1262263918E403166C5206 /* MacPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABA1D23D2CBE1FD126EECBF /* MacPairingView.swift */; };
@@ -199,6 +200,7 @@
 		3A9A390279F7A98B5DACBF42 /* WakeOnLANService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANService.swift; sourceTree = "<group>"; };
 		3ABA1D23D2CBE1FD126EECBF /* MacPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPairingView.swift; sourceTree = "<group>"; };
 		3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolViewModel.swift; sourceTree = "<group>"; };
+		3F1DB9C95D20C48E6D2EB157 /* ARPCacheScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARPCacheScanner.swift; sourceTree = "<group>"; };
 		4195BA109EA1021B616FC9A2 /* MACVendorLookupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MACVendorLookupService.swift; sourceTree = "<group>"; };
 		43AF94739B269FC1575A7C64 /* BonjourDiscoveryToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryToolView.swift; sourceTree = "<group>"; };
 		475DD181BC184D12F5543624 /* ToolsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsViewModel.swift; sourceTree = "<group>"; };
@@ -206,7 +208,7 @@
 		4C15E3EF34D0E5489F1DD964 /* Netmonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Netmonitor.entitlements; sourceTree = "<group>"; };
 		4D00CD08CDDEAD71594B447F /* WakeOnLANToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolView.swift; sourceTree = "<group>"; };
 		4E84D20209C2F8E01041E94F /* ToolResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResult.swift; sourceTree = "<group>"; };
-		5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetmonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5129C14D188DE83B0D63FC92 /* NetmonitorUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NetmonitorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		52FF2D8858DC7777706B50FF /* TracerouteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TracerouteService.swift; sourceTree = "<group>"; };
 		539B19432439CD2798642904 /* DeviceDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailScreen.swift; sourceTree = "<group>"; };
 		5759CADDA2E2A2291F8D3900 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
@@ -236,13 +238,13 @@
 		87FFC87A4EBFEAB564F0178D /* WHOISService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISService.swift; sourceTree = "<group>"; };
 		88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
 		895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailUITests.swift; sourceTree = "<group>"; };
-		8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = NetmonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8980B43EAE0F29B897741D41 /* NetmonitorWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = NetmonitorWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CF37CB8EA2B149229CD1189 /* BonjourToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourToolUITests.swift; sourceTree = "<group>"; };
-		92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolModels.swift; sourceTree = "<group>"; };
 		9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestService.swift; sourceTree = "<group>"; };
 		9DE3BC8C2E8587C19E12A25C /* ToolClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolClearButton.swift; sourceTree = "<group>"; };
-		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E923657203E10C881ED154E /* MonitoringTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringTarget.swift; sourceTree = "<group>"; };
 		A33559F156548EF73D7F1450 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolUITests.swift; sourceTree = "<group>"; };
@@ -252,7 +254,7 @@
 		AAE00E42D443DCE45B77E999 /* WHOISToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISToolUITests.swift; sourceTree = "<group>"; };
 		AB8EEA4BCA573CE43E7D7207 /* GlassButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassButton.swift; sourceTree = "<group>"; };
 		ACA03E29932CB909E2D52407 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
-		ACE4DACE223112C3EC7310B5 /* NetmonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetmonitorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACE4DACE223112C3EC7310B5 /* NetmonitorTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NetmonitorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AD98A9090968B419D3C50A7B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairedMac.swift; sourceTree = "<group>"; };
 		AEB1C480E81630053E84B74E /* NetworkMapScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapScreen.swift; sourceTree = "<group>"; };
@@ -475,6 +477,7 @@
 		7F584797DFC51E19130C9DF0 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				3F1DB9C95D20C48E6D2EB157 /* ARPCacheScanner.swift */,
 				4A31C1D9A568A376FA1E06F2 /* BackgroundTaskService.swift */,
 				88701649986D20BF19CE11D7 /* BonjourDiscoveryService.swift */,
 				5FA287DBFBE09678EC985C93 /* DataExportService.swift */,
@@ -702,6 +705,7 @@
 			);
 			mainGroup = 297C70D64E1D8B8B47D66ABA;
 			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -730,6 +734,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB4496BD9D13B8A54ACCC2EF /* ARPCacheScanner.swift in Sources */,
 				A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */,
 				CDB58D126FB987AED4CA46A6 /* BackgroundTaskService.swift in Sources */,
 				29D58372CEBAEBD039CDB348 /* BonjourDiscoveryService.swift in Sources */,
@@ -929,7 +934,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -960,15 +965,10 @@
 		13F26AB74BC59C4C133F370F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NetmonitorWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "NetMonitor Widget";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -980,15 +980,10 @@
 		2ADD4EB526B8120662E0D1AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NetmonitorWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "NetMonitor Widget";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.blakemiller.netmonitor.widget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1033,7 +1028,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -1072,7 +1067,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1107,7 +1101,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1142,9 +1135,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Netmonitor/Netmonitor.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1160,9 +1151,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Netmonitor/Netmonitor.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

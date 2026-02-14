@@ -19,6 +19,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     enum ScanPhase: String, Sendable {
         case idle = ""
+        case arpScan = "Scanning network…"
         case tcpProbe = "Probing ports…"
         case bonjour = "Bonjour discovery…"
         case ssdp = "UPnP discovery…"
@@ -121,7 +122,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         await MainActor.run {
             self.isScanning = true
             self.scanProgress = 0
-            self.scanPhase = .tcpProbe
+            self.scanPhase = .arpScan
             self.discoveredDevices = []
         }
 
@@ -142,6 +143,21 @@ final class DeviceDiscoveryService: @unchecked Sendable {
             await macConnection.send(command: CommandPayload(action: .scanDevices))
         }
 
+        // Phase 0: ARP cache scan (fast, finds devices TCP probing misses)
+        let arpResults = await ARPCacheScanner.scanSubnet(hosts: scanTarget.hosts)
+        for (ip, mac) in arpResults {
+            upsertPendingDevice(DiscoveredDevice(
+                ipAddress: ip,
+                hostname: nil,
+                vendor: nil,
+                macAddress: mac,
+                latency: nil,
+                discoveredAt: Date(),
+                source: .local
+            ))
+        }
+        await flushToMainActor(progress: 0.30, phase: .tcpProbe)
+
         // Phase 1: Bonjour discovery — start early, let it accumulate during TCP probes
         let bonjourService = await MainActor.run { BonjourDiscoveryService() }
         await MainActor.run { bonjourService.startDiscovery() }
@@ -149,7 +165,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         // Phase 2: TCP probes over computed host targets
         let totalHosts = scanTarget.hosts.count
         var scannedCount = 0
-        var localProgress: Double = 0
+        var localProgress: Double = 0.30
 
         if totalHosts > 0 {
             await withTaskGroup(of: DiscoveredDevice?.self) { group in
@@ -169,8 +185,8 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                     pending -= 1
                     scannedCount += 1
 
-                    // TCP probes are 0–70% of progress
-                    localProgress = Double(scannedCount) / Double(totalHosts) * 0.70
+                    // TCP probes are 30–70% of progress
+                    localProgress = 0.30 + Double(scannedCount) / Double(totalHosts) * 0.40
 
                     if let device = result {
                         upsertPendingDevice(device)
@@ -310,10 +326,6 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
         await ConnectionBudget.shared.acquire()
         let connection = NWConnection(to: endpoint, using: params)
-        defer {
-            connection.cancel()
-            Task { await ConnectionBudget.shared.release() }
-        }
 
         // Wait for connection ready (with timeout to prevent hang).
         let ready: Bool = await withCheckedContinuation { continuation in
@@ -348,7 +360,11 @@ final class DeviceDiscoveryService: @unchecked Sendable {
             connection.start(queue: Self.probeQueue)
         }
 
-        guard ready else { return [] }
+        guard ready else {
+            connection.cancel()
+            await ConnectionBudget.shared.release()
+            return []
+        }
 
         // Send M-SEARCH
         connection.send(content: messageData, completion: .contentProcessed { _ in })
@@ -386,6 +402,8 @@ final class DeviceDiscoveryService: @unchecked Sendable {
             }
         }
 
+        connection.cancel()
+        await ConnectionBudget.shared.release()
         return Array(discoveredIPs)
     }
 
@@ -476,7 +494,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         case .reachable(let latency):
             return DiscoveredDevice(ipAddress: ip, latency: latency, discoveredAt: Date())
         case .allTimedOut:
-            return nil
+            break  // fall through to try secondary ports
         case .allFailed:
             break
         }
@@ -559,7 +577,6 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     private nonisolated static func probePort(ip: String, port: UInt16, timeout: Duration) async -> PortProbeOutcome {
         await ConnectionBudget.shared.acquire()
-        defer { Task { await ConnectionBudget.shared.release() } }
 
         let host = NWEndpoint.Host(ip)
         let endpoint = NWEndpoint.hostPort(host: host, port: NWEndpoint.Port(rawValue: port)!)
@@ -567,9 +584,8 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         params.requiredInterfaceType = .wifi
 
         let connection = NWConnection(to: endpoint, using: params)
-        defer { connection.cancel() }
 
-        return await withCheckedContinuation { (continuation: CheckedContinuation<PortProbeOutcome, Never>) in
+        let result = await withCheckedContinuation { (continuation: CheckedContinuation<PortProbeOutcome, Never>) in
             let resumed = ResumeState()
 
             let timeoutTask = Task {
@@ -618,6 +634,10 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
             connection.start(queue: probeQueue)
         }
+
+        connection.cancel()
+        await ConnectionBudget.shared.release()
+        return result
     }
 
     // MARK: - Bonjour merge
@@ -687,7 +707,6 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     private nonisolated static func resolveBonjourHost(for service: BonjourService) async -> String? {
         await ConnectionBudget.shared.acquire()
-        defer { Task { await ConnectionBudget.shared.release() } }
 
         let endpoint = NWEndpoint.service(
             name: service.name,
@@ -699,9 +718,8 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         let params = NWParameters.tcp
 
         let connection = NWConnection(to: endpoint, using: params)
-        defer { connection.cancel() }
 
-        return await withCheckedContinuation { continuation in
+        let result: String? = await withCheckedContinuation { continuation in
             let resumed = ResumeState()
 
             let timeoutTask = Task {
@@ -742,6 +760,10 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
             connection.start(queue: probeQueue)
         }
+
+        connection.cancel()
+        await ConnectionBudget.shared.release()
+        return result
     }
 
     private nonisolated static func resolveIPv4Addresses(for host: String) async -> [String] {
