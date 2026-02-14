@@ -255,8 +255,14 @@ final class MacConnectionService: MacConnectionServiceProtocol {
 
     func send(command: CommandPayload) async {
         let message = CompanionMessage.command(command)
+        await sendMessage(message)
+    }
+
+    /// Send a CompanionMessage as raw JSON (no length prefix).
+    /// The macOS CompanionService receives raw JSON and decodes it directly.
+    private func sendMessage(_ message: CompanionMessage) async {
         do {
-            let data = try message.encodeLengthPrefixed()
+            let data = try CompanionMessage.jsonEncoder.encode(message)
             guard let conn = connection else { return }
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 conn.send(content: data, completion: .contentProcessed { error in
@@ -359,17 +365,7 @@ final class MacConnectionService: MacConnectionServiceProtocol {
             timestamp: Date(),
             version: Self.heartbeatVersion
         ))
-        do {
-            let data = try message.encodeLengthPrefixed()
-            guard let conn = connection else { return }
-            conn.send(content: data, completion: .contentProcessed { error in
-                if let error {
-                    print("[MacConnectionService] Heartbeat send error: \(error)")
-                }
-            })
-        } catch {
-            print("[MacConnectionService] Heartbeat encode error: \(error)")
-        }
+        await sendMessage(message)
     }
 
     // MARK: - Reconnect
