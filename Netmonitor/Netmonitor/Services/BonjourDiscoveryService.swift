@@ -58,15 +58,19 @@ final class BonjourDiscoveryService: @unchecked Sendable {
         stopDiscovery()
 
         return AsyncStream { continuation in
-            self.serviceContinuation = continuation
             self.isDiscovering = true
             self.discoveredServices = []
-            self.pendingServices = []
 
             continuation.onTermination = { @Sendable _ in
                 Task { @MainActor in
                     self.stopDiscovery()
                 }
+            }
+
+            // Set continuation and clear pending buffer on the queue to avoid races
+            self.queue.sync {
+                self.serviceContinuation = continuation
+                self.pendingServices = []
             }
 
             self.startBrowsing(serviceType: serviceType)
@@ -79,7 +83,7 @@ final class BonjourDiscoveryService: @unchecked Sendable {
 
         isDiscovering = true
         discoveredServices = []
-        pendingServices = []
+        queue.sync { pendingServices = [] }
 
         startBrowsing(serviceType: serviceType)
     }
@@ -133,8 +137,10 @@ final class BonjourDiscoveryService: @unchecked Sendable {
         }
         typeBrowsers.removeAll()
 
-        serviceContinuation?.finish()
-        serviceContinuation = nil
+        queue.sync {
+            serviceContinuation?.finish()
+            serviceContinuation = nil
+        }
         isDiscovering = false
     }
 
