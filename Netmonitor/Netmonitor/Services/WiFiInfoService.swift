@@ -88,8 +88,21 @@ final class WiFiInfoService: NSObject {
             channel: nil,
             frequency: nil,
             band: nil,
-            securityType: network.isSecure ? "Secured" : "Open"
+            securityType: Self.securityLabel(for: network)
         )
+    }
+    
+    // MARK: - Security Type Mapping
+    
+    private static func securityLabel(for network: NEHotspotNetwork) -> String {
+        // NEHotspotNetworkSecurityType raw values: 0=Open, 1=WEP, 2=Personal, 3=Enterprise, 4=Unknown
+        switch network.securityType.rawValue {
+        case 0:  return "Open"
+        case 1:  return "WEP"
+        case 2:  return "WPA/WPA2/WPA3"
+        case 3:  return "WPA Enterprise"
+        default: return "Secured"
+        }
     }
     
     // MARK: - Legacy API (fallback)
