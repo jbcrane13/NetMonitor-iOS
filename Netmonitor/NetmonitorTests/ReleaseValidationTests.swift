@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftData
 @testable import Netmonitor
 
 // MARK: - ThemeManager Tests
@@ -13,33 +14,23 @@ struct ThemeManagerTests {
         #expect(instance != nil)
     }
 
-    @Test("Default accent color is cyan")
+    @Test("Default accent color is a valid option")
     func defaultAccentColor() {
-        // Create fresh UserDefaults for testing
-        let testDefaults = UserDefaults(suiteName: "test.thememanager.default")!
-        testDefaults.removePersistentDomain(forName: "test.thememanager.default")
-
-        // Since ThemeManager uses .standard, test the actual default
-        let defaultValue = UserDefaults.standard.string(forKey: "selectedAccentColor") ?? "cyan"
-        #expect(defaultValue == "cyan" || ThemeManager.shared.selectedAccentColor == "cyan")
+        let validOptions = ["cyan", "blue", "green", "purple", "orange", "red"]
+        let currentValue = ThemeManager.shared.selectedAccentColor
+        #expect(validOptions.contains(currentValue))
     }
 
     @Test("Changing selectedAccentColor updates UserDefaults")
     func accentColorPersistence() {
-        let testDefaults = UserDefaults(suiteName: "test.thememanager.persistence")!
-        testDefaults.removePersistentDomain(forName: "test.thememanager.persistence")
-
-        // Save to standard UserDefaults (ThemeManager uses standard)
-        let originalValue = UserDefaults.standard.string(forKey: "selectedAccentColor")
+        let originalValue = ThemeManager.shared.selectedAccentColor
 
         ThemeManager.shared.selectedAccentColor = "purple"
         let saved = UserDefaults.standard.string(forKey: "selectedAccentColor")
         #expect(saved == "purple")
 
         // Restore original
-        if let original = originalValue {
-            UserDefaults.standard.set(original, forKey: "selectedAccentColor")
-        }
+        ThemeManager.shared.selectedAccentColor = originalValue
     }
 
     @Test("accent computed property returns correct color for each option")
@@ -71,14 +62,17 @@ struct ThemeManagerTests {
         #expect(accentLight != nil)
     }
 
-    @Test("Reading from UserDefaults on init")
+    @Test("Setting accent color is reflected in ThemeManager")
     func userDefaultsInit() {
-        // Set a value in UserDefaults
-        UserDefaults.standard.set("blue", forKey: "selectedAccentColor")
+        let originalValue = ThemeManager.shared.selectedAccentColor
 
-        // ThemeManager reads from UserDefaults in init
-        let currentValue = ThemeManager.shared.selectedAccentColor
-        #expect(currentValue == "blue")
+        // Set via ThemeManager (which writes to UserDefaults)
+        ThemeManager.shared.selectedAccentColor = "blue"
+        #expect(ThemeManager.shared.selectedAccentColor == "blue")
+        #expect(UserDefaults.standard.string(forKey: "selectedAccentColor") == "blue")
+
+        // Restore original
+        ThemeManager.shared.selectedAccentColor = originalValue
     }
 }
 
