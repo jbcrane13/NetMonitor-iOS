@@ -258,11 +258,11 @@ final class MacConnectionService: MacConnectionServiceProtocol {
         await sendMessage(message)
     }
 
-    /// Send a CompanionMessage as raw JSON (no length prefix).
-    /// The macOS CompanionService receives raw JSON and decodes it directly.
+    /// Send a CompanionMessage with 4-byte big-endian length prefix + JSON payload.
+    /// Matches the macOS CompanionService wire format.
     private func sendMessage(_ message: CompanionMessage) async {
         do {
-            let data = try CompanionMessage.jsonEncoder.encode(message)
+            let data = try message.encodeLengthPrefixed()
             guard let conn = connection else { return }
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 conn.send(content: data, completion: .contentProcessed { error in
