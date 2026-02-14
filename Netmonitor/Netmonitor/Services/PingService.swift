@@ -22,12 +22,11 @@ actor PingService {
                 for seq in 1...count {
                     guard self.shouldContinue(runID: runID) else { break }
 
-                    let start = Date()
-                    let success = await connectTest(
+                    let (success, connectTime) = await self.connectTest(
                         host: resolvedIP ?? host,
                         timeout: timeout
                     )
-                    let elapsed = Date().timeIntervalSince(start) * 1000
+                    let elapsed = connectTime * 1000
 
                     let result = PingResult(
                         sequence: seq,
@@ -106,29 +105,32 @@ actor PingService {
     /// Try connecting to multiple common ports concurrently — succeed if ANY responds.
     /// This is far more reliable than single-port (80) since many hosts only listen on
     /// 443 (HTTPS) or 22 (SSH) but not 80.
-    private func connectTest(host: String, timeout: TimeInterval) async -> Bool {
+    /// Ping bypass: acquire/release budget but measure only the actual TCP handshake,
+    /// not the time spent waiting for a connection slot.
+    private func connectTest(host: String, timeout: TimeInterval) async -> (success: Bool, elapsed: TimeInterval) {
         let ports: [NWEndpoint.Port] = [.https, .http, NWEndpoint.Port(rawValue: 22)!]
         let hostEndpoint = NWEndpoint.Host(host)
         
         let queue = pingQueue
-        return await withTaskGroup(of: Bool.self, returning: Bool.self) { group in
+        return await withTaskGroup(of: (Bool, TimeInterval).self, returning: (Bool, TimeInterval).self) { group in
             for port in ports {
                 group.addTask {
                     await ConnectionBudget.shared.acquire()
+                    let measureStart = Date()
                     let connection = NWConnection(to: .hostPort(host: hostEndpoint, port: port), using: .tcp)
                     defer {
                         connection.cancel()
                         Task { await ConnectionBudget.shared.release() }
                     }
 
-                    return await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                    return await withCheckedContinuation { (continuation: CheckedContinuation<(Bool, TimeInterval), Never>) in
                         let resumed = ResumeState()
 
                         let timeoutTask = Task {
                             try? await Task.sleep(for: .seconds(timeout))
                             guard await resumed.tryResume() else { return }
                             connection.cancel()
-                            continuation.resume(returning: false)
+                            continuation.resume(returning: (false, Date().timeIntervalSince(measureStart)))
                         }
 
                         connection.stateUpdateHandler = { state in
@@ -138,7 +140,7 @@ actor PingService {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
                                     connection.cancel()
-                                    continuation.resume(returning: true)
+                                    continuation.resume(returning: (true, Date().timeIntervalSince(measureStart)))
                                 }
                             case .failed(let error):
                                 Task {
@@ -148,9 +150,9 @@ actor PingService {
 
                                     // A refused TCP handshake still proves the host is reachable.
                                     if case NWError.posix(let code) = error, code == .ECONNREFUSED {
-                                        continuation.resume(returning: true)
+                                        continuation.resume(returning: (true, Date().timeIntervalSince(measureStart)))
                                     } else {
-                                        continuation.resume(returning: false)
+                                        continuation.resume(returning: (false, Date().timeIntervalSince(measureStart)))
                                     }
                                 }
                             case .cancelled:
@@ -158,7 +160,7 @@ actor PingService {
                                     guard await resumed.tryResume() else { return }
                                     timeoutTask.cancel()
                                     connection.cancel()
-                                    continuation.resume(returning: false)
+                                    continuation.resume(returning: (false, Date().timeIntervalSince(measureStart)))
                                 }
                             default:
                                 break
@@ -170,14 +172,16 @@ actor PingService {
                 }
             }
 
-            // Return true as soon as any port succeeds
-            for await result in group {
-                if result {
+            // Return true as soon as any port succeeds, with its elapsed time
+            var bestElapsed: TimeInterval = 0
+            for await (success, elapsed) in group {
+                if success {
                     group.cancelAll()
-                    return true
+                    return (true, elapsed)
                 }
+                bestElapsed = max(bestElapsed, elapsed)
             }
-            return false
+            return (false, bestElapsed)
         }
     }
     
