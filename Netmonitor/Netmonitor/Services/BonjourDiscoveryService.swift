@@ -1,27 +1,17 @@
 import Foundation
 import Network
 
+@MainActor
 @Observable
-final class BonjourDiscoveryService: @unchecked Sendable {
-    @MainActor
-    init() {}
-
-    // MARK: - Observable properties (read by SwiftUI on MainActor)
-
-    @MainActor private(set) var discoveredServices: [BonjourService] = []
-    @MainActor private(set) var isDiscovering: Bool = false
+final class BonjourDiscoveryService {
+    private(set) var discoveredServices: [BonjourService] = []
+    private(set) var isDiscovering: Bool = false
 
     // MARK: - Private state
 
     private var typeBrowsers: [NWBrowser] = []
     private let queue = DispatchQueue(label: "com.netmonitor.bonjour")
     private var serviceContinuation: AsyncStream<BonjourService>.Continuation?
-
-    /// Private buffer for accumulating services off MainActor.
-    private var pendingServices: [BonjourService] = []
-
-    /// Coalescing task that batches MainActor flushes.
-    private var flushTask: Task<Void, Never>?
 
     /// Tier 1: highest-yield service types — browsed immediately.
     private let tier1ServiceTypes = [
@@ -53,11 +43,11 @@ final class BonjourDiscoveryService: @unchecked Sendable {
     // MARK: - Public API
 
     /// Returns an AsyncStream that yields newly discovered services as they are found.
-    @MainActor
     func discoveryStream(serviceType: String? = nil) -> AsyncStream<BonjourService> {
         stopDiscovery()
 
         return AsyncStream { continuation in
+            self.serviceContinuation = continuation
             self.isDiscovering = true
             self.discoveredServices = []
 
@@ -67,23 +57,15 @@ final class BonjourDiscoveryService: @unchecked Sendable {
                 }
             }
 
-            // Set continuation and clear pending buffer on the queue to avoid races
-            self.queue.sync {
-                self.serviceContinuation = continuation
-                self.pendingServices = []
-            }
-
             self.startBrowsing(serviceType: serviceType)
         }
     }
 
-    @MainActor
     func startDiscovery(serviceType: String? = nil) {
         stopDiscovery()
 
         isDiscovering = true
         discoveredServices = []
-        queue.sync { pendingServices = [] }
 
         startBrowsing(serviceType: serviceType)
     }
@@ -105,9 +87,9 @@ final class BonjourDiscoveryService: @unchecked Sendable {
 
             // Tier 2: browse remaining types after 5-second delay
             tier2Task?.cancel()
-            tier2Task = Task { [weak self] in
+            tier2Task = Task {
                 try? await Task.sleep(for: .seconds(5))
-                guard !Task.isCancelled, let self else { return }
+                guard !Task.isCancelled else { return }
                 for type in self.tier2ServiceTypes {
                     self.browseServiceType(type)
                 }
@@ -115,47 +97,36 @@ final class BonjourDiscoveryService: @unchecked Sendable {
 
             // Timeout cleanup for type browsers
             browserCleanupTask?.cancel()
-            browserCleanupTask = Task { [weak self] in
+            browserCleanupTask = Task {
                 try? await Task.sleep(for: .seconds(30))
-                guard !Task.isCancelled, let self else { return }
-                await self.cleanupBrowsersIfDiscovering()
+                guard !Task.isCancelled else { return }
+                self.cleanupBrowsersIfDiscovering()
             }
         }
     }
 
-    @MainActor
     func stopDiscovery() {
         tier2Task?.cancel()
         tier2Task = nil
         browserCleanupTask?.cancel()
         browserCleanupTask = nil
-        flushTask?.cancel()
-        flushTask = nil
 
         for typeBrowser in typeBrowsers {
             typeBrowser.cancel()
         }
         typeBrowsers.removeAll()
 
-        queue.sync {
-            serviceContinuation?.finish()
-            serviceContinuation = nil
-        }
+        serviceContinuation?.finish()
+        serviceContinuation = nil
         isDiscovering = false
     }
 
-    @MainActor
     private func cleanupBrowsersIfDiscovering() {
         guard isDiscovering else { return }
         for typeBrowser in typeBrowsers {
             typeBrowser.cancel()
         }
         typeBrowsers.removeAll()
-    }
-
-    @MainActor
-    private func flushDiscoveredServices(_ services: [BonjourService]) {
-        discoveredServices = services
     }
 
     private func browseServiceType(_ type: String) {
@@ -172,20 +143,18 @@ final class BonjourDiscoveryService: @unchecked Sendable {
         }
 
         typeBrowser.browseResultsChangedHandler = { [weak self] _, changes in
-            self?.handleChangesOffMainActor(changes)
+            Task { @MainActor [weak self] in
+                self?.handleChanges(changes)
+            }
         }
 
         typeBrowser.start(queue: queue)
         typeBrowsers.append(typeBrowser)
     }
 
-    // MARK: - Batched change handling
+    // MARK: - Change handling
 
-    /// Handle browser changes off MainActor — accumulate in pending buffer
-    /// and schedule a coalesced flush.
-    private func handleChangesOffMainActor(_ changes: Set<NWBrowser.Result.Change>) {
-        var didChange = false
-
+    private func handleChanges(_ changes: Set<NWBrowser.Result.Change>) {
         for change in changes {
             switch change {
             case .added(let result):
@@ -195,44 +164,24 @@ final class BonjourDiscoveryService: @unchecked Sendable {
                         type: type,
                         domain: domain
                     )
-                    if !pendingServices.contains(where: { $0.name == name && $0.type == type }) {
-                        pendingServices.append(service)
+                    if !discoveredServices.contains(where: { $0.name == name && $0.type == type }) {
+                        discoveredServices.append(service)
                         serviceContinuation?.yield(service)
-                        didChange = true
                     }
                 }
             case .removed(let result):
                 if case let .service(name, type, _, _) = result.endpoint {
-                    if let idx = pendingServices.firstIndex(where: { $0.name == name && $0.type == type }) {
-                        pendingServices.remove(at: idx)
-                        didChange = true
-                    }
+                    discoveredServices.removeAll { $0.name == name && $0.type == type }
                 }
             default:
                 break
             }
         }
-
-        if didChange {
-            scheduleFlush()
-        }
-    }
-
-    /// Schedule a coalesced flush to MainActor (debounced at 0.3s).
-    private func scheduleFlush() {
-        guard flushTask == nil else { return }
-        flushTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(300))
-            guard !Task.isCancelled, let self else { return }
-            let latest = self.pendingServices
-            await self.flushDiscoveredServices(latest)
-            self.flushTask = nil
-        }
     }
 
     // MARK: - Service resolution
 
-    func resolveService(_ service: BonjourService) async -> BonjourService? {
+    nonisolated func resolveService(_ service: BonjourService) async -> BonjourService? {
         await ConnectionBudget.shared.acquire()
         defer { Task { await ConnectionBudget.shared.release() } }
 
