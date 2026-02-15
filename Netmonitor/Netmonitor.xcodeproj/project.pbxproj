@@ -41,6 +41,7 @@
 		3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A684E333115E6A9D9307FB /* ServiceProtocols.swift */; };
 		419C99152940EBAD274CF113 /* PingServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */; };
 		44CCEC66245ABF29E99416B1 /* PingToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA6F487B4F995CF6C55596B /* PingToolViewModel.swift */; };
+		455856DCB77885871E7B0BF1 /* AGENTS.md in Resources */ = {isa = PBXBuildFile; fileRef = F663E4E0F402816408E73985 /* AGENTS.md */; };
 		4570C0B03CA5B8EBEC468447 /* ReleaseValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FBA3134479B6910D3DA00F /* ReleaseValidationTests.swift */; };
 		4E4E74A8FDC010A0D5D7F016 /* PortScannerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D0639915AD65E638EEDD4F /* PortScannerService.swift */; };
 		4F531E52F9283E780A11AD31 /* ToolClearButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE3BC8C2E8587C19E12A25C /* ToolClearButton.swift */; };
@@ -63,6 +64,7 @@
 		6D292D027E89D59621C61A56 /* TracerouteServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2DE7F8A1D8140441C29A3B2 /* TracerouteServiceTests.swift */; };
 		6E219562B499458149411F24 /* WHOISService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FFC87A4EBFEAB564F0178D /* WHOISService.swift */; };
 		70419668B81796FE25832D0C /* WHOISToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00DDA09529821F58C318E6C6 /* WHOISToolViewModel.swift */; };
+		71F5ADBCA94B1798416E37D3 /* AGENTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 0D0DAD10F0867720E61463A7 /* AGENTS.md */; };
 		732AA69F1B1BC34179E36777 /* PortScannerToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41F0806162B69692648E7C1 /* PortScannerToolView.swift */; };
 		74C5F4ACECF71AB1BDDD3988 /* WebBrowserToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46A287C8ECD0F052392BEFA /* WebBrowserToolUITests.swift */; };
 		768CD1ABF37484D6D02E319B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3330E2C0C120D6F9187854C1 /* NotificationService.swift */; };
@@ -79,6 +81,7 @@
 		93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02055F2010A87B108B40DBFF /* StatusBadge.swift */; };
 		9931234D8F8D2221970329E2 /* PingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666B7D3676F199D98F8CDAE6 /* PingService.swift */; };
 		9C9BBC1AC61F0156A8BD5392 /* DeviceDetailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A646E79542AEFD3909B20A49 /* DeviceDetailTests.swift */; };
+		9E41A87AF814A200C4E4E613 /* AGENTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 114C355309E530FABE644CEE /* AGENTS.md */; };
 		A19AA65044A768070E0B27F1 /* AcknowledgementsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC756E2336E647D823BBDE1 /* AcknowledgementsView.swift */; };
 		A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D89D07B0E8D95EB1314E86 /* SettingsView.swift */; };
 		A49D49DDC8B85C89E044A89E /* NetworkMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66834196F05AEFC207F67B35 /* NetworkMapView.swift */; };
@@ -176,7 +179,9 @@
 		068D4AB44B05423AD51452A7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		094CFA7360143B82F75A7EB1 /* ToolRunButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolRunButton.swift; sourceTree = "<group>"; };
 		0C21CEEC269150806B5E9A01 /* NetworkMonitorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorServiceTests.swift; sourceTree = "<group>"; };
+		0D0DAD10F0867720E61463A7 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 		110DB4CFEECABA7B5E602E41 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		114C355309E530FABE644CEE /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 		11F33C41DE10E2CC3130A710 /* WakeOnLANToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeOnLANToolUITests.swift; sourceTree = "<group>"; };
 		12104D7EB06574920F40B209 /* BonjourDiscoveryToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryToolViewModel.swift; sourceTree = "<group>"; };
 		141BF850FCC550338D72B7AF /* ToolResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResultRow.swift; sourceTree = "<group>"; };
@@ -286,6 +291,7 @@
 		EC6C836F46733E8C1871D2A9 /* NetworkUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkUtilities.swift; sourceTree = "<group>"; };
 		F282C93176A947FBB4B39CA7 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		F491EB25FB029F43E2903652 /* WHOISToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISToolView.swift; sourceTree = "<group>"; };
+		F663E4E0F402816408E73985 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 		F72A5E2B2F8BD0FF46273248 /* PortScannerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerServiceTests.swift; sourceTree = "<group>"; };
 		F9221B9C9029F3BF5BAFD30B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F935F449C1BAA19590AF1C33 /* WebBrowserToolScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebBrowserToolScreen.swift; sourceTree = "<group>"; };
@@ -515,6 +521,7 @@
 		8674D2D4D3E4C12484A85A1C /* NetmonitorWidget */ = {
 			isa = PBXGroup;
 			children = (
+				114C355309E530FABE644CEE /* AGENTS.md */,
 				F9221B9C9029F3BF5BAFD30B /* Info.plist */,
 				2D56F218753419E73147F262 /* NetmonitorWidget.swift */,
 			);
@@ -524,6 +531,7 @@
 		90188B6011C0D23757D7E68F /* NetmonitorTests */ = {
 			isa = PBXGroup;
 			children = (
+				0D0DAD10F0867720E61463A7 /* AGENTS.md */,
 				A646E79542AEFD3909B20A49 /* DeviceDetailTests.swift */,
 				B0A56CB9F9017D327E732650 /* DNSLookupServiceTests.swift */,
 				BA362BD9D2F3CA940C445512 /* ModelTests.swift */,
@@ -601,6 +609,7 @@
 			children = (
 				07807DDF2EA0C4F5D5AF87D2 /* Screens */,
 				CCBA161C188A15A2791796E4 /* Tests */,
+				F663E4E0F402816408E73985 /* AGENTS.md */,
 			);
 			path = NetmonitorUITests;
 			sourceTree = "<group>";
@@ -613,6 +622,7 @@
 			buildConfigurationList = 518BC8BC7E006A4C2FACB37B /* Build configuration list for PBXNativeTarget "NetmonitorWidget" */;
 			buildPhases = (
 				35C9F1F7E9BFA0E96B376CF8 /* Sources */,
+				84A04DE209514EBC4C55B83C /* Resources */,
 			);
 			buildRules = (
 			);
@@ -652,6 +662,7 @@
 			buildConfigurationList = 3CC895F814DE05D02107BF74 /* Build configuration list for PBXNativeTarget "NetmonitorUITests" */;
 			buildPhases = (
 				F28714E010D4F1493B8186C1 /* Sources */,
+				B1A526912EDDD7BFB994D554 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -670,6 +681,7 @@
 			buildConfigurationList = 97B8197AC71FF12A8F4308A0 /* Build configuration list for PBXNativeTarget "NetmonitorTests" */;
 			buildPhases = (
 				A579111FD803CE2CA4DC0834 /* Sources */,
+				C6B34B2E935749E2CB0D9F13 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -693,16 +705,20 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					026FFA41F548DE0442193D0B = {
+						DevelopmentTeam = 32XZRDTGK3;
 						ProvisioningStyle = Automatic;
 					};
 					1CB53BBB8E31ABF6DEF09F03 = {
+						DevelopmentTeam = 32XZRDTGK3;
 						ProvisioningStyle = Automatic;
 					};
 					1F53142EC8B4DEC7B88428FC = {
+						DevelopmentTeam = 32XZRDTGK3;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 1CB53BBB8E31ABF6DEF09F03;
 					};
 					815EE789D9D62C3D185884F9 = {
+						DevelopmentTeam = 32XZRDTGK3;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -739,6 +755,30 @@
 			files = (
 				26A8AD63310A016D0E197E7B /* Assets.xcassets in Resources */,
 				0CCCF61D6809602C14B4F17A /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84A04DE209514EBC4C55B83C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E41A87AF814A200C4E4E613 /* AGENTS.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B1A526912EDDD7BFB994D554 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				455856DCB77885871E7B0BF1 /* AGENTS.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6B34B2E935749E2CB0D9F13 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				71F5ADBCA94B1798416E37D3 /* AGENTS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -945,8 +985,9 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -960,6 +1001,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				ITSAppUsesNonExemptEncryption = NO;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1039,8 +1081,9 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 32XZRDTGK3;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1060,6 +1103,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Netmonitor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				ITSAppUsesNonExemptEncryption = NO;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
