@@ -16,6 +16,10 @@ final class BonjourDiscoveryToolViewModel {
     private let bonjourService: any BonjourDiscoveryServiceProtocol
     private var discoveryTask: Task<Void, Never>?
 
+    /// Monotonic counter so a finishing old stream doesn't clobber
+    /// state that belongs to a newer discovery run.
+    private var runID: UInt64 = 0
+
     init(bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()) {
         self.bonjourService = bonjourService
     }
@@ -33,7 +37,14 @@ final class BonjourDiscoveryToolViewModel {
     // MARK: - Actions
 
     func startDiscovery() {
-        stopDiscovery()
+        // Cancel the previous task (if any) without going through stopDiscovery,
+        // because stopDiscovery resets isDiscovering and we're about to set it true.
+        discoveryTask?.cancel()
+        discoveryTask = nil
+
+        runID &+= 1
+        let currentRun = runID
+
         isDiscovering = true
         hasDiscoveredOnce = true
         errorMessage = nil
@@ -43,12 +54,14 @@ final class BonjourDiscoveryToolViewModel {
             let stream = bonjourService.discoveryStream(serviceType: nil)
 
             for await service in stream {
-                // Only append if not cancelled
-                guard !Task.isCancelled else { break }
+                guard !Task.isCancelled, currentRun == runID else { break }
                 services.append(service)
             }
 
-            // Stream ended - discovery stopped
+            // Only update state if this is still the active run.
+            // Prevents a stale task from resetting isDiscovering after
+            // a new discovery was already started.
+            guard currentRun == runID else { return }
             isDiscovering = false
         }
     }

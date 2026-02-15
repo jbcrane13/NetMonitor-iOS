@@ -10,12 +10,16 @@ final class BonjourDiscoveryService {
 
     // MARK: - Private state
 
-    private var typeBrowsers: [NWBrowser] = []
+    private var browsers: [NWBrowser] = []
     private let queue = DispatchQueue(label: "com.netmonitor.bonjour")
     private var serviceContinuation: AsyncStream<BonjourService>.Continuation?
 
+    /// Monotonically increasing generation ID to prevent stale callbacks
+    /// from prior discovery sessions from polluting the current one.
+    private var generation: UInt64 = 0
+
     /// Tier 1: highest-yield service types — browsed immediately.
-    private let tier1ServiceTypes = [
+    private static let tier1ServiceTypes = [
         "_http._tcp",
         "_https._tcp",
         "_smb._tcp",
@@ -24,9 +28,9 @@ final class BonjourDiscoveryService {
         "_raop._tcp",
     ]
 
-    /// Tier 2: remaining types — browsed after a 5-second delay to reduce
+    /// Tier 2: remaining types — browsed after a short delay to reduce
     /// initial resource pressure during the critical scan window.
-    private let tier2ServiceTypes = [
+    private static let tier2ServiceTypes = [
         "_afpovertcp._tcp",
         "_printer._tcp",
         "_ipp._tcp",
@@ -41,116 +45,138 @@ final class BonjourDiscoveryService {
         "_workstation._tcp",
     ]
 
+    // MARK: - Tasks
+
+    private var tier2Task: Task<Void, Never>?
+    private var timeoutTask: Task<Void, Never>?
+
     // MARK: - Public API
 
     /// Returns an AsyncStream that yields newly discovered services as they are found.
+    /// The stream finishes when discovery is stopped or times out (30s).
     func discoveryStream(serviceType: String? = nil) -> AsyncStream<BonjourService> {
-        stopDiscovery()
+        // Tear down any previous session completely before starting a new one.
+        tearDown()
 
-        return AsyncStream { continuation in
+        generation &+= 1
+        let currentGen = generation
+
+        return AsyncStream { [weak self] continuation in
+            guard let self else {
+                continuation.finish()
+                return
+            }
+
             self.serviceContinuation = continuation
             self.isDiscovering = true
             self.discoveredServices = []
 
-            continuation.onTermination = { @Sendable _ in
-                Task { @MainActor in
-                    self.stopDiscovery()
-                }
-            }
+            // NOTE: We intentionally do NOT use onTermination to call stopDiscovery().
+            // That caused re-entrancy issues when starting a new stream while the old
+            // one was being torn down. Instead, we rely on explicit stop/tearDown calls.
 
-            self.startBrowsing(serviceType: serviceType)
+            self.startBrowsing(serviceType: serviceType, generation: currentGen)
         }
     }
 
     func startDiscovery(serviceType: String? = nil) {
-        stopDiscovery()
+        tearDown()
 
+        generation &+= 1
         isDiscovering = true
         discoveredServices = []
 
-        startBrowsing(serviceType: serviceType)
-    }
-
-    /// Task for auto-cleanup of browsers after timeout
-    private var browserCleanupTask: Task<Void, Never>?
-
-    /// Task that starts tier-2 browsers after a delay.
-    private var tier2Task: Task<Void, Never>?
-
-    private func startBrowsing(serviceType: String? = nil) {
-        if let type = serviceType {
-            browseServiceType(type)
-        } else {
-            // Tier 1: browse highest-yield types immediately
-            for type in tier1ServiceTypes {
-                browseServiceType(type)
-            }
-
-            // Tier 2: browse remaining types after 5-second delay
-            tier2Task?.cancel()
-            tier2Task = Task {
-                try? await Task.sleep(for: .seconds(5))
-                guard !Task.isCancelled else { return }
-                for type in self.tier2ServiceTypes {
-                    self.browseServiceType(type)
-                }
-            }
-
-            // Timeout cleanup for type browsers
-            browserCleanupTask?.cancel()
-            browserCleanupTask = Task {
-                try? await Task.sleep(for: .seconds(30))
-                guard !Task.isCancelled else { return }
-                self.cleanupBrowsersIfDiscovering()
-            }
-        }
+        startBrowsing(serviceType: serviceType, generation: generation)
     }
 
     func stopDiscovery() {
-        tier2Task?.cancel()
-        tier2Task = nil
-        browserCleanupTask?.cancel()
-        browserCleanupTask = nil
-
-        for typeBrowser in typeBrowsers {
-            typeBrowser.cancel()
-        }
-        typeBrowsers.removeAll()
-
-        serviceContinuation?.finish()
-        serviceContinuation = nil
-        isDiscovering = false
+        tearDown()
     }
 
-    private func cleanupBrowsersIfDiscovering() {
-        guard isDiscovering else { return }
-        for typeBrowser in typeBrowsers {
-            typeBrowser.cancel()
+    // MARK: - Private: browsing
+
+    private func startBrowsing(serviceType: String?, generation gen: UInt64) {
+        if let type = serviceType {
+            addBrowser(for: type, generation: gen)
+        } else {
+            // Tier 1: browse highest-yield types immediately
+            for type in Self.tier1ServiceTypes {
+                addBrowser(for: type, generation: gen)
+            }
+
+            // Tier 2: browse remaining types after 3-second delay
+            tier2Task = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(3))
+                guard !Task.isCancelled, let self, self.generation == gen else { return }
+                for type in Self.tier2ServiceTypes {
+                    self.addBrowser(for: type, generation: gen)
+                }
+            }
+
+            // Auto-finish after 30 seconds so the stream never hangs indefinitely.
+            timeoutTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(30))
+                guard !Task.isCancelled, let self, self.generation == gen else { return }
+                self.finishStream()
+            }
         }
-        typeBrowsers.removeAll()
     }
 
-    private func browseServiceType(_ type: String) {
+    private func addBrowser(for type: String, generation gen: UInt64) {
         let descriptor = NWBrowser.Descriptor.bonjour(type: type, domain: "local.")
         let parameters = NWParameters()
         parameters.includePeerToPeer = true
 
-        let typeBrowser = NWBrowser(for: descriptor, using: parameters)
+        let browser = NWBrowser(for: descriptor, using: parameters)
 
-        typeBrowser.stateUpdateHandler = { state in
+        browser.stateUpdateHandler = { [weak self] state in
             if case .failed(let error) = state {
-                print("Browser failed for \(type): \(error)")
+                Task { @MainActor [weak self] in
+                    guard let self, self.generation == gen else { return }
+                    print("[Bonjour] Browser failed for \(type): \(error)")
+                }
             }
         }
 
-        typeBrowser.browseResultsChangedHandler = { [weak self] _, changes in
+        browser.browseResultsChangedHandler = { [weak self] _, changes in
             Task { @MainActor [weak self] in
-                self?.handleChanges(changes)
+                guard let self, self.generation == gen else { return }
+                self.handleChanges(changes)
             }
         }
 
-        typeBrowser.start(queue: queue)
-        typeBrowsers.append(typeBrowser)
+        browser.start(queue: queue)
+        browsers.append(browser)
+    }
+
+    // MARK: - Private: teardown
+
+    /// Full cleanup: cancel browsers, finish the stream, reset state.
+    /// Safe to call multiple times.
+    private func tearDown() {
+        tier2Task?.cancel()
+        tier2Task = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+
+        for browser in browsers {
+            browser.cancel()
+        }
+        browsers.removeAll()
+
+        finishStream()
+    }
+
+    /// Finish the continuation and mark discovery as stopped.
+    /// Does NOT cancel browsers (use tearDown for full cleanup).
+    private func finishStream() {
+        // Grab and nil out the continuation before calling finish()
+        // to prevent any re-entrancy from yielding to a finished stream.
+        let cont = serviceContinuation
+        serviceContinuation = nil
+        cont?.finish()
+
+        isDiscovering = false
     }
 
     // MARK: - Change handling
@@ -165,10 +191,11 @@ final class BonjourDiscoveryService {
                         type: type,
                         domain: domain
                     )
-                    if !discoveredServices.contains(where: { $0.name == name && $0.type == type }) {
-                        discoveredServices.append(service)
-                        serviceContinuation?.yield(service)
+                    guard !discoveredServices.contains(where: { $0.name == name && $0.type == type }) else {
+                        continue
                     }
+                    discoveredServices.append(service)
+                    serviceContinuation?.yield(service)
                 }
             case .removed(let result):
                 if case let .service(name, type, _, _) = result.endpoint {
@@ -232,13 +259,17 @@ final class BonjourDiscoveryService {
                             continuation.resume(returning: nil)
                         }
                     }
-                case .failed, .cancelled, .waiting:
+                case .failed, .cancelled:
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
                         connection.cancel()
                         continuation.resume(returning: nil)
                     }
+                case .waiting:
+                    // Waiting means the network path isn't available yet.
+                    // Don't give up immediately — let the timeout handle it.
+                    break
                 default:
                     break
                 }
