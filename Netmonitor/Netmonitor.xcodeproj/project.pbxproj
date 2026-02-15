@@ -72,6 +72,7 @@
 		768CD1ABF37484D6D02E319B /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3330E2C0C120D6F9187854C1 /* NotificationService.swift */; };
 		789FE81948A1CC8ECD214624 /* ConnectionSettingsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B34C515927F2CC8519E3A62C /* ConnectionSettingsSection.swift */; };
 		7FA5EC92D12D53FC0787088C /* ToolsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 475DD181BC184D12F5543624 /* ToolsViewModel.swift */; };
+		81D6DA8413AAA9F2DD88DC35 /* ThermalThrottleMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C98E92E54857A2A3A060A7 /* ThermalThrottleMonitor.swift */; };
 		82C3FF91DC826AA8C2829150 /* ToolInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF9788D39F038C283A32FAA2 /* ToolInputField.swift */; };
 		83291089B4208E09260608EC /* BonjourToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70EB42A6AD07CC40DA9B5048 /* BonjourToolScreen.swift */; };
 		853470568D9C377F2B5A94B8 /* DNSLookupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57264957B282936BB6CC799 /* DNSLookupService.swift */; };
@@ -186,6 +187,7 @@
 		141BF850FCC550338D72B7AF /* ToolResultRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolResultRow.swift; sourceTree = "<group>"; };
 		1460CCF054EB88F3CD9F6644 /* PingServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingServiceTests.swift; sourceTree = "<group>"; };
 		1BE0EE4E5FA85674DDB58A4B /* WHOISServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISServiceTests.swift; sourceTree = "<group>"; };
+		22C98E92E54857A2A3A060A7 /* ThermalThrottleMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalThrottleMonitor.swift; sourceTree = "<group>"; };
 		22CD8D98B225B8C88636C6D3 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		23F7A275FD612584B1EBC235 /* SpeedTestToolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestToolViewModel.swift; sourceTree = "<group>"; };
 		24BC20BFC583C309ADC5735E /* ConnectionBudget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionBudget.swift; sourceTree = "<group>"; };
@@ -424,6 +426,7 @@
 				EC6C836F46733E8C1871D2A9 /* NetworkUtilities.swift */,
 				FB129EC3165CBDEDE8804667 /* Theme.swift */,
 				110DB4CFEECABA7B5E602E41 /* ThemeManager.swift */,
+				22C98E92E54857A2A3A060A7 /* ThermalThrottleMonitor.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -796,6 +799,7 @@
 				93A05B83467D52CD211A85C6 /* StatusBadge.swift in Sources */,
 				20C3BA6DE62F5ACDA3B453B4 /* Theme.swift in Sources */,
 				33C709A5115DA253049C365A /* ThemeManager.swift in Sources */,
+				81D6DA8413AAA9F2DD88DC35 /* ThermalThrottleMonitor.swift in Sources */,
 				4F531E52F9283E780A11AD31 /* ToolClearButton.swift in Sources */,
 				82C3FF91DC826AA8C2829150 /* ToolInputField.swift in Sources */,
 				5FAA81F8BE68F5E188691505 /* ToolModels.swift in Sources */,

@@ -129,7 +129,7 @@ final class DeviceDiscoveryService {
         let totalHosts = scanTarget.hosts.count
         var scannedCount = 0
         var lastFlushedProgress: Double = 0.05
-        let concurrencyLimit = maxConcurrentHosts
+        let concurrencyLimit = ThermalThrottleMonitor.shared.effectiveLimit(from: maxConcurrentHosts)
 
         if totalHosts > 0 {
             // Collect ARP results as soon as available (runs concurrently)

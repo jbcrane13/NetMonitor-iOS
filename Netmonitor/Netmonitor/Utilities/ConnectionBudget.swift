@@ -17,9 +17,14 @@ actor ConnectionBudget {
         self.limit = limit
     }
 
+    /// Effective limit factoring in device thermal state.
+    private var effectiveLimit: Int {
+        ThermalThrottleMonitor.shared.effectiveLimit(from: limit)
+    }
+
     /// Wait until a connection slot is available, then claim it.
     func acquire() async {
-        if active < limit {
+        if active < effectiveLimit {
             active += 1
             return
         }
@@ -32,7 +37,7 @@ actor ConnectionBudget {
     /// Release a connection slot, waking the next waiter if any.
     func release() {
         active = max(active - 1, 0)
-        if !waiters.isEmpty, active < limit {
+        if !waiters.isEmpty, active < effectiveLimit {
             let next = waiters.removeFirst()
             next.resume()
         }
