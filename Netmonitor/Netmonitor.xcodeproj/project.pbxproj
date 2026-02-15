@@ -59,6 +59,7 @@
 		5FE0072C887CBDE80906DE5D /* DataExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA287DBFBE09678EC985C93 /* DataExportService.swift */; };
 		62F379F0056A093B0F278D7B /* WakeOnLANToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F33C41DE10E2CC3130A710 /* WakeOnLANToolUITests.swift */; };
 		63678DA20462B25232AB7CB0 /* WHOISToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F491EB25FB029F43E2903652 /* WHOISToolView.swift */; };
+		64F1F0E61A66359AB631A834 /* ScanAccumulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFDB3FA4FDEF4799CD6C45C1 /* ScanAccumulator.swift */; };
 		64F772407662E1179C6BFEC7 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F282C93176A947FBB4B39CA7 /* SettingsViewModel.swift */; };
 		661489E4BA376D9671E26FD4 /* WiFiInfoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20B3812E7C48E706707F58D /* WiFiInfoService.swift */; };
 		6A19495C881E6A891E728FBB /* TracerouteToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD4DF932DF87619B7FF51B9 /* TracerouteToolUITests.swift */; };
@@ -290,6 +291,7 @@
 		E928E200BB8550F0EF03B248 /* ConcurrencyHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrencyHelpers.swift; sourceTree = "<group>"; };
 		EA6AFFA75177ABCBE889D3BB /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
 		EC6C836F46733E8C1871D2A9 /* NetworkUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkUtilities.swift; sourceTree = "<group>"; };
+		EFDB3FA4FDEF4799CD6C45C1 /* ScanAccumulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanAccumulator.swift; sourceTree = "<group>"; };
 		F282C93176A947FBB4B39CA7 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		F491EB25FB029F43E2903652 /* WHOISToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHOISToolView.swift; sourceTree = "<group>"; };
 		F72A5E2B2F8BD0FF46273248 /* PortScannerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortScannerServiceTests.swift; sourceTree = "<group>"; };
@@ -492,6 +494,7 @@
 				666B7D3676F199D98F8CDAE6 /* PingService.swift */,
 				C2D0639915AD65E638EEDD4F /* PortScannerService.swift */,
 				C207EB5D98191A0B7F0C582B /* PublicIPService.swift */,
+				EFDB3FA4FDEF4799CD6C45C1 /* ScanAccumulator.swift */,
 				61A684E333115E6A9D9307FB /* ServiceProtocols.swift */,
 				9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */,
 				52FF2D8858DC7777706B50FF /* TracerouteService.swift */,
@@ -783,6 +786,7 @@
 				732AA69F1B1BC34179E36777 /* PortScannerToolView.swift in Sources */,
 				3BE8993F1F9B0295A1871DDF /* PortScannerToolViewModel.swift in Sources */,
 				506524F1FFC2B56EAFC59961 /* PublicIPService.swift in Sources */,
+				64F1F0E61A66359AB631A834 /* ScanAccumulator.swift in Sources */,
 				3CEA7B6B11E62E6007542511 /* ServiceProtocols.swift in Sources */,
 				A26782560B084D8276EAABE9 /* SettingsView.swift in Sources */,
 				64F772407662E1179C6BFEC7 /* SettingsViewModel.swift in Sources */,

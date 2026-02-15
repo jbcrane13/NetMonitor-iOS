@@ -105,7 +105,7 @@ enum ARPCacheScanner: Sendable {
         // Single byte payload — we just need the kernel to ARP-resolve the destination
         var payload: UInt8 = 0
 
-        for host in hosts {
+        for (index, host) in hosts.enumerated() {
             var addr = sockaddr_in()
             addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
             addr.sin_family = sa_family_t(AF_INET)
@@ -117,6 +117,11 @@ enum ARPCacheScanner: Sendable {
                     _ = sendto(sock, &payload, 1, MSG_DONTWAIT,
                                sockPtr, socklen_t(MemoryLayout<sockaddr_in>.size))
                 }
+            }
+
+            // Rate-limit: 20ms pause every 50 packets to avoid UDP flood
+            if (index + 1) % 50 == 0 {
+                usleep(20_000)
             }
         }
     }

@@ -2,20 +2,20 @@ import Foundation
 import Network
 import SwiftData
 
+@MainActor
 @Observable
-final class DeviceDiscoveryService: @unchecked Sendable {
-    @MainActor static let shared = DeviceDiscoveryService()
+final class DeviceDiscoveryService {
+    static let shared = DeviceDiscoveryService()
 
-    @MainActor
     private init() {}
 
     // MARK: - Observable properties (read by SwiftUI on MainActor)
 
-    @MainActor private(set) var discoveredDevices: [DiscoveredDevice] = []
-    @MainActor private(set) var isScanning: Bool = false
-    @MainActor private(set) var scanProgress: Double = 0
-    @MainActor private(set) var scanPhase: ScanPhase = .idle
-    @MainActor private(set) var lastScanDate: Date?
+    private(set) var discoveredDevices: [DiscoveredDevice] = []
+    private(set) var isScanning: Bool = false
+    private(set) var scanProgress: Double = 0
+    private(set) var scanPhase: ScanPhase = .idle
+    private(set) var lastScanDate: Date?
 
     enum ScanPhase: String, Sendable {
         case idle = ""
@@ -51,21 +51,16 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     // MARK: - Private state
 
-    /// Working buffer for device accumulation during scan (accessed off MainActor).
-    private var pendingDevices: [DiscoveredDevice] = []
-    private var pendingIndexByIP: [String: Int] = [:]
+    private let accumulator = ScanAccumulator()
 
     private var scanTask: Task<Void, Never>?
 
-    private let maxConcurrentHosts = 24
+    private let maxConcurrentHosts = 12
     private let maxHostsPerScan = 1024
     private let maxBonjourServiceResolves = 100
     private let maxBonjourResolveConcurrency = 8
 
     private let nameResolver = DeviceNameResolver()
-
-    /// Last progress value that was flushed to MainActor, used for 2% throttling.
-    private var lastFlushedProgress: Double = 0
 
     private nonisolated static let probeQueue = DispatchQueue(label: "com.netmonitor.probe", qos: .userInitiated, attributes: .concurrent)
 
@@ -81,91 +76,58 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     // MARK: - Batched UI update helpers
 
-    /// Flush pending devices and progress to MainActor.
+    /// Flush accumulated devices and progress to UI.
     private func flushToMainActor(progress: Double? = nil, phase: ScanPhase? = nil) async {
-        let devices = pendingDevices
-        let indexByIP = pendingIndexByIP
-        let prog = progress
-        let ph = phase
-        await MainActor.run {
-            self.discoveredDevices = devices
-            if let prog { self.scanProgress = prog }
-            if let ph { self.scanPhase = ph }
-            // Keep private index in sync — not strictly needed on MainActor
-            // but ensures consistency if someone reads discoveredDevices.count
-            _ = indexByIP  // suppress unused warning
-        }
-    }
-
-    /// Conditionally flush progress if it changed by >= 2% since last flush.
-    private func throttledProgressFlush(_ progress: Double) async {
-        guard progress - lastFlushedProgress >= 0.02 else { return }
-        lastFlushedProgress = progress
-        let devices = pendingDevices
-        await MainActor.run {
-            self.discoveredDevices = devices
-            self.scanProgress = progress
-        }
+        let devices = await accumulator.snapshot()
+        self.discoveredDevices = devices
+        if let progress { self.scanProgress = progress }
+        if let phase { self.scanPhase = phase }
     }
 
     // MARK: - Public API
 
     func scanNetwork(subnet: String? = nil) async {
-        let alreadyScanning = await MainActor.run { isScanning }
-        guard !alreadyScanning else { return }
+        guard !isScanning else { return }
 
-        // Reset working buffer
-        pendingDevices = []
-        pendingIndexByIP = [:]
-        lastFlushedProgress = 0
-
-        await MainActor.run {
-            self.isScanning = true
-            self.scanProgress = 0
-            self.scanPhase = .arpScan
-            self.discoveredDevices = []
-        }
+        await accumulator.reset()
+        isScanning = true
+        scanProgress = 0
+        scanPhase = .arpScan
+        discoveredDevices = []
 
         defer {
-            Task { @MainActor in
-                self.isScanning = false
-                self.scanPhase = .idle
-                self.lastScanDate = Date()
-            }
+            isScanning = false
+            scanPhase = .idle
+            lastScanDate = Date()
         }
 
         let scanTarget = makeScanTarget(subnet: subnet)
 
         // If paired with Mac, kick off its scan early (it runs in parallel)
-        let macConnection = await MainActor.run { MacConnectionService.shared }
-        let macConnected = await MainActor.run { macConnection.connectionState.isConnected }
+        let macConnection = MacConnectionService.shared
+        let macConnected = macConnection.connectionState.isConnected
         if macConnected {
             await macConnection.send(command: CommandPayload(action: .scanDevices))
         }
 
-        // Phase 0: ARP cache scan (fast, finds devices TCP probing misses)
-        let arpResults = await ARPCacheScanner.scanSubnet(hosts: scanTarget.hosts)
-        for (ip, mac) in arpResults {
-            upsertPendingDevice(DiscoveredDevice(
-                ipAddress: ip,
-                hostname: nil,
-                vendor: nil,
-                macAddress: mac,
-                latency: nil,
-                discoveredAt: Date(),
-                source: .local
-            ))
-        }
-        await flushToMainActor(progress: 0.30, phase: .tcpProbe)
+        // Phase 0: Fire ARP UDP probes (instant, synchronous — runs off MainActor)
+        await Self.fireARPProbes(hosts: scanTarget.hosts)
 
-        // Phase 1: Bonjour discovery — start early, let it accumulate during TCP probes
-        let bonjourService = await MainActor.run { BonjourDiscoveryService() }
-        await MainActor.run { bonjourService.startDiscovery() }
+        // Start Bonjour immediately after ARP probes
+        let bonjourService = BonjourDiscoveryService()
+        bonjourService.startDiscovery()
 
-        // Phase 2: TCP probes over computed host targets
+        // Read ARP cache concurrently with TCP probes (2s delay for ARP resolution)
+        async let arpFuture = Self.readARPCacheAfterDelay()
+
+        scanPhase = .tcpProbe
+        scanProgress = 0.05
+
+        // Phase 1: TCP probes (overlaps with ARP cache read)
         let totalHosts = scanTarget.hosts.count
         var scannedCount = 0
-        var localProgress: Double = 0.30
+        var lastFlushedProgress: Double = 0.05
+        let concurrencyLimit = maxConcurrentHosts
 
         if totalHosts > 0 {
             await withTaskGroup(of: DiscoveredDevice?.self) { group in
@@ -174,7 +136,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                 var scanning = true
 
                 while scanning {
-                    while pending < maxConcurrentHosts, let ip = hostIterator.next() {
+                    while pending < concurrencyLimit, let ip = hostIterator.next() {
                         pending += 1
                         group.addTask {
                             await Self.probeHost(ip)
@@ -185,45 +147,56 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                     pending -= 1
                     scannedCount += 1
 
-                    // TCP probes are 30–70% of progress
-                    localProgress = 0.30 + Double(scannedCount) / Double(totalHosts) * 0.40
+                    let progress = 0.05 + Double(scannedCount) / Double(totalHosts) * 0.55
 
                     if let device = result {
-                        upsertPendingDevice(device)
+                        await self.accumulator.upsert(device)
                     }
 
                     // Throttled flush: every 2% progress change
-                    await throttledProgressFlush(localProgress)
+                    if progress - lastFlushedProgress >= 0.02 {
+                        lastFlushedProgress = progress
+                        await self.flushToMainActor(progress: progress)
+                    }
 
                     // Check if scan was stopped
-                    scanning = await MainActor.run { self.isScanning }
+                    scanning = self.isScanning
                 }
             }
-        } else {
-            localProgress = 0.70
         }
 
-        // Flush all TCP probe results
-        await flushToMainActor(progress: 0.70, phase: .bonjour)
+        // Phase 2: Merge ARP results (should be ready by now)
+        let arpResults = await arpFuture
+        for (ip, mac) in arpResults {
+            await accumulator.upsert(DiscoveredDevice(
+                ipAddress: ip,
+                hostname: nil,
+                vendor: nil,
+                macAddress: mac,
+                latency: nil,
+                discoveredAt: Date(),
+                source: .local
+            ))
+        }
+        await flushToMainActor(progress: 0.65, phase: .bonjour)
 
-        // Phase 3: Bonjour post-probe wait + SSDP discovery run in parallel.
-        // Start SSDP collection immediately so it overlaps with the Bonjour wait.
+        // Phase 3: Bonjour post-probe wait + SSDP discovery run in parallel
         let ssdpFilter = scanTarget.filter
-        async let ssdpIPs = discoverSSDP()
+        async let ssdpIPs = Self.discoverSSDP()
 
         // Give Bonjour 5 seconds to catch late-arriving mDNS responses
         try? await Task.sleep(for: .seconds(5))
 
         // Merge Bonjour-discovered devices
-        let bonjourServices = await MainActor.run { bonjourService.discoveredServices }
+        let bonjourServices = bonjourService.discoveredServices
         await mergeBonjourDevices(bonjourServices, filter: scanTarget.filter)
-        await MainActor.run { bonjourService.stopDiscovery() }
+        bonjourService.stopDiscovery()
         await flushToMainActor(progress: 0.78, phase: .ssdp)
 
         // Phase 4: Merge SSDP results (already collected in parallel)
         let collectedSSDP = await ssdpIPs
         for ip in collectedSSDP where ssdpFilter.contains(ipAddress: ip) {
-            upsertPendingDevice(DiscoveredDevice(
+            await accumulator.upsert(DiscoveredDevice(
                 ipAddress: ip,
                 hostname: nil,
                 vendor: nil,
@@ -236,7 +209,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         await flushToMainActor(progress: 0.84, phase: .companion)
 
         // Phase 5: Merge Mac companion devices
-        let macStillConnected = await MainActor.run { macConnection.connectionState.isConnected }
+        let macStillConnected = macConnection.connectionState.isConnected
         if macStillConnected {
             await macConnection.send(command: CommandPayload(action: .refreshDevices))
             try? await Task.sleep(for: .seconds(1))
@@ -244,25 +217,38 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         await mergeCompanionDevices(filter: scanTarget.filter)
         await flushToMainActor(progress: 0.90, phase: .resolving)
 
-        // Phase 6: Resolve hostnames via reverse DNS for devices that don't have one.
+        // Phase 6: Resolve hostnames via reverse DNS for devices that don't have one
         await resolveHostnames()
         await flushToMainActor(progress: 0.98)
 
-        pendingDevices.sort { $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey }
-        rebuildPendingIndexByIP()
-
-        await flushToMainActor(progress: 1.0, phase: .done)
+        // Final sort and flush
+        let sorted = await accumulator.sortedSnapshot()
+        discoveredDevices = sorted
+        scanProgress = 1.0
+        scanPhase = .done
     }
 
-    @MainActor
     func stopScan() {
         isScanning = false
         scanTask?.cancel()
     }
 
+    // MARK: - ARP helpers
+
+    /// Fire ARP probes off MainActor to avoid blocking UI.
+    private nonisolated static func fireARPProbes(hosts: [String]) async {
+        ARPCacheScanner.populateARPCache(hosts: hosts)
+    }
+
+    /// Read ARP cache after a delay to allow resolution to complete.
+    private nonisolated static func readARPCacheAfterDelay() async -> [(ip: String, mac: String)] {
+        try? await Task.sleep(for: .seconds(2))
+        return ARPCacheScanner.readARPCache()
+    }
+
     // MARK: - Scan Target Planning
 
-    private func makeScanTarget(subnet: String?) -> ScanTarget {
+    private nonisolated func makeScanTarget(subnet: String?) -> ScanTarget {
         let localIP = NetworkUtilities.detectLocalIPAddress()
 
         if let subnet, !subnet.isEmpty {
@@ -303,14 +289,14 @@ final class DeviceDiscoveryService: @unchecked Sendable {
     // MARK: - SSDP / UPnP Discovery
 
     /// Send SSDP M-SEARCH multicast and collect responding device IPs.
-    private nonisolated func discoverSSDP() async -> [String] {
+    private nonisolated static func discoverSSDP() async -> [String] {
         let multicastGroup = "239.255.255.250"
         let multicastPort: UInt16 = 1900
         let searchMessage = [
             "M-SEARCH * HTTP/1.1",
             "HOST: 239.255.255.250:1900",
             "MAN: \"ssdp:discover\"",
-            "MX: 5",
+            "MX: 3",
             "ST: ssdp:all",
             "", ""
         ].joined(separator: "\r\n")
@@ -357,7 +343,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                     break
                 }
             }
-            connection.start(queue: Self.probeQueue)
+            connection.start(queue: probeQueue)
         }
 
         guard ready else {
@@ -369,16 +355,19 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         // Send M-SEARCH
         connection.send(content: messageData, completion: .contentProcessed { _ in })
 
-        // Collect responses for 5 seconds.
+        // Collect responses for 3 seconds with adaptive per-receive timeout
         var discoveredIPs: Set<String> = []
-        let deadline = Date().addingTimeInterval(5.0)
+        let deadline = Date().addingTimeInterval(3.0)
 
-        while Date() < deadline {
+        while true {
+            let remaining = deadline.timeIntervalSinceNow
+            guard remaining > 0.1 else { break }
+
             let response: Data? = await withCheckedContinuation { continuation in
                 let resumed = ResumeState()
 
                 let timeoutTask = Task {
-                    try? await Task.sleep(for: .milliseconds(500))
+                    try? await Task.sleep(for: .milliseconds(Int(min(remaining * 1000, 1000))))
                     guard await resumed.tryResume() else { return }
                     continuation.resume(returning: nil)
                 }
@@ -397,7 +386,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                 continue
             }
 
-            if let ip = Self.extractIPFromSSDPResponse(text) {
+            if let ip = extractIPFromSSDPResponse(text) {
                 discoveredIPs.insert(ip)
             }
         }
@@ -409,58 +398,58 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     /// Resolve hostnames for devices missing one via reverse DNS (PTR) lookup.
     private func resolveHostnames() async {
-        let devicesNeedingNames = pendingDevices.enumerated().filter { $0.element.hostname == nil }
+        let devices = await accumulator.snapshot()
+        let devicesNeedingNames = devices.filter { $0.hostname == nil }
         guard !devicesNeedingNames.isEmpty else { return }
 
-        let maxResolve = 10
-        await withTaskGroup(of: (Int, String?).self) { group in
+        let maxResolve = 20
+        await withTaskGroup(of: (String, String?).self) { group in
             var pending = 0
             var iterator = devicesNeedingNames.makeIterator()
 
-            while pending < maxResolve, let (index, device) = iterator.next() {
+            while pending < maxResolve, let device = iterator.next() {
                 pending += 1
                 group.addTask { [nameResolver] in
                     let name = await nameResolver.resolve(ipAddress: device.ipAddress, bonjourServices: [])
-                    return (index, name)
+                    return (device.ipAddress, name)
                 }
             }
 
-            for await (index, hostname) in group {
+            for await (ip, hostname) in group {
                 pending -= 1
 
-                if let hostname, index < pendingDevices.count {
-                    let existing = pendingDevices[index]
-                    pendingDevices[index] = DiscoveredDevice(
-                        ipAddress: existing.ipAddress,
+                if let hostname {
+                    await self.accumulator.upsert(DiscoveredDevice(
+                        ipAddress: ip,
                         hostname: hostname,
-                        vendor: existing.vendor,
-                        macAddress: existing.macAddress,
-                        latency: existing.latency,
-                        discoveredAt: existing.discoveredAt,
-                        source: existing.source
-                    )
+                        vendor: nil,
+                        macAddress: nil,
+                        latency: nil,
+                        discoveredAt: Date(),
+                        source: .local
+                    ))
                 }
 
-                if let (nextIndex, nextDevice) = iterator.next() {
+                if let nextDevice = iterator.next() {
                     pending += 1
                     group.addTask { [nameResolver] in
                         let name = await nameResolver.resolve(ipAddress: nextDevice.ipAddress, bonjourServices: [])
-                        return (nextIndex, name)
+                        return (nextDevice.ipAddress, name)
                     }
                 }
             }
         }
     }
 
-    /// Merge devices discovered by the paired Mac into pending results.
+    /// Merge devices discovered by the paired Mac into accumulated results.
     private func mergeCompanionDevices(filter: ScanFilter) async {
-        let macDevices = await MainActor.run { MacConnectionService.shared.lastDeviceList?.devices }
+        let macDevices = MacConnectionService.shared.lastDeviceList?.devices
         guard let macDevices else { return }
 
         for macDevice in macDevices where macDevice.isOnline {
             guard filter.contains(ipAddress: macDevice.ipAddress) else { continue }
 
-            upsertPendingDevice(DiscoveredDevice(
+            await accumulator.upsert(DiscoveredDevice(
                 ipAddress: macDevice.ipAddress,
                 hostname: macDevice.hostname,
                 vendor: macDevice.vendor,
@@ -642,7 +631,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
 
     // MARK: - Bonjour merge
 
-    /// Merge devices found via Bonjour service browsing into the pending device list.
+    /// Merge devices found via Bonjour service browsing into the accumulator.
     private func mergeBonjourDevices(_ services: [BonjourService], filter: ScanFilter) async {
         let uniqueServices = uniqueBonjourServices(from: services)
         let capped = Array(uniqueServices.prefix(maxBonjourServiceResolves))
@@ -664,7 +653,7 @@ final class DeviceDiscoveryService: @unchecked Sendable {
                 pending -= 1
 
                 if let device = result {
-                    upsertPendingDevice(device)
+                    await self.accumulator.upsert(device)
                 }
 
                 if let next = iterator.next() {
@@ -862,39 +851,6 @@ final class DeviceDiscoveryService: @unchecked Sendable {
         }
 
         return unique
-    }
-
-    // MARK: - Pending device dedup / merge helpers
-
-    private func upsertPendingDevice(_ device: DiscoveredDevice) {
-        if let existingIndex = pendingIndexByIP[device.ipAddress] {
-            let existing = pendingDevices[existingIndex]
-            pendingDevices[existingIndex] = mergedDevice(existing: existing, incoming: device)
-        } else {
-            pendingIndexByIP[device.ipAddress] = pendingDevices.count
-            pendingDevices.append(device)
-        }
-    }
-
-    private func rebuildPendingIndexByIP() {
-        pendingIndexByIP = [:]
-        pendingIndexByIP.reserveCapacity(pendingDevices.count)
-
-        for (index, device) in pendingDevices.enumerated() {
-            pendingIndexByIP[device.ipAddress] = index
-        }
-    }
-
-    private nonisolated func mergedDevice(existing: DiscoveredDevice, incoming: DiscoveredDevice) -> DiscoveredDevice {
-        DiscoveredDevice(
-            ipAddress: existing.ipAddress,
-            hostname: existing.hostname ?? incoming.hostname,
-            vendor: existing.vendor ?? incoming.vendor,
-            macAddress: existing.macAddress ?? incoming.macAddress,
-            latency: existing.latency ?? incoming.latency,
-            discoveredAt: existing.discoveredAt,
-            source: existing.source
-        )
     }
 }
 

@@ -57,7 +57,7 @@ final class DeviceNameResolver: Sendable {
                 await self.performPTRLookup(ipAddress: ipAddress)
             }
             group.addTask {
-                try? await Task.sleep(for: .seconds(3))
+                try? await Task.sleep(for: .seconds(1))
                 return nil
             }
             let result = await group.next()

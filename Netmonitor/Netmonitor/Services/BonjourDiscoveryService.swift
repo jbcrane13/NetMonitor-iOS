@@ -183,7 +183,6 @@ final class BonjourDiscoveryService {
 
     nonisolated func resolveService(_ service: BonjourService) async -> BonjourService? {
         await ConnectionBudget.shared.acquire()
-        defer { Task { await ConnectionBudget.shared.release() } }
 
         let endpoint = NWEndpoint.service(
             name: service.name,
@@ -193,9 +192,8 @@ final class BonjourDiscoveryService {
         )
 
         let connection = NWConnection(to: endpoint, using: .tcp)
-        defer { connection.cancel() }
 
-        return await withCheckedContinuation { continuation in
+        let result: BonjourService? = await withCheckedContinuation { continuation in
             let resumed = ResumeState()
 
             let timeoutTask = Task {
@@ -246,6 +244,10 @@ final class BonjourDiscoveryService {
 
             connection.start(queue: .global())
         }
+
+        connection.cancel()
+        await ConnectionBudget.shared.release()
+        return result
     }
 
     private nonisolated static func normalizeHostName(_ host: String) -> String {
