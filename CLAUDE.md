@@ -33,6 +33,13 @@ bd sync
 
 If you skip beads, your work is untracked and unverifiable. Use them.
 
+## Key Documents
+
+- **`docs/ADR.md`** — Architecture Decision Records. Read before making structural changes. Append when making new decisions.
+- **`ARCHITECTURE-REVIEW.md`** — Full services architecture review (2026-02-15). Details threading models, NWConnection counts, heat/battery analysis.
+- **`docs/IMPLEMENTATION_PLAN.md`** — Original implementation plan.
+- **`docs/NetMonitor iOS Companion - Product Requirements Document.md`** — PRD.
+
 ## Build & Development Commands
 
 ```bash
