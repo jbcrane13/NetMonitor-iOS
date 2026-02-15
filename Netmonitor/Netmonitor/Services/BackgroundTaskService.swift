@@ -71,7 +71,7 @@ final class BackgroundTaskService {
         // Schedule the next refresh
         scheduleRefreshTask()
 
-        let networkMonitor = NetworkMonitorService()
+        let networkMonitor = NetworkMonitorService.shared
         let gatewayService = GatewayService()
 
         var taskCancelled = false
@@ -119,7 +119,7 @@ final class BackgroundTaskService {
             task.setTaskCompleted(success: false)
         }
 
-        let networkMonitor = NetworkMonitorService()
+        let networkMonitor = NetworkMonitorService.shared
         let gatewayService = GatewayService()
         let publicIPService = PublicIPService()
 

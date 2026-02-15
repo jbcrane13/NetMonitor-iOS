@@ -16,7 +16,7 @@ final class DashboardViewModel {
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     
     init(
-        networkMonitor: any NetworkMonitorServiceProtocol = NetworkMonitorService(),
+        networkMonitor: any NetworkMonitorServiceProtocol = NetworkMonitorService.shared,
         wifiService: any WiFiInfoServiceProtocol = WiFiInfoService(),
         gatewayService: any GatewayServiceProtocol = GatewayService(),
         publicIPService: any PublicIPServiceProtocol = PublicIPService(),

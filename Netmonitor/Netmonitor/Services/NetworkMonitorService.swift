@@ -5,29 +5,44 @@ import Combine
 @MainActor
 @Observable
 final class NetworkMonitorService {
+
+    // MARK: - Shared Instance
+
+    /// Single shared monitor so every consumer reads the same, up-to-date
+    /// connectivity state.  Previous per-ViewModel instantiation caused a race
+    /// where the first render saw `isConnected == false` before the async
+    /// NWPathMonitor callback could fire — producing the "No Connection" flash.
+    static let shared = NetworkMonitorService()
+
     private(set) var isConnected: Bool = false
     private(set) var connectionType: ConnectionType = .none
     private(set) var isExpensive: Bool = false
     private(set) var isConstrained: Bool = false
     private(set) var interfaceName: String?
-    
+
     private var monitor: NWPathMonitor?
     private let queue = DispatchQueue(label: "com.netmonitor.networkmonitor")
-    
+
     init() {
         startMonitoring()
     }
-    
+
     func startMonitoring() {
         guard monitor == nil else { return }
-        
-        monitor = NWPathMonitor()
-        monitor?.pathUpdateHandler = { [weak self] path in
+
+        let newMonitor = NWPathMonitor()
+        newMonitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor [weak self] in
                 self?.updatePath(path)
             }
         }
-        monitor?.start(queue: queue)
+        newMonitor.start(queue: queue)
+        monitor = newMonitor
+
+        // Seed initial state synchronously from the monitor's currentPath so
+        // the very first SwiftUI render sees the real connectivity instead of
+        // the default `false` / `.none`.
+        updatePath(newMonitor.currentPath)
     }
     
     func stopMonitoring() {

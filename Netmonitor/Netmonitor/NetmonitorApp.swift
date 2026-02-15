@@ -38,6 +38,10 @@ struct NetmonitorApp: App {
                 .preferredColorScheme(resolvedColorScheme)
                 .accessibilityIdentifier("screen_main")
                 .onAppear {
+                    // Start network monitor early so the first dashboard render
+                    // sees real connectivity instead of the default "No Connection".
+                    _ = NetworkMonitorService.shared
+
                     BackgroundTaskService.shared.registerTasks()
                     BackgroundTaskService.shared.scheduleRefreshTask()
                     BackgroundTaskService.shared.scheduleSyncTask()
