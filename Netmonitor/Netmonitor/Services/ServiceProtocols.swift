@@ -16,11 +16,10 @@ protocol PortScannerServiceProtocol: AnyObject, Sendable {
 }
 
 /// Protocol for DNS lookup operations
-@MainActor
 protocol DNSLookupServiceProtocol: AnyObject {
-    var isLoading: Bool { get }
-    var lastError: String? { get }
-    func lookup(domain: String, recordType: DNSRecordType, server: String?) async -> DNSQueryResult?
+    @MainActor var isLoading: Bool { get }
+    @MainActor var lastError: String? { get }
+    @MainActor func lookup(domain: String, recordType: DNSRecordType, server: String?) async -> DNSQueryResult?
 }
 
 /// Protocol for WHOIS lookup operations
@@ -29,39 +28,36 @@ protocol WHOISServiceProtocol: AnyObject, Sendable {
 }
 
 /// Protocol for Wake on LAN operations
-@MainActor
 protocol WakeOnLANServiceProtocol {
-    var isSending: Bool { get }
-    var lastResult: WakeOnLANResult? { get }
-    var lastError: String? { get }
-    func wake(macAddress: String, broadcastAddress: String, port: UInt16) async -> Bool
+    @MainActor var isSending: Bool { get }
+    @MainActor var lastResult: WakeOnLANResult? { get }
+    @MainActor var lastError: String? { get }
+    @MainActor func wake(macAddress: String, broadcastAddress: String, port: UInt16) async -> Bool
 }
 
 /// Protocol for speed test operations
-@MainActor
 protocol SpeedTestServiceProtocol {
-    var downloadSpeed: Double { get }
-    var uploadSpeed: Double { get }
-    var latency: Double { get }
-    var progress: Double { get }
-    var phase: SpeedTestService.Phase { get }
-    var isRunning: Bool { get }
-    var errorMessage: String? { get }
-    var duration: TimeInterval { get set }
-    func startTest() async throws -> SpeedTestData
-    func stopTest()
+    @MainActor var downloadSpeed: Double { get }
+    @MainActor var uploadSpeed: Double { get }
+    @MainActor var latency: Double { get }
+    @MainActor var progress: Double { get }
+    @MainActor var phase: SpeedTestService.Phase { get }
+    @MainActor var isRunning: Bool { get }
+    @MainActor var errorMessage: String? { get }
+    @MainActor var duration: TimeInterval { get set }
+    @MainActor func startTest() async throws -> SpeedTestData
+    @MainActor func stopTest()
 }
 
 /// Protocol for network monitoring
-@MainActor
 protocol NetworkMonitorServiceProtocol {
-    var isConnected: Bool { get }
-    var connectionType: ConnectionType { get }
-    var isExpensive: Bool { get }
-    var isConstrained: Bool { get }
-    var statusText: String { get }
-    func startMonitoring()
-    func stopMonitoring()
+    @MainActor var isConnected: Bool { get }
+    @MainActor var connectionType: ConnectionType { get }
+    @MainActor var isExpensive: Bool { get }
+    @MainActor var isConstrained: Bool { get }
+    @MainActor var statusText: String { get }
+    @MainActor func startMonitoring()
+    @MainActor func stopMonitoring()
 }
 
 /// Protocol for device discovery
@@ -76,28 +72,25 @@ protocol DeviceDiscoveryServiceProtocol: AnyObject, Sendable {
 }
 
 /// Protocol for gateway detection
-@MainActor
 protocol GatewayServiceProtocol {
-    var gateway: GatewayInfo? { get }
-    var isLoading: Bool { get }
-    func detectGateway() async
+    @MainActor var gateway: GatewayInfo? { get }
+    @MainActor var isLoading: Bool { get }
+    @MainActor func detectGateway() async
 }
 
 /// Protocol for public IP lookup
-@MainActor
 protocol PublicIPServiceProtocol {
-    var ispInfo: ISPInfo? { get }
-    var isLoading: Bool { get }
-    func fetchPublicIP(forceRefresh: Bool) async
+    @MainActor var ispInfo: ISPInfo? { get }
+    @MainActor var isLoading: Bool { get }
+    @MainActor func fetchPublicIP(forceRefresh: Bool) async
 }
 
 /// Protocol for WiFi info
-@MainActor
 protocol WiFiInfoServiceProtocol {
-    var currentWiFi: WiFiInfo? { get }
-    var isLocationAuthorized: Bool { get }
-    func requestLocationPermission()
-    func refreshWiFiInfo()
+    @MainActor var currentWiFi: WiFiInfo? { get }
+    @MainActor var isLocationAuthorized: Bool { get }
+    @MainActor func requestLocationPermission()
+    @MainActor func refreshWiFiInfo()
 }
 
 /// Protocol for Bonjour discovery

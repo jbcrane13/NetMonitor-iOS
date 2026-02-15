@@ -5,9 +5,8 @@ import SwiftData
 @MainActor
 @Observable
 final class DeviceDiscoveryService {
+    /// Shared instance for app-wide use. Prefer injecting via init for testability.
     static let shared = DeviceDiscoveryService()
-
-    private init() {}
 
     // MARK: - Observable properties (read by SwiftUI on MainActor)
 
@@ -370,43 +369,42 @@ final class DeviceDiscoveryService {
         // Send M-SEARCH
         connection.send(content: messageData, completion: .contentProcessed { _ in })
 
-        // Collect responses for 3 seconds with adaptive per-receive timeout
-        var discoveredIPs: Set<String> = []
-        let deadline = Date().addingTimeInterval(3.0)
-
-        while true {
-            let remaining = deadline.timeIntervalSinceNow
-            guard remaining > 0.1 else { break }
-
-            let response: Data? = await withCheckedContinuation { continuation in
-                let resumed = ResumeState()
-
-                let timeoutTask = Task {
-                    try? await Task.sleep(for: .milliseconds(Int(min(remaining * 1000, 1000))))
-                    guard await resumed.tryResume() else { return }
-                    continuation.resume(returning: nil)
-                }
-
-                connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, _, _ in
-                    Task {
-                        guard await resumed.tryResume() else { return }
-                        timeoutTask.cancel()
-                        continuation.resume(returning: data)
+        // blg: Single receive loop using AsyncStream instead of busy-wait
+        let responses = AsyncStream<Data> { continuation in
+            func receiveNext() {
+                connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, isComplete, _ in
+                    if let data {
+                        continuation.yield(data)
+                    }
+                    if isComplete {
+                        continuation.finish()
+                    } else {
+                        receiveNext()
                     }
                 }
             }
-
-            guard let data = response,
-                  let text = String(data: data, encoding: .utf8) else {
-                continue
+            continuation.onTermination = { @Sendable _ in
+                connection.cancel()
             }
-
-            if let ip = extractIPFromSSDPResponse(text) {
-                discoveredIPs.insert(ip)
-            }
+            receiveNext()
         }
 
+        // Collect responses for 3 seconds, then stop
+        let collectTask = Task<Set<String>, Never> {
+            var ips: Set<String> = []
+            for await data in responses {
+                if let text = String(data: data, encoding: .utf8),
+                   let ip = extractIPFromSSDPResponse(text) {
+                    ips.insert(ip)
+                }
+            }
+            return ips
+        }
+
+        try? await Task.sleep(for: .seconds(3))
+        collectTask.cancel()
         connection.cancel()
+        let discoveredIPs = await collectTask.value
         return Array(discoveredIPs)
     }
 
