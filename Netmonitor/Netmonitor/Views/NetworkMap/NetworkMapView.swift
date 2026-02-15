@@ -94,7 +94,7 @@ struct NetworkMapView: View {
                 Spacer()
 
                 // Mac companion status
-                if MacConnectionService.shared.connectionState.isConnected {
+                if viewModel.macConnectionService.connectionState.isConnected {
                     VStack(alignment: .trailing, spacing: 4) {
                         HStack(spacing: 6) {
                             Image(systemName: "desktopcomputer")
@@ -103,7 +103,7 @@ struct NetworkMapView: View {
                                 .font(.caption)
                                 .foregroundStyle(Theme.Colors.textSecondary)
                         }
-                        Text(MacConnectionService.shared.connectedMacName ?? "Connected")
+                        Text(viewModel.macConnectionService.connectedMacName ?? "Connected")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundStyle(Theme.Colors.success)

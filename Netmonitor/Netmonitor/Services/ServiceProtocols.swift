@@ -1,6 +1,29 @@
 import Foundation
 import NetworkScanKit
 
+// MARK: - Top-Level Enums (decoupled from concrete service types)
+
+/// Speed test execution phases (extracted from SpeedTestService for protocol decoupling)
+enum SpeedTestPhase: String, Sendable {
+    case idle
+    case latency
+    case download
+    case upload
+    case complete
+}
+
+/// Device discovery scan display phases (extracted from DeviceDiscoveryService for protocol decoupling)
+enum ScanDisplayPhase: String, Sendable {
+    case idle = ""
+    case arpScan = "Scanning network…"
+    case tcpProbe = "Probing ports…"
+    case bonjour = "Bonjour discovery…"
+    case ssdp = "UPnP discovery…"
+    case companion = "Mac companion…"
+    case resolving = "Resolving names…"
+    case done = "Complete"
+}
+
 // MARK: - Service Protocols for Dependency Injection
 
 /// Protocol for ping operations
@@ -42,7 +65,7 @@ protocol SpeedTestServiceProtocol {
     @MainActor var uploadSpeed: Double { get }
     @MainActor var latency: Double { get }
     @MainActor var progress: Double { get }
-    @MainActor var phase: SpeedTestService.Phase { get }
+    @MainActor var phase: SpeedTestPhase { get }
     @MainActor var isRunning: Bool { get }
     @MainActor var errorMessage: String? { get }
     @MainActor var duration: TimeInterval { get set }
@@ -66,7 +89,7 @@ protocol DeviceDiscoveryServiceProtocol: AnyObject, Sendable {
     @MainActor var discoveredDevices: [DiscoveredDevice] { get }
     @MainActor var isScanning: Bool { get }
     @MainActor var scanProgress: Double { get }
-    @MainActor var scanPhase: DeviceDiscoveryService.ScanDisplayPhase { get }
+    @MainActor var scanPhase: ScanDisplayPhase { get }
     @MainActor var lastScanDate: Date? { get }
     func scanNetwork(subnet: String?) async
     @MainActor func stopScan()
@@ -110,6 +133,16 @@ protocol TracerouteServiceProtocol: AnyObject, Sendable {
     func stop() async
 }
 
+/// Protocol for MAC vendor lookup
+protocol MACVendorLookupServiceProtocol: AnyObject, Sendable {
+    func lookup(macAddress: String) async -> String?
+}
+
+/// Protocol for device name resolution
+protocol DeviceNameResolverProtocol: Sendable {
+    func resolve(ipAddress: String) async -> String?
+}
+
 // MARK: - Conformances
 
 extension PingService: PingServiceProtocol {}
@@ -125,3 +158,6 @@ extension PublicIPService: PublicIPServiceProtocol {}
 extension WiFiInfoService: WiFiInfoServiceProtocol {}
 extension BonjourDiscoveryService: BonjourDiscoveryServiceProtocol {}
 extension TracerouteService: TracerouteServiceProtocol {}
+extension MACVendorLookupService: MACVendorLookupServiceProtocol {}
+extension DeviceNameResolver: DeviceNameResolverProtocol {}
+// MacConnectionService declares conformance at its class definition

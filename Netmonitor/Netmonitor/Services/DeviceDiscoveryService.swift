@@ -17,17 +17,6 @@ final class DeviceDiscoveryService {
     private(set) var scanPhase: ScanDisplayPhase = .idle
     private(set) var lastScanDate: Date?
 
-    enum ScanDisplayPhase: String, Sendable {
-        case idle = ""
-        case arpScan = "Scanning network…"
-        case tcpProbe = "Probing ports…"
-        case bonjour = "Bonjour discovery…"
-        case ssdp = "UPnP discovery…"
-        case companion = "Mac companion…"
-        case resolving = "Resolving names…"
-        case done = "Complete"
-    }
-
     // MARK: - Private scan filter / target types
 
     private enum ScanFilter: Sendable {
@@ -52,8 +41,13 @@ final class DeviceDiscoveryService {
     // MARK: - Private state
 
     private let engine = ScanEngine()
+    private let macConnectionService: any MacConnectionServiceProtocol
 
     private var scanTask: Task<Void, Never>?
+
+    init(macConnectionService: any MacConnectionServiceProtocol = MacConnectionService.shared) {
+        self.macConnectionService = macConnectionService
+    }
 
     private let maxHostsPerScan = 1024
 
@@ -71,7 +65,14 @@ final class DeviceDiscoveryService {
 
     func scanNetwork(subnet: String? = nil) async {
         guard !isScanning else { return }
+        let task = Task {
+            await self.performScan(subnet: subnet)
+        }
+        scanTask = task
+        await task.value
+    }
 
+    private func performScan(subnet: String? = nil) async {
         await engine.reset()
         isScanning = true
         scanProgress = 0
@@ -87,10 +88,9 @@ final class DeviceDiscoveryService {
         let scanTarget = makeScanTarget(subnet: subnet)
 
         // If paired with Mac, kick off its scan early (it runs in parallel)
-        let macConnection = MacConnectionService.shared
-        let macConnected = macConnection.connectionState.isConnected
+        let macConnected = macConnectionService.connectionState.isConnected
         if macConnected {
-            await macConnection.send(command: CommandPayload(action: .scanDevices))
+            await macConnectionService.send(command: CommandPayload(action: .scanDevices))
         }
 
         // Start Bonjour discovery early — runs during ARP + TCP phases
@@ -140,9 +140,9 @@ final class DeviceDiscoveryService {
         scanPhase = .companion
         scanProgress = 0.90
 
-        let macStillConnected = macConnection.connectionState.isConnected
+        let macStillConnected = macConnectionService.connectionState.isConnected
         if macStillConnected {
-            await macConnection.send(command: CommandPayload(action: .refreshDevices))
+            await macConnectionService.send(command: CommandPayload(action: .refreshDevices))
             try? await Task.sleep(for: .seconds(1))
         }
         await mergeCompanionDevices(filter: scanTarget.filter)
@@ -204,7 +204,7 @@ final class DeviceDiscoveryService {
 
     /// Merge devices discovered by the paired Mac into accumulated results.
     private func mergeCompanionDevices(filter: ScanFilter) async {
-        let macDevices = MacConnectionService.shared.lastDeviceList?.devices
+        let macDevices = macConnectionService.lastDeviceList?.devices
         guard let macDevices else { return }
 
         for macDevice in macDevices where macDevice.isOnline {

@@ -44,7 +44,7 @@ final class DNSLookupToolViewModel {
         isLoading = true
         errorMessage = nil
 
-        let customServer = UserDefaults.standard.string(forKey: "dnsServer")
+        let customServer = UserDefaults.standard.string(forKey: AppSettings.Keys.dnsServer)
         let effectiveServer = (customServer?.isEmpty ?? true) ? nil : customServer
         result = await dnsService.lookup(
             domain: domain.trimmingCharacters(in: .whitespaces),

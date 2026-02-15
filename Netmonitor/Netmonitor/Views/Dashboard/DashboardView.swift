@@ -7,7 +7,7 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Theme.Layout.sectionSpacing) {
-                    ConnectionStatusHeader(viewModel: viewModel, macConnectionService: MacConnectionService.shared)
+                    ConnectionStatusHeader(viewModel: viewModel)
 
                     SessionCard(viewModel: viewModel)
 
@@ -56,14 +56,13 @@ struct DashboardView: View {
 
 struct ConnectionStatusHeader: View {
     let viewModel: DashboardViewModel
-    var macConnectionService: MacConnectionService?
 
     private var isMacConnected: Bool {
-        macConnectionService?.connectionState.isConnected == true
+        viewModel.macConnectionService.connectionState.isConnected
     }
 
     private var macName: String? {
-        macConnectionService?.connectedMacName
+        viewModel.macConnectionService.connectedMacName
     }
 
     var body: some View {

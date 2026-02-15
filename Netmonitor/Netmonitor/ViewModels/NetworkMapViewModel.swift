@@ -13,15 +13,18 @@ final class NetworkMapViewModel {
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     let gatewayService: any GatewayServiceProtocol
     let bonjourService: any BonjourDiscoveryServiceProtocol
+    let macConnectionService: any MacConnectionServiceProtocol
 
     init(
         deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared,
         gatewayService: any GatewayServiceProtocol = GatewayService(),
-        bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()
+        bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService(),
+        macConnectionService: any MacConnectionServiceProtocol = MacConnectionService.shared
     ) {
         self.deviceDiscoveryService = deviceDiscoveryService
         self.gatewayService = gatewayService
         self.bonjourService = bonjourService
+        self.macConnectionService = macConnectionService
     }
 
     var discoveredDevices: [DiscoveredDevice] {

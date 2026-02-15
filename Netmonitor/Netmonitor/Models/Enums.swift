@@ -169,7 +169,7 @@ enum ToolType: String, Codable, CaseIterable, Sendable {
         }
     }
     
-    var color: Color {
+    @MainActor var color: Color {
         switch self {
         case .ping: Theme.Colors.accent
         case .traceroute: Theme.Colors.info

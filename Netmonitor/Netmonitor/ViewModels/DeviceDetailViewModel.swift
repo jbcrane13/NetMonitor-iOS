@@ -11,12 +11,24 @@ final class DeviceDetailViewModel {
     var isScanning: Bool = false
     var isDiscovering: Bool = false
 
-    private let macLookupService = MACVendorLookupService()
-    private let nameResolver = DeviceNameResolver()
-    private let portScanner = PortScannerService()
-    private let bonjourService = BonjourDiscoveryService()
+    private let macLookupService: any MACVendorLookupServiceProtocol
+    private let nameResolver: any DeviceNameResolverProtocol
+    private let portScanner: any PortScannerServiceProtocol
+    private let bonjourService: any BonjourDiscoveryServiceProtocol
     private let maxServiceResolves = 80
     private let maxServiceResolveConcurrency = 8
+
+    init(
+        macLookupService: any MACVendorLookupServiceProtocol = MACVendorLookupService(),
+        nameResolver: any DeviceNameResolverProtocol = DeviceNameResolver(),
+        portScanner: any PortScannerServiceProtocol = PortScannerService(),
+        bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()
+    ) {
+        self.macLookupService = macLookupService
+        self.nameResolver = nameResolver
+        self.portScanner = portScanner
+        self.bonjourService = bonjourService
+    }
 
     // Common ports to scan
     private let commonPorts = [
@@ -113,7 +125,7 @@ final class DeviceDetailViewModel {
 
         // Phase 1: Collect services from stream (up to 10 seconds)
         var collectedServices: [BonjourService] = []
-        let stream = bonjourService.discoveryStream()
+        let stream = bonjourService.discoveryStream(serviceType: nil)
 
         let timeoutTask = Task {
             try? await Task.sleep(for: .seconds(10))
@@ -210,9 +222,7 @@ final class DeviceDetailViewModel {
     }
 
     private nonisolated static func isIPv4Address(_ value: String) -> Bool {
-        let components = value.split(separator: ".")
-        guard components.count == 4 else { return false }
-        return components.allSatisfy { UInt8($0) != nil }
+        ServiceUtilities.isIPv4Address(value)
     }
 
     private nonisolated static func resolveIPv4Addresses(for host: String) async -> [String] {

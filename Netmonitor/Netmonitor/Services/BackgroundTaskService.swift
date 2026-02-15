@@ -4,6 +4,7 @@ import SwiftData
 import NetworkScanKit
 import WidgetKit
 import Network
+import os
 
 /// Manages background task scheduling for periodic network checks
 @MainActor
@@ -34,14 +35,14 @@ final class BackgroundTaskService {
     // MARK: - Scheduling
 
     func scheduleRefreshTask() {
-        guard UserDefaults.standard.object(forKey: "backgroundRefreshEnabled") as? Bool ?? true else {
+        guard UserDefaults.standard.object(forKey: AppSettings.Keys.backgroundRefreshEnabled) as? Bool ?? true else {
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: Self.refreshTaskIdentifier)
             return
         }
         let request = BGAppRefreshTaskRequest(identifier: Self.refreshTaskIdentifier)
 
         // Respect user's refresh interval setting, but enforce BGTaskScheduler minimum of 15 minutes
-        let userInterval = UserDefaults.standard.integer(forKey: "autoRefreshInterval")
+        let userInterval = UserDefaults.standard.integer(forKey: AppSettings.Keys.autoRefreshInterval)
         let interval = userInterval > 0 ? TimeInterval(userInterval) : 60
         let effectiveInterval = max(15 * 60, interval)
 
@@ -72,18 +73,21 @@ final class BackgroundTaskService {
         scheduleRefreshTask()
 
         var taskCancelled = false
-        var didComplete = false
+        let completionGuard = OSAllocatedUnfairLock(initialState: false)
         func complete(_ success: Bool) {
-            guard !didComplete else { return }
-            didComplete = true
-            task.setTaskCompleted(success: success)
+            let shouldComplete = completionGuard.withLock { didComplete -> Bool in
+                guard !didComplete else { return false }
+                didComplete = true
+                return true
+            }
+            if shouldComplete {
+                task.setTaskCompleted(success: success)
+            }
         }
 
         // Ensure we complete the task exactly once
         defer {
-            if !didComplete {
-                complete(!taskCancelled)
-            }
+            complete(!taskCancelled)
         }
 
         // Check network status and update widget data
@@ -127,18 +131,21 @@ final class BackgroundTaskService {
         scheduleSyncTask()
 
         var taskCancelled = false
-        var didComplete = false
+        let completionGuard = OSAllocatedUnfairLock(initialState: false)
         func complete(_ success: Bool) {
-            guard !didComplete else { return }
-            didComplete = true
-            task.setTaskCompleted(success: success)
+            let shouldComplete = completionGuard.withLock { didComplete -> Bool in
+                guard !didComplete else { return false }
+                didComplete = true
+                return true
+            }
+            if shouldComplete {
+                task.setTaskCompleted(success: success)
+            }
         }
 
         // Ensure we complete the task exactly once
         defer {
-            if !didComplete {
-                complete(!taskCancelled)
-            }
+            complete(!taskCancelled)
         }
 
         task.expirationHandler = {

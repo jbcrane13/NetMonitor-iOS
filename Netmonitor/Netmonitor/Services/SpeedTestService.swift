@@ -1,5 +1,5 @@
 import Foundation
-import libkern
+import os
 
 /// Plain data struct returned from speed test (Sendable)
 struct SpeedTestData: Sendable {
@@ -12,25 +12,17 @@ struct SpeedTestData: Sendable {
 /// Service for measuring internet download/upload speed and latency
 @MainActor
 @Observable
-final class SpeedTestService: NSObject {
+final class SpeedTestService {
     // MARK: - Public State
 
     var downloadSpeed: Double = 0  // Mbps
     var uploadSpeed: Double = 0    // Mbps
     var latency: Double = 0        // ms
     var progress: Double = 0       // 0-1
-    var phase: Phase = .idle
+    var phase: SpeedTestPhase = .idle
     var isRunning: Bool = false
     var errorMessage: String?
     var duration: TimeInterval = 5.0  // seconds per phase
-
-    enum Phase: String, Sendable {
-        case idle
-        case latency
-        case download
-        case upload
-        case complete
-    }
 
     // MARK: - Private
 
@@ -260,19 +252,16 @@ final class SpeedTestService: NSObject {
 
 // MARK: - Thread-Safe Counter
 
-/// Lock-free atomic counter for parallel stream byte tracking
-final class AtomicInt64: @unchecked Sendable {
-    private let value = UnsafeMutablePointer<Int64>.allocate(capacity: 1)
-
-    init() { value.initialize(to: 0) }
-    deinit { value.deallocate() }
+/// Lock-based atomic counter for parallel stream byte tracking
+final class AtomicInt64: Sendable {
+    private let storage = OSAllocatedUnfairLock(initialState: Int64(0))
 
     func add(_ delta: Int64) {
-        OSAtomicAdd64(delta, value)
+        storage.withLock { $0 += delta }
     }
 
     func load() -> Int64 {
-        OSAtomicAdd64(0, value)
+        storage.withLock { $0 }
     }
 }
 

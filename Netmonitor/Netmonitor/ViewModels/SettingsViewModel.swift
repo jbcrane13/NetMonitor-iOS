@@ -10,67 +10,67 @@ final class SettingsViewModel {
     private let defaults = UserDefaults.standard
 
     var defaultPingCount: Int {
-        get { defaults.object(forKey: "defaultPingCount") as? Int ?? 4 }
-        set { defaults.set(newValue, forKey: "defaultPingCount") }
+        get { defaults.object(forKey: AppSettings.Keys.defaultPingCount) as? Int ?? 4 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.defaultPingCount) }
     }
 
     var pingTimeout: Double {
-        get { defaults.object(forKey: "pingTimeout") as? Double ?? 5.0 }
-        set { defaults.set(newValue, forKey: "pingTimeout") }
+        get { defaults.object(forKey: AppSettings.Keys.pingTimeout) as? Double ?? 5.0 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.pingTimeout) }
     }
 
     var portScanTimeout: Double {
-        get { defaults.object(forKey: "portScanTimeout") as? Double ?? 2.0 }
-        set { defaults.set(newValue, forKey: "portScanTimeout") }
+        get { defaults.object(forKey: AppSettings.Keys.portScanTimeout) as? Double ?? 2.0 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.portScanTimeout) }
     }
 
     var dnsServer: String {
-        get { defaults.string(forKey: "dnsServer") ?? "" }
-        set { defaults.set(newValue, forKey: "dnsServer") }
+        get { defaults.string(forKey: AppSettings.Keys.dnsServer) ?? "" }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.dnsServer) }
     }
 
     // MARK: - Data Settings
     var dataRetentionDays: Int {
-        get { defaults.object(forKey: "dataRetentionDays") as? Int ?? 30 }
-        set { defaults.set(newValue, forKey: "dataRetentionDays") }
+        get { defaults.object(forKey: AppSettings.Keys.dataRetentionDays) as? Int ?? 30 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.dataRetentionDays) }
     }
 
     var showDetailedResults: Bool {
-        get { defaults.object(forKey: "showDetailedResults") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "showDetailedResults") }
+        get { defaults.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.showDetailedResults) }
     }
 
     // MARK: - Monitoring Settings
     var autoRefreshInterval: Int {
-        get { defaults.object(forKey: "autoRefreshInterval") as? Int ?? 60 }
-        set { defaults.set(newValue, forKey: "autoRefreshInterval") }
+        get { defaults.object(forKey: AppSettings.Keys.autoRefreshInterval) as? Int ?? 60 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.autoRefreshInterval) }
     }
 
     var backgroundRefreshEnabled: Bool {
-        get { defaults.object(forKey: "backgroundRefreshEnabled") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "backgroundRefreshEnabled") }
+        get { defaults.object(forKey: AppSettings.Keys.backgroundRefreshEnabled) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.backgroundRefreshEnabled) }
     }
 
     // MARK: - Notification Settings
     var targetDownAlertEnabled: Bool {
-        get { defaults.object(forKey: "targetDownAlertEnabled") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "targetDownAlertEnabled") }
+        get { defaults.object(forKey: AppSettings.Keys.targetDownAlertEnabled) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.targetDownAlertEnabled) }
     }
 
     var highLatencyThreshold: Int {
-        get { defaults.object(forKey: "highLatencyThreshold") as? Int ?? 100 }
-        set { defaults.set(newValue, forKey: "highLatencyThreshold") }
+        get { defaults.object(forKey: AppSettings.Keys.highLatencyThreshold) as? Int ?? 100 }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.highLatencyThreshold) }
     }
 
     var newDeviceAlertEnabled: Bool {
-        get { defaults.object(forKey: "newDeviceAlertEnabled") as? Bool ?? true }
-        set { defaults.set(newValue, forKey: "newDeviceAlertEnabled") }
+        get { defaults.object(forKey: AppSettings.Keys.newDeviceAlertEnabled) as? Bool ?? true }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.newDeviceAlertEnabled) }
     }
 
     // MARK: - Appearance Settings
     var selectedTheme: String {
-        get { defaults.string(forKey: "selectedTheme") ?? "dark" }
-        set { defaults.set(newValue, forKey: "selectedTheme") }
+        get { defaults.string(forKey: AppSettings.Keys.selectedTheme) ?? "dark" }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.selectedTheme) }
     }
 
     var selectedAccentColor: String {
@@ -105,25 +105,7 @@ final class SettingsViewModel {
 
     /// Deletes ToolResult and SpeedTestResult records older than the configured retention period
     func pruneExpiredData(modelContext: ModelContext) {
-        let retentionDays = dataRetentionDays
-        guard retentionDays > 0 else { return }
-        let cutoff = Calendar.current.date(byAdding: .day, value: -retentionDays, to: Date()) ?? Date()
-
-        do {
-            try modelContext.delete(model: ToolResult.self, where: #Predicate { $0.timestamp < cutoff })
-        } catch {
-            print("Failed to prune old tool results: \(error)")
-        }
-        do {
-            try modelContext.delete(model: SpeedTestResult.self, where: #Predicate { $0.timestamp < cutoff })
-        } catch {
-            print("Failed to prune old speed test results: \(error)")
-        }
-        do {
-            try modelContext.save()
-        } catch {
-            print("Failed to save after pruning: \(error)")
-        }
+        DataMaintenanceService.pruneExpiredData(modelContext: modelContext)
     }
 
     func clearAllHistory(modelContext: ModelContext) {

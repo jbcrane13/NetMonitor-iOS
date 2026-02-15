@@ -7,7 +7,7 @@ final class PingToolViewModel {
     // MARK: - Input Properties
 
     var host: String = ""
-    var pingCount: Int = UserDefaults.standard.object(forKey: "defaultPingCount") as? Int ?? 4
+    var pingCount: Int = UserDefaults.standard.object(forKey: AppSettings.Keys.defaultPingCount) as? Int ?? 4
 
     // MARK: - State Properties
 
@@ -47,7 +47,7 @@ final class PingToolViewModel {
         isRunning = true
 
         pingTask = Task {
-            let timeout = UserDefaults.standard.object(forKey: "pingTimeout") as? Double ?? 5.0
+            let timeout = UserDefaults.standard.object(forKey: AppSettings.Keys.pingTimeout) as? Double ?? 5.0
             let stream = await pingService.ping(
                 host: host.trimmingCharacters(in: .whitespaces),
                 count: pingCount,

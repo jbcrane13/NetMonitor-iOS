@@ -2,15 +2,15 @@ import Foundation
 import dnssd
 import NetworkScanKit
 
+@MainActor
 @Observable
-final class DNSLookupService: @unchecked Sendable {
-    @MainActor private(set) var lastResult: DNSQueryResult?
-    @MainActor private(set) var isLoading: Bool = false
-    @MainActor private(set) var lastError: String?
+final class DNSLookupService {
+    private(set) var lastResult: DNSQueryResult?
+    private(set) var isLoading: Bool = false
+    private(set) var lastError: String?
 
-    @MainActor init() {}
+    init() {}
 
-    @MainActor
     func lookup(
         domain: String,
         recordType: DNSRecordType = .a,

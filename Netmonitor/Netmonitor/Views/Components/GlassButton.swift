@@ -47,7 +47,7 @@ struct GlassButton: View {
     var isLoading: Bool = false
     let action: () -> Void
     
-    enum Style {
+    @MainActor enum Style {
         case primary
         case secondary
         case success

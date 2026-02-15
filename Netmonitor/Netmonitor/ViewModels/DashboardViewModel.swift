@@ -14,19 +14,22 @@ final class DashboardViewModel {
     let gatewayService: any GatewayServiceProtocol
     let publicIPService: any PublicIPServiceProtocol
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
-    
+    let macConnectionService: any MacConnectionServiceProtocol
+
     init(
         networkMonitor: any NetworkMonitorServiceProtocol = NetworkMonitorService.shared,
         wifiService: any WiFiInfoServiceProtocol = WiFiInfoService(),
         gatewayService: any GatewayServiceProtocol = GatewayService(),
         publicIPService: any PublicIPServiceProtocol = PublicIPService(),
-        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared
+        deviceDiscoveryService: any DeviceDiscoveryServiceProtocol = DeviceDiscoveryService.shared,
+        macConnectionService: any MacConnectionServiceProtocol = MacConnectionService.shared
     ) {
         self.networkMonitor = networkMonitor
         self.wifiService = wifiService
         self.gatewayService = gatewayService
         self.publicIPService = publicIPService
         self.deviceDiscoveryService = deviceDiscoveryService
+        self.macConnectionService = macConnectionService
         self.sessionStartTime = Date()
     }
     
@@ -125,7 +128,7 @@ final class DashboardViewModel {
         stopAutoRefresh()
         autoRefreshTask = Task {
             while !Task.isCancelled {
-                let interval = UserDefaults.standard.object(forKey: "autoRefreshInterval") as? Int ?? 60
+                let interval = UserDefaults.standard.object(forKey: AppSettings.Keys.autoRefreshInterval) as? Int ?? 60
                 guard interval > 0 else {
                     // Manual mode — wait a bit then re-check in case user changes setting
                     try? await Task.sleep(for: .seconds(5))

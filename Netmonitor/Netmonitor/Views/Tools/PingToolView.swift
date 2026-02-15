@@ -137,7 +137,7 @@ struct PingToolView: View {
     // MARK: - Statistics Section
 
     private var showDetailedResults: Bool {
-        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
     }
 
     @ViewBuilder
@@ -199,7 +199,7 @@ struct PingToolView: View {
 private struct PingResultRow: View {
     let result: PingResult
     private var showDetailed: Bool {
-        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
     }
 
     var body: some View {

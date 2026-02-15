@@ -362,40 +362,6 @@ actor TracerouteService {
     // MARK: - DNS Resolution
 
     private nonisolated func resolveHostname(_ hostname: String) -> String? {
-        // Check if already an IP address
-        var testAddr = in_addr()
-        if inet_pton(AF_INET, hostname, &testAddr) == 1 {
-            return hostname
-        }
-
-        // Resolve via DNS
-        var hints = addrinfo()
-        hints.ai_family = AF_INET
-        hints.ai_socktype = SOCK_STREAM
-
-        var result: UnsafeMutablePointer<addrinfo>?
-        let status = getaddrinfo(hostname, nil, &hints, &result)
-
-        guard status == 0, let info = result else {
-            return nil
-        }
-        defer { freeaddrinfo(result) }
-
-        var hostnameBuffer = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-        if getnameinfo(
-            info.pointee.ai_addr,
-            socklen_t(info.pointee.ai_addrlen),
-            &hostnameBuffer,
-            socklen_t(hostnameBuffer.count),
-            nil,
-            0,
-            NI_NUMERICHOST
-        ) == 0 {
-            let length = strnlen(hostnameBuffer, hostnameBuffer.count)
-            let bytes = hostnameBuffer.prefix(length).map { UInt8(bitPattern: $0) }
-            return String(decoding: bytes, as: UTF8.self)
-        }
-
-        return nil
+        ServiceUtilities.resolveHostnameSync(hostname)
     }
 }

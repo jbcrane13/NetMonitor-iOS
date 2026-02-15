@@ -68,7 +68,7 @@ final class PortScannerToolViewModel {
         let ports = effectivePorts
 
         scanTask = Task {
-            let timeout = UserDefaults.standard.object(forKey: "portScanTimeout") as? Double ?? 2.0
+            let timeout = UserDefaults.standard.object(forKey: AppSettings.Keys.portScanTimeout) as? Double ?? 2.0
             let stream = await portScannerService.scan(
                 host: host.trimmingCharacters(in: .whitespaces),
                 ports: ports,

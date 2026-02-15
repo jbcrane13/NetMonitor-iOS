@@ -217,7 +217,7 @@ struct PortScannerToolView: View {
 private struct PortResultRow: View {
     let result: PortScanResult
     private var showDetailed: Bool {
-        UserDefaults.standard.object(forKey: "showDetailedResults") as? Bool ?? true
+        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
     }
 
     var body: some View {

@@ -52,8 +52,7 @@ struct NetmonitorApp: App {
                     }
 
                     // Prune data older than the configured retention period
-                    let context = sharedModelContainer.mainContext
-                    SettingsViewModel().pruneExpiredData(modelContext: context)
+                    DataMaintenanceService.pruneExpiredData(modelContext: sharedModelContainer.mainContext)
                 }
         }
         .modelContainer(sharedModelContainer)

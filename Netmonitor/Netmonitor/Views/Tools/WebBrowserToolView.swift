@@ -190,7 +190,7 @@ struct WebBrowserToolView: View {
     }
     
     private func loadRecentURLs() {
-        if let data = UserDefaults.standard.data(forKey: "webBrowser_recentURLs"),
+        if let data = UserDefaults.standard.data(forKey: AppSettings.Keys.webBrowserRecentURLs),
            let urls = try? JSONDecoder().decode([String].self, from: data) {
             recentURLs = urls
         }
@@ -198,7 +198,7 @@ struct WebBrowserToolView: View {
     
     private func saveRecentURLs() {
         if let data = try? JSONEncoder().encode(recentURLs) {
-            UserDefaults.standard.set(data, forKey: "webBrowser_recentURLs")
+            UserDefaults.standard.set(data, forKey: AppSettings.Keys.webBrowserRecentURLs)
         }
     }
 }

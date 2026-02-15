@@ -12,13 +12,13 @@ final class SpeedTestToolViewModel {
     var uploadSpeed: Double = 0
     var latency: Double = 0
     var progress: Double = 0
-    var phase: SpeedTestService.Phase = .idle
+    var phase: SpeedTestPhase = .idle
     var errorMessage: String?
-    var selectedDuration: TimeInterval = UserDefaults.standard.double(forKey: "speedTestDuration") > 0
-        ? UserDefaults.standard.double(forKey: "speedTestDuration")
+    var selectedDuration: TimeInterval = UserDefaults.standard.double(forKey: AppSettings.Keys.speedTestDuration) > 0
+        ? UserDefaults.standard.double(forKey: AppSettings.Keys.speedTestDuration)
         : 5.0 {
         didSet {
-            UserDefaults.standard.set(selectedDuration, forKey: "speedTestDuration")
+            UserDefaults.standard.set(selectedDuration, forKey: AppSettings.Keys.speedTestDuration)
         }
     }
 

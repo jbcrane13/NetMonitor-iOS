@@ -12,8 +12,8 @@ enum Theme {
         static let backgroundGradientEnd = Color(hex: "1E3A5F")   // blue-900
 
         // Primary accent — reads from ThemeManager for reactive updates
-        static var accent: Color { ThemeManager.shared.accent }
-        static var accentLight: Color { ThemeManager.shared.accentLight }
+        @MainActor static var accent: Color { ThemeManager.shared.accent }
+        @MainActor static var accentLight: Color { ThemeManager.shared.accentLight }
         
         // Semantic colors
         static let success = Color(hex: "10B981")     // emerald-500
@@ -27,7 +27,7 @@ enum Theme {
         static let textTertiary = Color.white.opacity(0.4)
         
         // Glass card colors - subtle tint for true glass effect
-        static var glassBackground: Color { accentLight.opacity(0.05) }
+        @MainActor static var glassBackground: Color { accentLight.opacity(0.05) }
         static let glassBorder = Color.white.opacity(0.15)
         static let glassHighlight = Color.white.opacity(0.1)
         
@@ -57,11 +57,13 @@ enum Theme {
             endPoint: .bottomTrailing
         )
         
-        static let accentGlow = LinearGradient(
-            colors: [Colors.accent.opacity(0.5), Colors.accent.opacity(0)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
+        @MainActor static var accentGlow: LinearGradient {
+            LinearGradient(
+                colors: [Colors.accent.opacity(0.5), Colors.accent.opacity(0)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
         
         static let cardShine = LinearGradient(
             colors: [Colors.glassHighlight, Color.clear],
@@ -107,7 +109,7 @@ enum Theme {
         static let cardRadius: CGFloat = 15
         static let cardY: CGFloat = 5
         
-        static var glow: Color { Colors.accent.opacity(0.3) }
+        @MainActor static var glow: Color { Colors.accent.opacity(0.3) }
         static let glowRadius: CGFloat = 20
     }
     

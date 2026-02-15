@@ -14,7 +14,7 @@ actor PingService {
 
     /// Dedicated queue isolates ping measurements from device scan traffic on .global().
     private nonisolated let pingQueue = DispatchQueue(label: "com.netmonitor.ping", qos: .userInteractive)
-    
+
     func ping(
         host: String,
         count: Int = 4,
@@ -56,12 +56,12 @@ actor PingService {
             }
         }
     }
-    
+
     func stop() async {
         isRunning = false
         activeRunID = nil
     }
-    
+
     private func beginRun() -> UUID {
         let runID = UUID()
         activeRunID = runID
@@ -78,37 +78,11 @@ actor PingService {
         activeRunID = nil
         isRunning = false
     }
-    
+
     private func resolveHost(_ host: String) async -> String? {
-        guard !isIPAddress(host) else { return host }
-        
-        return await withCheckedContinuation { continuation in
-            let host = CFHostCreateWithName(nil, host as CFString).takeRetainedValue()
-            var resolved = DarwinBoolean(false)
-            
-            CFHostStartInfoResolution(host, .addresses, nil)
-            
-            guard let addresses = CFHostGetAddressing(host, &resolved)?.takeUnretainedValue() as? [Data],
-                  let addressData = addresses.first else {
-                continuation.resume(returning: nil)
-                return
-            }
-            
-            var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-            addressData.withUnsafeBytes { ptr in
-                let sockaddr = ptr.bindMemory(to: sockaddr.self).baseAddress!
-                getnameinfo(sockaddr, socklen_t(addressData.count),
-                           &hostname, socklen_t(hostname.count),
-                           nil, 0, NI_NUMERICHOST)
-            }
-            
-            let length = strnlen(hostname, hostname.count)
-            let bytes = hostname.prefix(length).map { UInt8(bitPattern: $0) }
-            let ip = String(decoding: bytes, as: UTF8.self)
-            continuation.resume(returning: ip.isEmpty ? nil : ip)
-        }
+        await ServiceUtilities.resolveHostname(host)
     }
-    
+
     /// Try connecting to multiple common ports concurrently — succeed if ANY responds.
     /// Measures only the TCP handshake: timestamps captured synchronously on pingQueue,
     /// before any Task spawn or actor hop.
@@ -192,14 +166,7 @@ actor PingService {
             return (false, bestElapsed)
         }
     }
-    
-    private func isIPAddress(_ string: String) -> Bool {
-        var addr = in_addr()
-        var addr6 = in6_addr()
-        return inet_pton(AF_INET, string, &addr) == 1 ||
-               inet_pton(AF_INET6, string, &addr6) == 1
-    }
-    
+
     func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) async -> PingStatistics? {
         guard !results.isEmpty else { return nil }
 

@@ -1,12 +1,13 @@
 import SwiftUI
 
+@MainActor
 @Observable
 final class ThemeManager: @unchecked Sendable {
     static let shared = ThemeManager()
 
     var selectedAccentColor: String {
         didSet {
-            UserDefaults.standard.set(selectedAccentColor, forKey: "selectedAccentColor")
+            UserDefaults.standard.set(selectedAccentColor, forKey: AppSettings.Keys.selectedAccentColor)
         }
     }
 
@@ -19,7 +20,7 @@ final class ThemeManager: @unchecked Sendable {
     }
 
     private init() {
-        self.selectedAccentColor = UserDefaults.standard.string(forKey: "selectedAccentColor") ?? "cyan"
+        self.selectedAccentColor = UserDefaults.standard.string(forKey: AppSettings.Keys.selectedAccentColor) ?? "cyan"
     }
 
     private static func accentColor(for name: String) -> Color {

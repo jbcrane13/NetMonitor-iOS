@@ -80,7 +80,7 @@ final class NotificationService {
     // MARK: - Target Down Alert
 
     func notifyTargetDown(name: String, host: String) {
-        guard defaults.bool(forKey: "targetDownAlertEnabled") != false else { return }
+        guard defaults.bool(forKey: AppSettings.Keys.targetDownAlertEnabled) != false else { return }
 
         let content = UNMutableNotificationContent()
         content.title = "Target Down"
@@ -103,7 +103,7 @@ final class NotificationService {
     // MARK: - High Latency Alert
 
     func notifyHighLatency(host: String, latency: Double) {
-        let threshold = defaults.integer(forKey: "highLatencyThreshold")
+        let threshold = defaults.integer(forKey: AppSettings.Keys.highLatencyThreshold)
         let effectiveThreshold = threshold > 0 ? threshold : 100
 
         guard latency > Double(effectiveThreshold) else { return }
@@ -129,7 +129,7 @@ final class NotificationService {
     // MARK: - New Device Alert
 
     func notifyNewDevice(ipAddress: String, hostname: String?) {
-        guard defaults.bool(forKey: "newDeviceAlertEnabled") != false else { return }
+        guard defaults.bool(forKey: AppSettings.Keys.newDeviceAlertEnabled) != false else { return }
 
         let content = UNMutableNotificationContent()
         content.title = "New Device Detected"
