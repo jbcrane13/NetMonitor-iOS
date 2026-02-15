@@ -1,4 +1,5 @@
 import Foundation
+import NetworkScanKit
 
 @MainActor
 @Observable

@@ -1,4 +1,5 @@
 import SwiftUI
+import NetworkScanKit
 
 enum DeviceSortOrder: String, CaseIterable {
     case ip = "IP Address"

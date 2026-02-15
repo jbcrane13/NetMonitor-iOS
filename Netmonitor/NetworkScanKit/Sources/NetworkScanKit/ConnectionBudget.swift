@@ -4,16 +4,16 @@ import Foundation
 /// across all services to prevent kernel socket exhaustion, reduce CPU heat,
 /// and avoid GCD thread pool starvation.
 ///
-/// Services must call `acquire()` before creating an NWConnection and
-/// `release()` when the connection is cancelled or completes.
-actor ConnectionBudget {
-    static let shared = ConnectionBudget(limit: 30)
+/// Services must call ``acquire()`` before creating an NWConnection and
+/// ``release()`` when the connection is cancelled or completes.
+public actor ConnectionBudget {
+    public static let shared = ConnectionBudget(limit: 30)
 
     private let limit: Int
     private var active = 0
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
-    init(limit: Int) {
+    public init(limit: Int) {
         self.limit = limit
     }
 
@@ -23,7 +23,7 @@ actor ConnectionBudget {
     }
 
     /// Wait until a connection slot is available, then claim it.
-    func acquire() async {
+    public func acquire() async {
         if active < effectiveLimit {
             active += 1
             return
@@ -35,7 +35,7 @@ actor ConnectionBudget {
     }
 
     /// Release a connection slot, waking the next waiter if any.
-    func release() {
+    public func release() {
         active = max(active - 1, 0)
         if !waiters.isEmpty, active < effectiveLimit {
             let next = waiters.removeFirst()
@@ -44,5 +44,5 @@ actor ConnectionBudget {
     }
 
     /// Current number of active connections (for diagnostics).
-    var activeCount: Int { active }
+    public var activeCount: Int { active }
 }

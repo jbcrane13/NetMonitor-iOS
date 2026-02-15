@@ -1,6 +1,7 @@
 import Foundation
 import BackgroundTasks
 import SwiftData
+import NetworkScanKit
 import WidgetKit
 import Network
 

@@ -19,6 +19,10 @@ settings:
     TARGETED_DEVICE_FAMILY: "1,2"
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
 
+packages:
+  NetworkScanKit:
+    path: NetworkScanKit
+
 targets:
   Netmonitor:
     type: application
@@ -64,6 +68,7 @@ targets:
       - target: NetmonitorWidget
         embed: true
         codeSign: true
+      - package: NetworkScanKit
 
   NetmonitorWidget:
     type: app-extension

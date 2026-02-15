@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import NetworkScanKit
 
 @MainActor
 @Observable
@@ -73,7 +74,7 @@ final class DeviceDetailViewModel {
         if device.resolvedHostname == nil {
             let hostname: String? = await withTaskGroup(of: String?.self) { group in
                 group.addTask {
-                    await self.nameResolver.resolve(ipAddress: ipAddress, bonjourServices: bonjourServices)
+                    await self.nameResolver.resolve(ipAddress: ipAddress)
                 }
                 group.addTask {
                     try? await Task.sleep(for: .seconds(5))

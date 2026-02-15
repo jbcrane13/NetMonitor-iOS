@@ -1,5 +1,6 @@
 import Foundation
 import dnssd
+import NetworkScanKit
 
 @Observable
 final class DNSLookupService: @unchecked Sendable {

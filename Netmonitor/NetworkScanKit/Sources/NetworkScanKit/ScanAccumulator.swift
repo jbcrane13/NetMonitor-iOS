@@ -1,12 +1,13 @@
 import Foundation
 
 /// Thread-safe accumulator for discovered devices during network scanning.
-/// Replaces the unsafe `@unchecked Sendable` mutable state in DeviceDiscoveryService.
-actor ScanAccumulator {
+public actor ScanAccumulator {
     private var devices: [DiscoveredDevice] = []
     private var indexByIP: [String: Int] = [:]
 
-    func upsert(_ device: DiscoveredDevice) {
+    public init() {}
+
+    public func upsert(_ device: DiscoveredDevice) {
         if let existingIndex = indexByIP[device.ipAddress] {
             let existing = devices[existingIndex]
             devices[existingIndex] = Self.merged(existing: existing, incoming: device)
@@ -16,28 +17,28 @@ actor ScanAccumulator {
         }
     }
 
-    func contains(ip: String) -> Bool {
+    public func contains(ip: String) -> Bool {
         indexByIP[ip] != nil
     }
 
-    func knownIPs() -> Set<String> {
+    public func knownIPs() -> Set<String> {
         Set(indexByIP.keys)
     }
 
-    func snapshot() -> [DiscoveredDevice] {
+    public func snapshot() -> [DiscoveredDevice] {
         devices
     }
 
-    func sortedSnapshot() -> [DiscoveredDevice] {
+    public func sortedSnapshot() -> [DiscoveredDevice] {
         devices.sorted { $0.ipAddress.ipSortKey < $1.ipAddress.ipSortKey }
     }
 
-    func reset() {
+    public func reset() {
         devices = []
         indexByIP = [:]
     }
 
-    var count: Int { devices.count }
+    public var count: Int { devices.count }
 
     private static func merged(existing: DiscoveredDevice, incoming: DiscoveredDevice) -> DiscoveredDevice {
         DiscoveredDevice(

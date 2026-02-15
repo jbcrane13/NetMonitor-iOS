@@ -68,7 +68,7 @@ private struct SockaddrDL {
 /// the same approach used by Fing, Net Analyzer, and other top iOS scanners.
 ///
 /// Uses BSD sockets directly (no NWConnection, no ConnectionBudget needed).
-enum ARPCacheScanner: Sendable {
+public enum ARPCacheScanner: Sendable {
 
     // MARK: - Public API
 
@@ -77,7 +77,7 @@ enum ARPCacheScanner: Sendable {
     ///
     /// - Parameter hosts: IP address strings to probe (e.g. `["192.168.1.1", ...]`)
     /// - Returns: Tuples of (ip, mac) for each live device found in the ARP cache.
-    static func scanSubnet(hosts: [String]) async -> [(ip: String, mac: String)] {
+    public static func scanSubnet(hosts: [String]) async -> [(ip: String, mac: String)] {
         populateARPCache(hosts: hosts)
         // Give the OS time to complete ARP resolution for all probed hosts.
         // 2 seconds is sufficient for most /24 networks.
@@ -90,7 +90,7 @@ enum ARPCacheScanner: Sendable {
     /// Fire-and-forget UDP packets to each host on a high port.
     /// This triggers the kernel to perform ARP resolution for each IP,
     /// populating the system ARP cache.
-    static func populateARPCache(hosts: [String]) {
+    public static func populateARPCache(hosts: [String]) {
         let sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
         guard sock >= 0 else { return }
         defer { close(sock) }
@@ -129,7 +129,7 @@ enum ARPCacheScanner: Sendable {
     // MARK: - ARP cache reading via sysctl
 
     /// Read the system ARP cache and return IP/MAC pairs for live devices.
-    static func readARPCache() -> [(ip: String, mac: String)] {
+    public static func readARPCache() -> [(ip: String, mac: String)] {
         // sysctl parameters for reading the routing table's ARP entries
         var mib: [Int32] = [
             CTL_NET,

@@ -1,56 +1,22 @@
 import Foundation
 
-/// Resolves device hostnames using DNS PTR lookup and Bonjour service matching.
+/// Resolves device hostnames using DNS PTR lookup.
 /// Runs entirely off MainActor to avoid UI thread blocking.
-final class DeviceNameResolver: Sendable {
+public final class DeviceNameResolver: Sendable {
 
-    /// Resolve a single device hostname using DNS PTR lookup and Bonjour services
-    /// - Parameters:
-    ///   - ipAddress: The IP address to resolve
-    ///   - bonjourServices: Available Bonjour services to match against
-    /// - Returns: Resolved hostname or nil if not found
-    func resolve(ipAddress: String, bonjourServices: [BonjourService]) async -> String? {
-        // Try DNS PTR lookup first (with 3s timeout)
-        if let ptrName = await resolvePTRWithTimeout(ipAddress: ipAddress) {
-            return ptrName
-        }
+    public init() {}
 
-        // Fall back to Bonjour service matching
-        return matchBonjourService(ipAddress: ipAddress, services: bonjourServices)
-    }
-
-    /// Resolve multiple devices concurrently
-    /// - Parameters:
-    ///   - devices: Array of tuples containing IP address and MAC address
-    ///   - bonjourServices: Available Bonjour services to match against
-    /// - Returns: Dictionary mapping IP addresses to resolved names
-    func resolveAll(
-        devices: [(ipAddress: String, macAddress: String)],
-        bonjourServices: [BonjourService]
-    ) async -> [String: String] {
-        var results: [String: String] = [:]
-
-        await withTaskGroup(of: (String, String?).self) { group in
-            for device in devices {
-                group.addTask {
-                    let name = await self.resolve(ipAddress: device.ipAddress, bonjourServices: bonjourServices)
-                    return (device.ipAddress, name)
-                }
-            }
-
-            for await (ip, name) in group {
-                if let name = name {
-                    results[ip] = name
-                }
-            }
-        }
-
-        return results
+    /// Resolve a hostname for the given IP address via DNS PTR lookup.
+    ///
+    /// - Parameter ipAddress: The IP address to resolve.
+    /// - Returns: Resolved hostname or `nil` if not found within the timeout.
+    public func resolve(ipAddress: String) async -> String? {
+        await resolvePTRWithTimeout(ipAddress: ipAddress)
     }
 
     // MARK: - Private Helpers
 
-    /// Perform DNS PTR lookup with a 3-second timeout
+    /// Perform DNS PTR lookup with a 1-second timeout.
     private func resolvePTRWithTimeout(ipAddress: String) async -> String? {
         await withTaskGroup(of: String?.self) { group in
             group.addTask {
@@ -67,8 +33,6 @@ final class DeviceNameResolver: Sendable {
     }
 
     /// Perform the actual PTR lookup using getnameinfo on a background thread.
-    /// This avoids the complex DNSServiceQueryRecord callback chain and runs
-    /// entirely off MainActor.
     private func performPTRLookup(ipAddress: String) async -> String? {
         await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
@@ -111,15 +75,5 @@ final class DeviceNameResolver: Sendable {
                 }
             }
         }
-    }
-
-    /// Match IP address against Bonjour services
-    private func matchBonjourService(ipAddress: String, services: [BonjourService]) -> String? {
-        for service in services {
-            if service.addresses.contains(ipAddress) {
-                return service.hostName ?? service.name
-            }
-        }
-        return nil
     }
 }

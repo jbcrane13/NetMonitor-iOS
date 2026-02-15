@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import NetworkScanKit
 
 actor PortScannerService {
     private var isRunning = false

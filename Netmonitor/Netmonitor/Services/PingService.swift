@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import NetworkScanKit
 
 actor PingService {
     private var isRunning = false

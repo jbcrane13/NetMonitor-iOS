@@ -7,8 +7,8 @@ import Foundation
 /// - `.nominal` / `.fair` → 1.0× (full concurrency)
 /// - `.serious` → 0.5× (half concurrency)
 /// - `.critical` → 0.25× (quarter concurrency)
-final class ThermalThrottleMonitor: @unchecked Sendable {
-    static let shared = ThermalThrottleMonitor()
+public final class ThermalThrottleMonitor: @unchecked Sendable {
+    public static let shared = ThermalThrottleMonitor()
 
     private let lock = NSLock()
     private var _multiplier: Double
@@ -28,13 +28,13 @@ final class ThermalThrottleMonitor: @unchecked Sendable {
     }
 
     /// Current thermal multiplier (1.0 = full, 0.5 = half, 0.25 = quarter).
-    var multiplier: Double {
+    public var multiplier: Double {
         lock.withLock { _multiplier }
     }
 
     /// Compute an effective concurrency limit from a base value, reduced by thermal state.
     /// Always returns at least 1.
-    func effectiveLimit(from baseLimit: Int) -> Int {
+    public func effectiveLimit(from baseLimit: Int) -> Int {
         max(1, Int(Double(baseLimit) * multiplier))
     }
 

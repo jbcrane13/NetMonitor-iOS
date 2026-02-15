@@ -1,4 +1,5 @@
 import Foundation
+import NetworkScanKit
 
 // MARK: - Service Protocols for Dependency Injection
 
@@ -65,7 +66,7 @@ protocol DeviceDiscoveryServiceProtocol: AnyObject, Sendable {
     @MainActor var discoveredDevices: [DiscoveredDevice] { get }
     @MainActor var isScanning: Bool { get }
     @MainActor var scanProgress: Double { get }
-    @MainActor var scanPhase: DeviceDiscoveryService.ScanPhase { get }
+    @MainActor var scanPhase: DeviceDiscoveryService.ScanDisplayPhase { get }
     @MainActor var lastScanDate: Date? { get }
     func scanNetwork(subnet: String?) async
     @MainActor func stopScan()
