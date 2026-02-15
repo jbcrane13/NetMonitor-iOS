@@ -71,16 +71,31 @@ final class BackgroundTaskService {
         // Schedule the next refresh
         scheduleRefreshTask()
 
-        let networkMonitor = NetworkMonitorService.shared
-        let gatewayService = GatewayService()
-
         var taskCancelled = false
+        var didComplete = false
+        func complete(_ success: Bool) {
+            guard !didComplete else { return }
+            didComplete = true
+            task.setTaskCompleted(success: success)
+        }
+
+        // Ensure we complete the task exactly once
+        defer {
+            if !didComplete {
+                complete(!taskCancelled)
+            }
+        }
 
         // Check network status and update widget data
         task.expirationHandler = {
-            taskCancelled = true
-            task.setTaskCompleted(success: false)
+            Task { @MainActor in
+                taskCancelled = true
+                complete(false)
+            }
         }
+
+        let networkMonitor = NetworkMonitorService.shared
+        let gatewayService = GatewayService()
 
         await gatewayService.detectGateway()
 
@@ -102,10 +117,9 @@ final class BackgroundTaskService {
         guard !taskCancelled else { return }
         await checkMonitoringTargets()
 
+        guard !taskCancelled else { return }
         // Reload widget timeline
         WidgetCenter.shared.reloadAllTimelines()
-
-        task.setTaskCompleted(success: true)
     }
 
     private func handleSyncTask(_ task: BGProcessingTask) async {
@@ -113,10 +127,25 @@ final class BackgroundTaskService {
         scheduleSyncTask()
 
         var taskCancelled = false
+        var didComplete = false
+        func complete(_ success: Bool) {
+            guard !didComplete else { return }
+            didComplete = true
+            task.setTaskCompleted(success: success)
+        }
+
+        // Ensure we complete the task exactly once
+        defer {
+            if !didComplete {
+                complete(!taskCancelled)
+            }
+        }
 
         task.expirationHandler = {
-            taskCancelled = true
-            task.setTaskCompleted(success: false)
+            Task { @MainActor in
+                taskCancelled = true
+                complete(false)
+            }
         }
 
         let networkMonitor = NetworkMonitorService.shared
@@ -146,10 +175,9 @@ final class BackgroundTaskService {
         guard !taskCancelled else { return }
         await checkMonitoringTargets()
 
+        guard !taskCancelled else { return }
         // Reload widget timeline
         WidgetCenter.shared.reloadAllTimelines()
-
-        task.setTaskCompleted(success: true)
     }
 
     // MARK: - Monitoring Target Checks
