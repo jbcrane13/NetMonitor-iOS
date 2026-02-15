@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/supervisor/on-stop.sh"
+            "command": "/Users/blake/Projects/NetMonitor-iOS/.claude/hooks/supervisor/on-stop.sh"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/supervisor/on-error.sh"
+            "command": "/Users/blake/Projects/NetMonitor-iOS/.claude/hooks/supervisor/on-error.sh"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/supervisor/on-notify.sh"
+            "command": "/Users/blake/Projects/NetMonitor-iOS/.claude/hooks/supervisor/on-notify.sh"
           }
         ]
       }
