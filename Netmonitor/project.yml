@@ -36,6 +36,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor
+        CODE_SIGN_ENTITLEMENTS: Netmonitor/Netmonitor.entitlements
         INFOPLIST_FILE: Netmonitor/Info.plist
     info:
       path: Netmonitor/Info.plist
