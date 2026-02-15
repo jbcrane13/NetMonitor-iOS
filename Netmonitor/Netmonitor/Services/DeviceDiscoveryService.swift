@@ -118,8 +118,7 @@ final class DeviceDiscoveryService {
 
         let pipeline = ScanPipeline(steps: [
             ScanPipeline.Step(phases: [ARPScanPhase(), bonjourPhase], concurrent: true),
-            ScanPipeline.Step(phases: [TCPProbeScanPhase()], concurrent: false),
-            ScanPipeline.Step(phases: [SSDPScanPhase()], concurrent: false),
+            ScanPipeline.Step(phases: [TCPProbeScanPhase(), SSDPScanPhase()], concurrent: true),
             ScanPipeline.Step(phases: [ReverseDNSScanPhase()], concurrent: false),
         ])
 

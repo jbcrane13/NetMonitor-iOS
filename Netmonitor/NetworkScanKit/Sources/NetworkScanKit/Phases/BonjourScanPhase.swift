@@ -9,6 +9,9 @@ let scanQueue = DispatchQueue(label: "com.netmonitor.scan", qos: .userInitiated,
 /// Because `BonjourDiscoveryService` lives in the main app, this phase accepts
 /// a closure that provides discovered services as ``BonjourServiceInfo`` values.
 /// The phase handles service-to-IP resolution internally.
+///
+/// Uses adaptive early exit: instead of waiting a fixed duration, polls for new
+/// services and exits when no new services arrive for `stableExitThreshold`.
 public struct BonjourScanPhase: ScanPhase, Sendable {
     public let id = "bonjour"
     public let displayName = "Bonjour discovery…"
@@ -20,8 +23,11 @@ public struct BonjourScanPhase: ScanPhase, Sendable {
     /// Called after resolution to stop the Bonjour browser (optional).
     let stopProvider: (@Sendable () async -> Void)?
 
-    /// How long to wait for mDNS responses before resolving.
+    /// Maximum time to wait for mDNS responses before resolving.
     let discoveryWaitDuration: Duration
+
+    /// Exit early when no new services arrive within this threshold.
+    let stableExitThreshold: Duration
 
     let maxResolves: Int
     let maxResolveConcurrency: Int
@@ -29,13 +35,15 @@ public struct BonjourScanPhase: ScanPhase, Sendable {
     public init(
         serviceProvider: @escaping @Sendable () async -> [BonjourServiceInfo],
         stopProvider: (@Sendable () async -> Void)? = nil,
-        discoveryWaitDuration: Duration = .seconds(8),
+        discoveryWaitDuration: Duration = .seconds(6),
+        stableExitThreshold: Duration = .milliseconds(1500),
         maxResolves: Int = 100,
         maxResolveConcurrency: Int = 8
     ) {
         self.serviceProvider = serviceProvider
         self.stopProvider = stopProvider
         self.discoveryWaitDuration = discoveryWaitDuration
+        self.stableExitThreshold = stableExitThreshold
         self.maxResolves = maxResolves
         self.maxResolveConcurrency = maxResolveConcurrency
     }
@@ -47,8 +55,32 @@ public struct BonjourScanPhase: ScanPhase, Sendable {
     ) async {
         await onProgress(0.0)
 
-        // Wait for discovery to gather services
-        try? await Task.sleep(for: discoveryWaitDuration)
+        // Adaptive Bonjour collection: poll for services and exit early
+        // when no new services arrive for stableExitThreshold.
+        let clock = ContinuousClock()
+        let startInstant = clock.now
+        var lastNewServiceInstant = clock.now
+        var lastServiceCount = 0
+        let pollInterval: Duration = .milliseconds(500)
+
+        while true {
+            try? await Task.sleep(for: pollInterval)
+
+            let elapsed = clock.now - startInstant
+            if elapsed >= discoveryWaitDuration { break }
+
+            let services = await serviceProvider()
+            let currentCount = services.count
+            if currentCount > lastServiceCount {
+                lastServiceCount = currentCount
+                lastNewServiceInstant = clock.now
+            } else if elapsed >= .seconds(2),
+                      clock.now - lastNewServiceInstant >= stableExitThreshold {
+                // No new services for stableExitThreshold after at least 2s total
+                break
+            }
+        }
+
         await onProgress(0.3)
 
         // Get discovered services

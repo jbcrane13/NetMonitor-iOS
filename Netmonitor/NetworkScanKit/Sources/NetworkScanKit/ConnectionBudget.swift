@@ -7,7 +7,7 @@ import Foundation
 /// Services must call ``acquire()`` before creating an NWConnection and
 /// ``release()`` when the connection is cancelled or completes.
 public actor ConnectionBudget {
-    public static let shared = ConnectionBudget(limit: 30)
+    public static let shared = ConnectionBudget(limit: 60)
 
     private let limit: Int
     private var active = 0

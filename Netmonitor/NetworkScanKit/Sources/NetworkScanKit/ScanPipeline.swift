@@ -26,9 +26,8 @@ public struct ScanPipeline: Sendable {
 
     /// The default scan pipeline:
     /// 1. [ARP + Bonjour] concurrent
-    /// 2. [TCP Probe]
-    /// 3. [SSDP]
-    /// 4. [Reverse DNS]
+    /// 2. [TCP Probe + SSDP] concurrent
+    /// 3. [Reverse DNS]
     public static func standard(
         bonjourServiceProvider: @escaping @Sendable () async -> [BonjourServiceInfo] = { [] },
         bonjourStopProvider: (@Sendable () async -> Void)? = nil
@@ -41,8 +40,7 @@ public struct ScanPipeline: Sendable {
                     stopProvider: bonjourStopProvider
                 ),
             ], concurrent: true),
-            Step(phases: [TCPProbeScanPhase()], concurrent: false),
-            Step(phases: [SSDPScanPhase()], concurrent: false),
+            Step(phases: [TCPProbeScanPhase(), SSDPScanPhase()], concurrent: true),
             Step(phases: [ReverseDNSScanPhase()], concurrent: false),
         ])
     }

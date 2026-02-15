@@ -4,6 +4,8 @@ import Network
 /// Discovers devices by attempting TCP connections to common service ports.
 ///
 /// Skips IPs already found by earlier phases (ARP, Bonjour) to avoid redundant probes.
+/// Uses adaptive RTT-based timeouts that converge from conservative base values
+/// to network-appropriate timeouts as successful connections are observed.
 public struct TCPProbeScanPhase: ScanPhase, Sendable {
     public let id = "tcpProbe"
     public let displayName = "Probing ports…"
@@ -19,10 +21,13 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
     static let secondaryProbePorts: [UInt16] = [7000, 8080, 8443, 62078, 5353, 9100, 1883, 554, 548]
 
     private static let maxConcurrentPortProbes = 3
-    private static let primaryProbeTimeout: Duration = .milliseconds(700)
-    private static let secondaryProbeTimeout: Duration = .milliseconds(1200)
 
-    public init(maxConcurrentHosts: Int = 12) {
+    /// Base timeout for primary ports (ms), used until adaptive tracker converges.
+    private static let basePrimaryTimeout: Double = 500
+    /// Base timeout for secondary ports (ms).
+    private static let baseSecondaryTimeout: Double = 800
+
+    public init(maxConcurrentHosts: Int = 40) {
         self.maxConcurrentHosts = maxConcurrentHosts
     }
 
@@ -46,6 +51,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
 
         let total = hostsToProbe.count
         let concurrencyLimit = ThermalThrottleMonitor.shared.effectiveLimit(from: maxConcurrentHosts)
+        let tracker = RTTTracker()
         var scannedCount = 0
 
         await withTaskGroup(of: DiscoveredDevice?.self) { group in
@@ -55,7 +61,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
             while pending < concurrencyLimit, let ip = hostIterator.next() {
                 pending += 1
                 group.addTask {
-                    await Self.probeHost(ip)
+                    await Self.probeHost(ip, tracker: tracker)
                 }
             }
 
@@ -73,7 +79,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                 if let ip = hostIterator.next() {
                     pending += 1
                     group.addTask {
-                        await Self.probeHost(ip)
+                        await Self.probeHost(ip, tracker: tracker)
                     }
                 }
             }
@@ -99,13 +105,15 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
         case failed
     }
 
-    /// Probe a host with staged port groups and return first successful latency.
-    private static func probeHost(_ ip: String) async -> DiscoveredDevice? {
+    /// Probe a host with staged port groups, using adaptive timeouts from the RTT tracker.
+    private static func probeHost(_ ip: String, tracker: RTTTracker) async -> DiscoveredDevice? {
+        let primaryTimeoutMs = await tracker.adaptiveTimeout(base: basePrimaryTimeout)
         let primaryResult = await probePortGroup(
             ip: ip,
             ports: primaryProbePorts,
-            timeout: primaryProbeTimeout,
-            maxConcurrentPorts: maxConcurrentPortProbes
+            timeout: .milliseconds(primaryTimeoutMs),
+            maxConcurrentPorts: maxConcurrentPortProbes,
+            tracker: tracker
         )
 
         switch primaryResult {
@@ -115,11 +123,13 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
             break
         }
 
+        let secondaryTimeoutMs = await tracker.adaptiveTimeout(base: baseSecondaryTimeout)
         let secondaryResult = await probePortGroup(
             ip: ip,
             ports: secondaryProbePorts,
-            timeout: secondaryProbeTimeout,
-            maxConcurrentPorts: maxConcurrentPortProbes
+            timeout: .milliseconds(secondaryTimeoutMs),
+            maxConcurrentPorts: maxConcurrentPortProbes,
+            tracker: tracker
         )
 
         if case .reachable(let latency) = secondaryResult {
@@ -133,7 +143,8 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
         ip: String,
         ports: [UInt16],
         timeout: Duration,
-        maxConcurrentPorts: Int
+        maxConcurrentPorts: Int,
+        tracker: RTTTracker
     ) async -> ProbeGroupResult {
         guard !ports.isEmpty else { return .allFailed }
 
@@ -155,9 +166,11 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
 
                 switch result {
                 case .reachable(let latency):
+                    await tracker.recordRTT(latency)
                     group.cancelAll()
                     return .reachable(latency: latency)
                 case .refused(let latency):
+                    await tracker.recordRTT(latency)
                     group.cancelAll()
                     return .reachable(latency: latency)
                 case .timeout:
