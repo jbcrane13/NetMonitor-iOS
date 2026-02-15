@@ -7,6 +7,12 @@ import Network
 /// Uses adaptive RTT-based timeouts that converge from conservative base values
 /// to network-appropriate timeouts as successful connections are observed.
 public struct TCPProbeScanPhase: ScanPhase, Sendable {
+    /// Reference-type timestamp for Sendable closure capture.
+    /// Thread-safe because reads/writes are serialized on scanQueue.
+    private final class DateRef: @unchecked Sendable {
+        var value = Date()
+    }
+
     public let id = "tcpProbe"
     public let displayName = "Probing ports…"
     public let weight: Double = 0.55
@@ -83,6 +89,16 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                     }
                 }
             }
+        }
+
+        // Enrich already-known devices with latency via lightweight single-port probe
+        let ipsNeedingLatency = await accumulator.ipsWithoutLatency()
+        if !ipsNeedingLatency.isEmpty {
+            await enrichLatency(
+                ips: ipsNeedingLatency,
+                tracker: tracker,
+                accumulator: accumulator
+            )
         }
 
         await onProgress(1.0)
@@ -204,6 +220,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
 
         let result = await withCheckedContinuation { (continuation: CheckedContinuation<PortProbeOutcome, Never>) in
             let resumed = ResumeState()
+            let startTime = DateRef()
 
             let timeoutTask = Task {
                 try? await Task.sleep(for: timeout)
@@ -212,12 +229,10 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                 continuation.resume(returning: .timeout)
             }
 
-            let start = Date()
-
             connection.stateUpdateHandler = { state in
+                let elapsed = Date().timeIntervalSince(startTime.value) * 1000
                 switch state {
                 case .ready:
-                    let elapsed = Date().timeIntervalSince(start) * 1000
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
@@ -225,7 +240,6 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                         continuation.resume(returning: .reachable(latency: elapsed))
                     }
                 case .failed(let error):
-                    let elapsed = Date().timeIntervalSince(start) * 1000
                     Task {
                         guard await resumed.tryResume() else { return }
                         timeoutTask.cancel()
@@ -249,6 +263,120 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                 }
             }
 
+            startTime.value = Date()
+            connection.start(queue: scanQueue)
+        }
+
+        connection.cancel()
+        return result
+    }
+
+    // MARK: - Latency enrichment
+
+    /// Quick single-port probes to measure latency for already-discovered devices
+    /// that were found by ARP/Bonjour and skipped during the main probe loop.
+    private func enrichLatency(
+        ips: [String],
+        tracker: RTTTracker,
+        accumulator: ScanAccumulator
+    ) async {
+        let concurrencyLimit = ThermalThrottleMonitor.shared.effectiveLimit(from: maxConcurrentHosts)
+
+        await withTaskGroup(of: (String, Double?).self) { group in
+            var pending = 0
+            var iterator = ips.makeIterator()
+
+            while pending < concurrencyLimit, let ip = iterator.next() {
+                pending += 1
+                group.addTask {
+                    let timeoutMs = await tracker.adaptiveTimeout(base: 200)
+                    let latency = await Self.quickLatencyProbe(
+                        ip: ip,
+                        timeout: .milliseconds(timeoutMs)
+                    )
+                    return (ip, latency)
+                }
+            }
+
+            while let (ip, latency) = await group.next() {
+                pending -= 1
+                if let latency {
+                    await accumulator.updateLatency(ip: ip, latency: latency)
+                    await tracker.recordRTT(latency)
+                }
+
+                if let nextIP = iterator.next() {
+                    pending += 1
+                    group.addTask {
+                        let timeoutMs = await tracker.adaptiveTimeout(base: 200)
+                        let latency = await Self.quickLatencyProbe(
+                            ip: nextIP,
+                            timeout: .milliseconds(timeoutMs)
+                        )
+                        return (nextIP, latency)
+                    }
+                }
+            }
+        }
+    }
+
+    /// Single-port TCP connect to port 443 (HTTPS) for latency measurement only.
+    private static func quickLatencyProbe(ip: String, timeout: Duration) async -> Double? {
+        await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
+
+        let host = NWEndpoint.Host(ip)
+        let endpoint = NWEndpoint.hostPort(host: host, port: .https)
+        let params = NWParameters.tcp
+        params.requiredInterfaceType = .wifi
+
+        let connection = NWConnection(to: endpoint, using: params)
+
+        let result: Double? = await withCheckedContinuation { (continuation: CheckedContinuation<Double?, Never>) in
+            let resumed = ResumeState()
+            let startTime = DateRef()
+
+            let timeoutTask = Task {
+                try? await Task.sleep(for: timeout)
+                guard await resumed.tryResume() else { return }
+                connection.cancel()
+                continuation.resume(returning: nil)
+            }
+
+            connection.stateUpdateHandler = { state in
+                let elapsed = Date().timeIntervalSince(startTime.value) * 1000
+                switch state {
+                case .ready:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        connection.cancel()
+                        continuation.resume(returning: elapsed)
+                    }
+                case .failed(let error):
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        connection.cancel()
+                        if case NWError.posix(let code) = error, code == .ECONNREFUSED {
+                            continuation.resume(returning: elapsed)
+                        } else {
+                            continuation.resume(returning: nil)
+                        }
+                    }
+                case .cancelled:
+                    Task {
+                        guard await resumed.tryResume() else { return }
+                        timeoutTask.cancel()
+                        connection.cancel()
+                        continuation.resume(returning: nil)
+                    }
+                default:
+                    break
+                }
+            }
+
+            startTime.value = Date()
             connection.start(queue: scanQueue)
         }
 

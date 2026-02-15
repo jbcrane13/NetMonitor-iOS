@@ -17,12 +17,33 @@ public actor ScanAccumulator {
         }
     }
 
+    /// Update latency for an already-known device without overwriting other fields.
+    public func updateLatency(ip: String, latency: Double) {
+        guard let idx = indexByIP[ip] else { return }
+        let existing = devices[idx]
+        guard existing.latency == nil else { return }
+        devices[idx] = DiscoveredDevice(
+            ipAddress: existing.ipAddress,
+            hostname: existing.hostname,
+            vendor: existing.vendor,
+            macAddress: existing.macAddress,
+            latency: latency,
+            discoveredAt: existing.discoveredAt,
+            source: existing.source
+        )
+    }
+
     public func contains(ip: String) -> Bool {
         indexByIP[ip] != nil
     }
 
     public func knownIPs() -> Set<String> {
         Set(indexByIP.keys)
+    }
+
+    /// IPs of devices that were discovered but have no latency measurement yet.
+    public func ipsWithoutLatency() -> [String] {
+        devices.filter { $0.latency == nil }.map(\.ipAddress)
     }
 
     public func snapshot() -> [DiscoveredDevice] {
