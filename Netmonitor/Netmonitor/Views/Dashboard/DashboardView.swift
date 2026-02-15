@@ -7,7 +7,7 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Theme.Layout.sectionSpacing) {
-                    ConnectionStatusHeader(viewModel: viewModel)
+                    ConnectionStatusHeader(viewModel: viewModel, macConnectionService: MacConnectionService.shared)
 
                     SessionCard(viewModel: viewModel)
 
