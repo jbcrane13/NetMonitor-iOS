@@ -183,6 +183,7 @@ final class BonjourDiscoveryService {
 
     nonisolated func resolveService(_ service: BonjourService) async -> BonjourService? {
         await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
 
         let endpoint = NWEndpoint.service(
             name: service.name,
@@ -246,7 +247,6 @@ final class BonjourDiscoveryService {
         }
 
         connection.cancel()
-        await ConnectionBudget.shared.release()
         return result
     }
 

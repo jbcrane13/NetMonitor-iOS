@@ -110,29 +110,55 @@ final class DeviceDiscoveryService {
             await macConnection.send(command: CommandPayload(action: .scanDevices))
         }
 
-        // Phase 0: Fire ARP UDP probes (instant, synchronous — runs off MainActor)
+        // Phase 0: Fire ARP UDP probes and start Bonjour simultaneously
+        // (muk: overlap ARP wait with Bonjour and TCP probe start)
         await Self.fireARPProbes(hosts: scanTarget.hosts)
 
-        // Start Bonjour immediately after ARP probes
+        // Start Bonjour immediately — runs in parallel with ARP + TCP
         let bonjourService = BonjourDiscoveryService()
         bonjourService.startDiscovery()
 
-        // Read ARP cache concurrently with TCP probes (2s delay for ARP resolution)
+        // Read ARP cache after 2s delay (overlaps with TCP probes)
         async let arpFuture = Self.readARPCacheAfterDelay()
 
         scanPhase = .tcpProbe
         scanProgress = 0.05
 
-        // Phase 1: TCP probes (overlaps with ARP cache read)
+        // Phase 1: TCP probes run concurrently with ARP cache read.
+        // (ji1: skip TCP probes for IPs already discovered by ARP)
+        // We read ARP results early and filter out known IPs before probing.
         let totalHosts = scanTarget.hosts.count
         var scannedCount = 0
         var lastFlushedProgress: Double = 0.05
         let concurrencyLimit = maxConcurrentHosts
 
         if totalHosts > 0 {
+            // Collect ARP results as soon as available (runs concurrently)
+            let arpResults = await arpFuture
+            var arpDiscoveredIPs: Set<String> = []
+            for (ip, mac) in arpResults {
+                arpDiscoveredIPs.insert(ip)
+                await accumulator.upsert(DiscoveredDevice(
+                    ipAddress: ip,
+                    hostname: nil,
+                    vendor: nil,
+                    macAddress: mac,
+                    latency: nil,
+                    discoveredAt: Date(),
+                    source: .local
+                ))
+            }
+            await flushToMainActor(progress: 0.10)
+
+            // Filter host list: skip IPs already found by ARP
+            let hostsToProbe = arpDiscoveredIPs.isEmpty
+                ? scanTarget.hosts
+                : scanTarget.hosts.filter { !arpDiscoveredIPs.contains($0) }
+            let probeTotal = hostsToProbe.count
+
             await withTaskGroup(of: DiscoveredDevice?.self) { group in
                 var pending = 0
-                var hostIterator = scanTarget.hosts.makeIterator()
+                var hostIterator = hostsToProbe.makeIterator()
                 var scanning = true
 
                 while scanning {
@@ -147,7 +173,7 @@ final class DeviceDiscoveryService {
                     pending -= 1
                     scannedCount += 1
 
-                    let progress = 0.05 + Double(scannedCount) / Double(totalHosts) * 0.55
+                    let progress = 0.10 + Double(scannedCount) / Double(max(probeTotal, 1)) * 0.55
 
                     if let device = result {
                         await self.accumulator.upsert(device)
@@ -165,19 +191,6 @@ final class DeviceDiscoveryService {
             }
         }
 
-        // Phase 2: Merge ARP results (should be ready by now)
-        let arpResults = await arpFuture
-        for (ip, mac) in arpResults {
-            await accumulator.upsert(DiscoveredDevice(
-                ipAddress: ip,
-                hostname: nil,
-                vendor: nil,
-                macAddress: mac,
-                latency: nil,
-                discoveredAt: Date(),
-                source: .local
-            ))
-        }
         await flushToMainActor(progress: 0.65, phase: .bonjour)
 
         // Phase 3: Bonjour post-probe wait + SSDP discovery run in parallel
@@ -311,6 +324,9 @@ final class DeviceDiscoveryService {
         params.requiredInterfaceType = .wifi
 
         await ConnectionBudget.shared.acquire()
+        // vp5: guarantee release even on early return or cancellation
+        defer { Task { await ConnectionBudget.shared.release() } }
+
         let connection = NWConnection(to: endpoint, using: params)
 
         // Wait for connection ready (with timeout to prevent hang).
@@ -348,7 +364,6 @@ final class DeviceDiscoveryService {
 
         guard ready else {
             connection.cancel()
-            await ConnectionBudget.shared.release()
             return []
         }
 
@@ -392,7 +407,6 @@ final class DeviceDiscoveryService {
         }
 
         connection.cancel()
-        await ConnectionBudget.shared.release()
         return Array(discoveredIPs)
     }
 
@@ -566,6 +580,7 @@ final class DeviceDiscoveryService {
 
     private nonisolated static func probePort(ip: String, port: UInt16, timeout: Duration) async -> PortProbeOutcome {
         await ConnectionBudget.shared.acquire()
+        defer { Task { await ConnectionBudget.shared.release() } }
 
         let host = NWEndpoint.Host(ip)
         let endpoint = NWEndpoint.hostPort(host: host, port: NWEndpoint.Port(rawValue: port)!)
@@ -625,7 +640,6 @@ final class DeviceDiscoveryService {
         }
 
         connection.cancel()
-        await ConnectionBudget.shared.release()
         return result
     }
 
@@ -696,6 +710,8 @@ final class DeviceDiscoveryService {
 
     private nonisolated static func resolveBonjourHost(for service: BonjourService) async -> String? {
         await ConnectionBudget.shared.acquire()
+        // vp5: guarantee release even on early return or cancellation
+        defer { Task { await ConnectionBudget.shared.release() } }
 
         let endpoint = NWEndpoint.service(
             name: service.name,
@@ -751,7 +767,6 @@ final class DeviceDiscoveryService {
         }
 
         connection.cancel()
-        await ConnectionBudget.shared.release()
         return result
     }
 
