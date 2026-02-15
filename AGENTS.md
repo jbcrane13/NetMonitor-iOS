@@ -1,4 +1,4 @@
-<!-- Generated: 2026-01-29 | Updated: 2026-01-29 -->
+<!-- Generated: 2026-01-29 | Updated: 2026-02-15 -->
 
 # NetMonitor-iOS
 
@@ -9,7 +9,11 @@ An iOS 18+ network monitoring companion app built with SwiftUI, SwiftData, and N
 | File | Description |
 |------|-------------|
 | `CLAUDE.md` | Project-level instructions for AI agents (build commands, architecture, conventions) |
+| `RELEASE-MANDATE.md` | Current release status, P0 blockers, priority order for fixes |
+| `ARCHITECTURE-REVIEW.md` | Architecture analysis and design patterns |
 | `README.md` | User-facing project documentation |
+| `QA-REPORT.md` | Quality assurance testing results |
+| `QUALITY_GATE.md` | Build and test quality gate definitions |
 | `.gitignore` | Git ignore rules |
 
 ## Subdirectories
@@ -17,6 +21,11 @@ An iOS 18+ network monitoring companion app built with SwiftUI, SwiftData, and N
 |-----------|---------|
 | `Netmonitor/` | Xcode project root containing XcodeGen config and all source code (see `Netmonitor/AGENTS.md`) |
 | `docs/` | Product requirements, implementation plans, and design docs (see `docs/AGENTS.md`) |
+| `Screenshots/` | App screenshots for documentation and App Store |
+| `tasks/` | Task tracking files (legacy, now using beads) |
+| `.beads/` | Beads issue tracking database (JSONL format) |
+| `.omc/` | OMC (oh-my-claudecode) state and session data |
+| `.claude/` | Claude Code configuration and project memory |
 
 ## For AI Agents
 
@@ -36,6 +45,12 @@ An iOS 18+ network monitoring companion app built with SwiftUI, SwiftData, and N
 ### Testing Requirements
 - All changes must compile with zero warnings under strict concurrency
 - Run unit tests before committing
+- Unit tests: `xcodebuild test -scheme Netmonitor -destination 'platform=iOS Simulator,name=iPhone 17 Pro'`
+- UI tests available in `Netmonitor/NetmonitorUITests/`
+
+### Build System
+- **XcodeGen** for project generation (run `cd Netmonitor && xcodegen generate` after `project.yml` changes)
+- **Swift Package Manager** for NetworkScanKit (local package in `Netmonitor/NetworkScanKit/`)
 
 ## Dependencies
 
@@ -44,6 +59,9 @@ An iOS 18+ network monitoring companion app built with SwiftUI, SwiftData, and N
 - Network.framework — connectivity monitoring, NWConnection
 - SwiftData — persistence
 - No third-party dependencies
+
+### Internal Packages
+- **NetworkScanKit** — Swift package for composable scan phases (ARP, Bonjour, TCP probe, SSDP, reverse DNS)
 
 <!-- MANUAL: -->
 

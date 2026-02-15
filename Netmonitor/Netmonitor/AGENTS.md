@@ -1,5 +1,5 @@
 <!-- Parent: ../AGENTS.md -->
-<!-- Generated: 2026-01-29 | Updated: 2026-02-12 -->
+<!-- Generated: 2026-01-29 | Updated: 2026-02-15 -->
 
 # Netmonitor (Source Root)
 
@@ -11,7 +11,9 @@ Application source code organized in a layered architecture: Models → Services
 |------|-------------|
 | `NetmonitorApp.swift` | App entry point, SwiftData container, forces `.dark` color scheme |
 | `ContentView.swift` | Root TabView with Dashboard, Network Map, Tools, and Settings tabs |
-| `Info.plist` | Bundle configuration, permissions, background modes |
+| `Info.plist` | Bundle configuration, permissions (location, local network), background modes |
+| `Netmonitor.entitlements` | App capabilities (network extensions, Bonjour services) |
+| `PrivacyInfo.xcprivacy` | Privacy manifest for App Store submission |
 
 ## Subdirectories
 | Directory | Purpose |
@@ -31,6 +33,7 @@ Application source code organized in a layered architecture: Models → Services
 - Use `@Observable` (not `ObservableObject`) for view models
 - Use `@State` to own view models in views, `@Bindable` for bindings
 - Swift 6 strict concurrency — no `@Sendable` violations
+- Services use singleton pattern (`.shared`) for stateful services like NetworkMonitorService, MacConnectionService, DeviceDiscoveryService
 
 ### Data Flow
 ```
@@ -42,8 +45,8 @@ View (@State var vm) → ViewModel (@Observable) → Service (async/await) → N
 All interactive elements need identifiers: `{screen}_{element}_{descriptor}`
 
 ### Codebase Stats
-- 75 Swift source files, ~44K LOC
-- 20 services, 13 ViewModels, 27 views
+- 75+ Swift source files, ~44K LOC
+- 20+ services, 15 ViewModels, 30+ views
 - 9 unit test files (~2,626 LOC), 14 UI test files + 15 page objects
 - Dark-only UI — app forces `.dark` color scheme (Liquid Glass design)
 
