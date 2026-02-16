@@ -25,9 +25,10 @@ public struct ScanPipeline: Sendable {
     }
 
     /// The default scan pipeline:
-    /// 1. [ARP + Bonjour] concurrent
-    /// 2. [TCP Probe + SSDP] concurrent
-    /// 3. [Reverse DNS]
+    /// 1. [ARP + Bonjour] concurrent — discover devices
+    /// 2. [TCP Probe + SSDP] concurrent — find more devices + TCP latency
+    /// 3. [ICMP Latency] — enrich remaining devices with ICMP ping latency
+    /// 4. [Reverse DNS] — resolve hostnames
     public static func standard(
         bonjourServiceProvider: @escaping @Sendable () async -> [BonjourServiceInfo] = { [] },
         bonjourStopProvider: (@Sendable () async -> Void)? = nil
@@ -41,6 +42,7 @@ public struct ScanPipeline: Sendable {
                 ),
             ], concurrent: true),
             Step(phases: [TCPProbeScanPhase(), SSDPScanPhase()], concurrent: true),
+            Step(phases: [ICMPLatencyPhase()], concurrent: false),
             Step(phases: [ReverseDNSScanPhase()], concurrent: false),
         ])
     }
