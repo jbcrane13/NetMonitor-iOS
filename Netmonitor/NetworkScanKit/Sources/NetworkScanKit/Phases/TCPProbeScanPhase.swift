@@ -293,7 +293,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
             while pending < concurrencyLimit, let ip = iterator.next() {
                 pending += 1
                 group.addTask {
-                    let timeoutMs = await tracker.adaptiveTimeout(base: 200)
+                    let timeoutMs = await tracker.adaptiveTimeout(base: 500)
                     let latency = await Self.quickLatencyProbe(
                         ip: ip,
                         timeout: .milliseconds(timeoutMs)
@@ -312,7 +312,7 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                 if let nextIP = iterator.next() {
                     pending += 1
                     group.addTask {
-                        let timeoutMs = await tracker.adaptiveTimeout(base: 200)
+                        let timeoutMs = await tracker.adaptiveTimeout(base: 500)
                         let latency = await Self.quickLatencyProbe(
                             ip: nextIP,
                             timeout: .milliseconds(timeoutMs)
@@ -325,7 +325,12 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
     }
 
     /// Ports to try for latency enrichment — ordered by likelihood of being open on LAN devices.
-    private static let latencyProbePorts: [NWEndpoint.Port] = [.http, .https, NWEndpoint.Port(rawValue: 22)!]
+    /// Includes a random high port because most devices will RST on a closed ephemeral port
+    /// even when they silently drop packets on well-known ports.
+    private static let latencyProbePorts: [NWEndpoint.Port] = {
+        let highPort = UInt16.random(in: 33_000...44_000)
+        return [.http, .https, NWEndpoint.Port(rawValue: 22)!, NWEndpoint.Port(rawValue: highPort)!]
+    }()
 
     /// Multi-port TCP connect for latency measurement — tries common ports concurrently,
     /// returns as soon as any responds.
@@ -399,6 +404,17 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
                         timeoutTask.cancel()
                         connection.cancel()
                         continuation.resume(returning: nil)
+                    }
+                case .waiting(let error):
+                    // Some devices report ECONNREFUSED in .waiting rather than .failed.
+                    // The RST still proves reachability, so capture the latency.
+                    if case NWError.posix(let code) = error, code == .ECONNREFUSED {
+                        Task {
+                            guard await resumed.tryResume() else { return }
+                            timeoutTask.cancel()
+                            connection.cancel()
+                            continuation.resume(returning: elapsed)
+                        }
                     }
                 default:
                     break
