@@ -324,13 +324,38 @@ public struct TCPProbeScanPhase: ScanPhase, Sendable {
         }
     }
 
-    /// Single-port TCP connect to port 443 (HTTPS) for latency measurement only.
+    /// Ports to try for latency enrichment — ordered by likelihood of being open on LAN devices.
+    private static let latencyProbePorts: [NWEndpoint.Port] = [.http, .https, NWEndpoint.Port(rawValue: 22)!]
+
+    /// Multi-port TCP connect for latency measurement — tries common ports concurrently,
+    /// returns as soon as any responds.
     private static func quickLatencyProbe(ip: String, timeout: Duration) async -> Double? {
         await ConnectionBudget.shared.acquire()
         defer { Task { await ConnectionBudget.shared.release() } }
 
         let host = NWEndpoint.Host(ip)
-        let endpoint = NWEndpoint.hostPort(host: host, port: .https)
+
+        return await withTaskGroup(of: Double?.self, returning: Double?.self) { group in
+            for port in latencyProbePorts {
+                group.addTask {
+                    await singlePortLatencyProbe(host: host, port: port, timeout: timeout)
+                }
+            }
+
+            // Return the first successful measurement
+            for await result in group {
+                if let latency = result {
+                    group.cancelAll()
+                    return latency
+                }
+            }
+            return nil
+        }
+    }
+
+    /// Single-port TCP connect for latency measurement.
+    private static func singlePortLatencyProbe(host: NWEndpoint.Host, port: NWEndpoint.Port, timeout: Duration) async -> Double? {
+        let endpoint = NWEndpoint.hostPort(host: host, port: port)
         let params = NWParameters.tcp
         params.requiredInterfaceType = .wifi
 
