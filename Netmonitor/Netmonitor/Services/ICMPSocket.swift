@@ -228,7 +228,11 @@ actor ICMPSocket {
 
     /// Parses a received ICMP message into a typed response.
     ///
-    /// For SOCK_DGRAM ICMP, the kernel strips the outer IP header. We receive:
+    /// Despite the man page claiming SOCK_DGRAM strips the IP header,
+    /// in practice macOS/iOS returns the full IP packet. We must skip
+    /// the IP header (variable length via `ip_hl` field) to reach ICMP.
+    ///
+    /// After skipping IP:
     /// - **Echo Reply**: ICMP header (8 bytes) + payload
     /// - **Time Exceeded**: ICMP header (8 bytes) + original IP header (20 bytes)
     ///   + first 8 bytes of original ICMP echo request
@@ -241,11 +245,26 @@ actor ICMPSocket {
             return ICMPResponse(kind: .error, sourceIP: sourceIP, rtt: rtt)
         }
 
-        let icmpType = buffer[0]
+        // Skip IP header if present (check IP version nibble)
+        let ipOffset: Int
+        if (buffer[0] >> 4) == 4 {
+            // IPv4: header length is lower nibble * 4
+            ipOffset = Int(buffer[0] & 0x0F) * 4
+        } else {
+            // No IP header (kernel stripped it) — start at 0
+            ipOffset = 0
+        }
+
+        let icmp = Array(buffer[ipOffset...])
+        guard icmp.count >= 8 else {
+            return ICMPResponse(kind: .error, sourceIP: sourceIP, rtt: rtt)
+        }
+
+        let icmpType = icmp[0]
 
         switch icmpType {
         case ICMPType.echoReply.rawValue:
-            let respSeq = UInt16(buffer[6]) << 8 | UInt16(buffer[7])
+            let respSeq = UInt16(icmp[6]) << 8 | UInt16(icmp[7])
             return ICMPResponse(
                 kind: .echoReply(sequence: respSeq),
                 sourceIP: sourceIP,
@@ -256,8 +275,8 @@ actor ICMPSocket {
             // Payload structure: ICMP header (8) + original IP header (20) + original ICMP (8)
             // Original ICMP sequence is at offset 8 + 20 + 6 = 34
             var originalSeq: UInt16 = 0
-            if buffer.count >= 36 {
-                originalSeq = UInt16(buffer[34]) << 8 | UInt16(buffer[35])
+            if icmp.count >= 36 {
+                originalSeq = UInt16(icmp[34]) << 8 | UInt16(icmp[35])
             }
 
             return ICMPResponse(
