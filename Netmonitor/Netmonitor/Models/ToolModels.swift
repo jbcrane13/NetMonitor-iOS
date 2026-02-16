@@ -1,5 +1,11 @@
 import Foundation
 
+/// Whether a ping was performed via real ICMP or TCP handshake fallback.
+enum PingMethod: String, Sendable {
+    case icmp = "ICMP"
+    case tcp = "TCP"
+}
+
 struct PingResult: Identifiable, Sendable {
     let id = UUID()
     let sequence: Int
@@ -10,6 +16,7 @@ struct PingResult: Identifiable, Sendable {
     let size: Int
     let isTimeout: Bool
     let timestamp: Date
+    let method: PingMethod
 
     init(
         sequence: Int,
@@ -18,7 +25,8 @@ struct PingResult: Identifiable, Sendable {
         ttl: Int,
         time: Double,
         size: Int = 64,
-        isTimeout: Bool = false
+        isTimeout: Bool = false,
+        method: PingMethod = .tcp
     ) {
         self.sequence = sequence
         self.host = host
@@ -28,6 +36,7 @@ struct PingResult: Identifiable, Sendable {
         self.size = size
         self.isTimeout = isTimeout
         self.timestamp = Date()
+        self.method = method
     }
 
     var timeText: String {

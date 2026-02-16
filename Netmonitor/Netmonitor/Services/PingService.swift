@@ -3,25 +3,20 @@ import Network
 import NetworkScanKit
 
 actor PingService {
-    /// Reference-type timestamp for Sendable closure capture.
-    ///
-    /// SAFETY: @unchecked Sendable is safe here because DateRef is only ever created
-    /// inside a single NWConnection stateUpdateHandler closure on pingQueue and read
-    /// synchronously on that same queue. No concurrent writes occur — the value is set
-    /// once at construction and read once when the connection state fires.
-    private final class DateRef: @unchecked Sendable {
-        var value = Date()
-    }
+
+    // MARK: - State
 
     private var isRunning = false
     private var activeRunID: UUID?
 
-    /// Dedicated queue isolates ping measurements from device scan traffic on .global().
+    /// Dedicated queue isolates TCP ping measurements from other traffic.
     ///
     /// SAFETY: nonisolated is safe here because DispatchQueue is an immutable, thread-safe
     /// reference created at init and never reassigned (let). Accessing it from outside the
     /// actor's isolation domain is safe — DispatchQueue itself is Sendable.
     private nonisolated let pingQueue = DispatchQueue(label: "com.netmonitor.ping", qos: .userInteractive)
+
+    // MARK: - Public API
 
     func ping(
         host: String,
@@ -31,32 +26,28 @@ actor PingService {
         AsyncStream { continuation in
             Task {
                 let runID = self.beginRun()
-
                 let resolvedIP = await resolveHost(host)
 
-                for seq in 1...count {
-                    guard self.shouldContinue(runID: runID) else { break }
-
-                    let (success, connectTime) = await self.connectTest(
-                        host: resolvedIP ?? host,
-                        timeout: timeout
-                    )
-                    let elapsed = connectTime * 1000
-
-                    let result = PingResult(
-                        sequence: seq,
+                // Try ICMP first; fall back to TCP if socket creation fails
+                if let socket = try? ICMPSocket() {
+                    await self.pingICMP(
+                        socket: socket,
                         host: host,
-                        ipAddress: resolvedIP,
-                        ttl: success ? 64 : 0,
-                        time: elapsed,
-                        size: 64,
-                        isTimeout: !success
+                        ip: resolvedIP,
+                        count: count,
+                        timeout: timeout,
+                        runID: runID,
+                        continuation: continuation
                     )
-                    continuation.yield(result)
-
-                    if seq < count {
-                        try? await Task.sleep(for: .seconds(1))
-                    }
+                } else {
+                    await self.pingTCP(
+                        host: host,
+                        ip: resolvedIP,
+                        count: count,
+                        timeout: timeout,
+                        runID: runID,
+                        continuation: continuation
+                    )
                 }
 
                 self.endRun(runID: runID)
@@ -69,6 +60,39 @@ actor PingService {
         isRunning = false
         activeRunID = nil
     }
+
+    func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) async -> PingStatistics? {
+        guard !results.isEmpty else { return nil }
+
+        let transmitted = requestedCount ?? results.count
+        let successfulResults = results.filter { !$0.isTimeout }
+        let received = successfulResults.count
+
+        let packetLoss = transmitted > 0
+            ? Double(transmitted - received) / Double(transmitted) * 100.0
+            : 0.0
+
+        let times = successfulResults.map(\.time)
+        let minTime = times.min() ?? 0
+        let maxTime = times.max() ?? 0
+        let avgTime = times.isEmpty ? 0 : times.reduce(0, +) / Double(times.count)
+
+        let variance = times.isEmpty ? 0 : times.map { pow($0 - avgTime, 2) }.reduce(0, +) / Double(times.count)
+        let stdDev = sqrt(variance)
+
+        return PingStatistics(
+            host: results.first?.host ?? "",
+            transmitted: transmitted,
+            received: received,
+            packetLoss: packetLoss,
+            minTime: minTime,
+            maxTime: maxTime,
+            avgTime: avgTime,
+            stdDev: stdDev
+        )
+    }
+
+    // MARK: - Run Management
 
     private func beginRun() -> UUID {
         let runID = UUID()
@@ -87,8 +111,101 @@ actor PingService {
         isRunning = false
     }
 
+    // MARK: - DNS Resolution
+
     private func resolveHost(_ host: String) async -> String? {
         await ServiceUtilities.resolveHostname(host)
+    }
+
+    // MARK: - ICMP Ping (primary path)
+
+    private func pingICMP(
+        socket: ICMPSocket,
+        host: String,
+        ip: String?,
+        count: Int,
+        timeout: TimeInterval,
+        runID: UUID,
+        continuation: AsyncStream<PingResult>.Continuation
+    ) async {
+        let targetIP = ip ?? host
+
+        for seq in 1...count {
+            guard shouldContinue(runID: runID) else { break }
+
+            let response = await socket.sendPing(to: targetIP, timeout: timeout)
+
+            let isTimeout: Bool
+            switch response.kind {
+            case .echoReply:
+                isTimeout = false
+            case .timeout, .timeExceeded, .error:
+                isTimeout = true
+            }
+
+            let result = PingResult(
+                sequence: seq,
+                host: host,
+                ipAddress: ip,
+                ttl: 64,
+                time: response.rtt,
+                size: 64,
+                isTimeout: isTimeout,
+                method: .icmp
+            )
+            continuation.yield(result)
+
+            if seq < count {
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+
+    // MARK: - TCP Ping (fallback when ICMP socket creation fails)
+
+    /// Reference-type timestamp for Sendable closure capture.
+    ///
+    /// SAFETY: @unchecked Sendable is safe here because DateRef is only ever created
+    /// inside a single NWConnection stateUpdateHandler closure on pingQueue and read
+    /// synchronously on that same queue. No concurrent writes occur — the value is set
+    /// once at construction and read once when the connection state fires.
+    private final class DateRef: @unchecked Sendable {
+        var value = Date()
+    }
+
+    private func pingTCP(
+        host: String,
+        ip: String?,
+        count: Int,
+        timeout: TimeInterval,
+        runID: UUID,
+        continuation: AsyncStream<PingResult>.Continuation
+    ) async {
+        for seq in 1...count {
+            guard shouldContinue(runID: runID) else { break }
+
+            let (success, connectTime) = await self.connectTest(
+                host: ip ?? host,
+                timeout: timeout
+            )
+            let elapsed = connectTime * 1000
+
+            let result = PingResult(
+                sequence: seq,
+                host: host,
+                ipAddress: ip,
+                ttl: success ? 64 : 0,
+                time: elapsed,
+                size: 64,
+                isTimeout: !success,
+                method: .tcp
+            )
+            continuation.yield(result)
+
+            if seq < count {
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
     }
 
     /// Try connecting to multiple common ports concurrently — succeed if ANY responds.
@@ -173,36 +290,5 @@ actor PingService {
             }
             return (false, bestElapsed)
         }
-    }
-
-    func calculateStatistics(_ results: [PingResult], requestedCount: Int? = nil) async -> PingStatistics? {
-        guard !results.isEmpty else { return nil }
-
-        let transmitted = requestedCount ?? results.count
-        let successfulResults = results.filter { !$0.isTimeout }
-        let received = successfulResults.count
-
-        let packetLoss = transmitted > 0
-            ? Double(transmitted - received) / Double(transmitted) * 100.0
-            : 0.0
-
-        let times = successfulResults.map(\.time)
-        let minTime = times.min() ?? 0
-        let maxTime = times.max() ?? 0
-        let avgTime = times.isEmpty ? 0 : times.reduce(0, +) / Double(times.count)
-
-        let variance = times.isEmpty ? 0 : times.map { pow($0 - avgTime, 2) }.reduce(0, +) / Double(times.count)
-        let stdDev = sqrt(variance)
-
-        return PingStatistics(
-            host: results.first?.host ?? "",
-            transmitted: transmitted,
-            received: received,
-            packetLoss: packetLoss,
-            minTime: minTime,
-            maxTime: maxTime,
-            avgTime: avgTime,
-            stdDev: stdDev
-        )
     }
 }
