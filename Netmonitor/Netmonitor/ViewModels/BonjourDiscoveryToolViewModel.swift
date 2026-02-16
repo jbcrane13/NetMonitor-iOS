@@ -1,6 +1,11 @@
 import Foundation
 
 /// ViewModel for the Bonjour Discovery tool view
+///
+/// Uses the imperative `startDiscovery()` + polling pattern — the same proven
+/// approach used by `BonjourScanPhase` in the network scan pipeline. This avoids
+/// the fragile `AsyncStream` continuation lifecycle that caused the tool to
+/// silently produce zero results.
 @MainActor
 @Observable
 final class BonjourDiscoveryToolViewModel {
@@ -14,11 +19,7 @@ final class BonjourDiscoveryToolViewModel {
     // MARK: - Dependencies
 
     private let bonjourService: any BonjourDiscoveryServiceProtocol
-    private var discoveryTask: Task<Void, Never>?
-
-    /// Monotonic counter so a finishing old stream doesn't clobber
-    /// state that belongs to a newer discovery run.
-    private var runID: UInt64 = 0
+    private var pollingTask: Task<Void, Never>?
 
     init(bonjourService: any BonjourDiscoveryServiceProtocol = BonjourDiscoveryService()) {
         self.bonjourService = bonjourService
@@ -37,38 +38,48 @@ final class BonjourDiscoveryToolViewModel {
     // MARK: - Actions
 
     func startDiscovery() {
-        // Cancel the previous task (if any) without going through stopDiscovery,
-        // because stopDiscovery resets isDiscovering and we're about to set it true.
-        discoveryTask?.cancel()
-        discoveryTask = nil
-
-        runID &+= 1
-        let currentRun = runID
+        // Clean up any previous run
+        pollingTask?.cancel()
+        pollingTask = nil
+        bonjourService.stopDiscovery()
 
         isDiscovering = true
         hasDiscoveredOnce = true
         errorMessage = nil
         services = []
 
-        discoveryTask = Task {
-            let stream = bonjourService.discoveryStream(serviceType: nil)
+        // Start browsing using the imperative API (same path as network scan)
+        bonjourService.startDiscovery(serviceType: nil)
 
-            for await service in stream {
-                guard !Task.isCancelled, currentRun == runID else { break }
-                services.append(service)
+        // Poll discoveredServices at regular intervals
+        // (mirrors BonjourScanPhase's adaptive polling approach)
+        pollingTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(400))
+                guard !Task.isCancelled else { break }
+
+                // Sync newly-discovered services from the underlying service
+                let discovered = bonjourService.discoveredServices
+                if discovered.count != services.count {
+                    services = discovered
+                }
+
+                // The service auto-stops after its 30s timeout
+                if !bonjourService.isDiscovering {
+                    services = bonjourService.discoveredServices
+                    break
+                }
             }
 
-            // Only update state if this is still the active run.
-            // Prevents a stale task from resetting isDiscovering after
-            // a new discovery was already started.
-            guard currentRun == runID else { return }
-            isDiscovering = false
+            if !Task.isCancelled {
+                isDiscovering = false
+            }
         }
     }
 
     func stopDiscovery() {
-        discoveryTask?.cancel()
-        discoveryTask = nil
+        pollingTask?.cancel()
+        pollingTask = nil
         bonjourService.stopDiscovery()
         isDiscovering = false
     }

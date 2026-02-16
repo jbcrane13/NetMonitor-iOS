@@ -17,6 +17,9 @@ struct BonjourDiscoveryToolView: View {
         .navigationTitle("Bonjour Discovery")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+        .onDisappear {
+            viewModel.stopDiscovery()
+        }
         .accessibilityIdentifier("screen_bonjourTool")
     }
 
