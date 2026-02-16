@@ -9,12 +9,14 @@ import SwiftData
 struct ThemeManagerTests {
 
     @Test("ThemeManager singleton exists")
+    @MainActor
     func singletonExists() {
         let instance = ThemeManager.shared
         #expect(instance != nil)
     }
 
     @Test("Default accent color is a valid option")
+    @MainActor
     func defaultAccentColor() {
         let validOptions = ["cyan", "blue", "green", "purple", "orange", "red"]
         let currentValue = ThemeManager.shared.selectedAccentColor
@@ -22,6 +24,7 @@ struct ThemeManagerTests {
     }
 
     @Test("Changing selectedAccentColor updates UserDefaults")
+    @MainActor
     func accentColorPersistence() {
         let originalValue = ThemeManager.shared.selectedAccentColor
 
@@ -34,6 +37,7 @@ struct ThemeManagerTests {
     }
 
     @Test("accent computed property returns correct color for each option")
+    @MainActor
     func accentColorMapping() {
         let theme = ThemeManager.shared
         let originalValue = theme.selectedAccentColor
@@ -51,6 +55,7 @@ struct ThemeManagerTests {
     }
 
     @Test("accentLight returns different color than accent")
+    @MainActor
     func accentLightDifference() {
         let theme = ThemeManager.shared
         let accent = theme.accent
@@ -63,6 +68,7 @@ struct ThemeManagerTests {
     }
 
     @Test("Setting accent color is reflected in ThemeManager")
+    @MainActor
     func userDefaultsInit() {
         let originalValue = ThemeManager.shared.selectedAccentColor
 
@@ -164,7 +170,7 @@ final class MockDeviceDiscoveryService: DeviceDiscoveryServiceProtocol {
     var discoveredDevices: [DiscoveredDevice] = []
     var isScanning: Bool = false
     var scanProgress: Double = 0
-    var scanPhase: DeviceDiscoveryService.ScanPhase = .idle
+    var scanPhase: ScanDisplayPhase = .idle
     var lastScanDate: Date?
 
     var scanNetworkCalled = false
@@ -402,6 +408,7 @@ struct SettingsViewModelTests {
     }
 
     @Test("selectedAccentColor reads from ThemeManager")
+    @MainActor
     func accentColorFromTheme() {
         let vm = SettingsViewModel()
         let accentColor = vm.selectedAccentColor

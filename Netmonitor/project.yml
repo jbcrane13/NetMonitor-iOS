@@ -35,6 +35,7 @@ targets:
           - "**/.gitkeep"
           - "**/CLAUDE.md"
           - "**/AGENTS.md"
+          - "**/.omc/**"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor
