@@ -8,7 +8,11 @@ import Network
 /// to network-appropriate timeouts as successful connections are observed.
 public struct TCPProbeScanPhase: ScanPhase, Sendable {
     /// Reference-type timestamp for Sendable closure capture.
-    /// Thread-safe because reads/writes are serialized on scanQueue.
+    ///
+    /// SAFETY: @unchecked Sendable is safe here because each DateRef instance is created
+    /// and read within a single NWConnection callback scope on scanQueue. The value is
+    /// written once at construction and read once when the connection state fires —
+    /// no concurrent access occurs.
     private final class DateRef: @unchecked Sendable {
         var value = Date()
     }

@@ -1,10 +1,12 @@
 import Foundation
 import Network
 import NetworkScanKit
+import os
 
 @MainActor
 @Observable
 final class BonjourDiscoveryService {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "BonjourDiscoveryService")
     private(set) var discoveredServices: [BonjourService] = []
     private(set) var isDiscovering: Bool = false
 
@@ -133,7 +135,7 @@ final class BonjourDiscoveryService {
             if case .failed(let error) = state {
                 Task { @MainActor [weak self] in
                     guard let self, self.generation == gen else { return }
-                    print("[Bonjour] Browser failed for \(type): \(error)")
+                    Self.logger.error("Browser failed for \(type): \(error)")
                 }
             }
         }

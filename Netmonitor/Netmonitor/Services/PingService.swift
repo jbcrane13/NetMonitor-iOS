@@ -4,7 +4,11 @@ import NetworkScanKit
 
 actor PingService {
     /// Reference-type timestamp for Sendable closure capture.
-    /// Thread-safe because reads/writes are serialized on pingQueue.
+    ///
+    /// SAFETY: @unchecked Sendable is safe here because DateRef is only ever created
+    /// inside a single NWConnection stateUpdateHandler closure on pingQueue and read
+    /// synchronously on that same queue. No concurrent writes occur — the value is set
+    /// once at construction and read once when the connection state fires.
     private final class DateRef: @unchecked Sendable {
         var value = Date()
     }
@@ -13,6 +17,10 @@ actor PingService {
     private var activeRunID: UUID?
 
     /// Dedicated queue isolates ping measurements from device scan traffic on .global().
+    ///
+    /// SAFETY: nonisolated is safe here because DispatchQueue is an immutable, thread-safe
+    /// reference created at init and never reassigned (let). Accessing it from outside the
+    /// actor's isolation domain is safe — DispatchQueue itself is Sendable.
     private nonisolated let pingQueue = DispatchQueue(label: "com.netmonitor.ping", qos: .userInteractive)
 
     func ping(

@@ -58,7 +58,7 @@ actor TracerouteService {
     }
 
     /// Stops the current traceroute operation
-    func stop() {
+    func stop() async {
         isRunning = false
     }
 

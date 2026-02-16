@@ -1,8 +1,10 @@
 import Foundation
 import SwiftData
+import os
 
 /// Service for exporting app data to JSON and CSV formats
 enum DataExportService {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "DataExportService")
 
     enum ExportFormat: String, CaseIterable, Sendable {
         case json = "JSON"
@@ -158,7 +160,7 @@ enum DataExportService {
             try data.write(to: url)
             return url
         } catch {
-            print("Failed to write export file: \(error)")
+            logger.error("Failed to write export file: \(error)")
             return nil
         }
     }

@@ -1,10 +1,12 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import os
 
 @MainActor
 @Observable
 final class SettingsViewModel {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "SettingsViewModel")
     // MARK: - Network Tools Settings
     // Use UserDefaults directly since @AppStorage conflicts with @Observable
     private let defaults = UserDefaults.standard
@@ -112,19 +114,19 @@ final class SettingsViewModel {
         do {
             try modelContext.delete(model: ToolResult.self)
         } catch {
-            print("Failed to delete tool results: \(error)")
+            Self.logger.error("Failed to delete tool results: \(error)")
         }
 
         do {
             try modelContext.delete(model: SpeedTestResult.self)
         } catch {
-            print("Failed to delete speed test results: \(error)")
+            Self.logger.error("Failed to delete speed test results: \(error)")
         }
 
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save after clearing history: \(error)")
+            Self.logger.error("Failed to save after clearing history: \(error)")
         }
     }
 
@@ -145,14 +147,14 @@ final class SettingsViewModel {
             do {
                 try modelContext.delete(model: modelType)
             } catch {
-                print("Failed to delete \(modelType): \(error)")
+                Self.logger.error("Failed to delete \(String(describing: modelType)): \(error)")
             }
         }
 
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save after clearing data: \(error)")
+            Self.logger.error("Failed to save after clearing data: \(error)")
         }
 
         // 2. Clear URLCache

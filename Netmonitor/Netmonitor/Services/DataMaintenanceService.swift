@@ -1,9 +1,11 @@
 import Foundation
 import SwiftData
+import os
 
 /// Handles data maintenance tasks like pruning expired records
 @MainActor
 final class DataMaintenanceService {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "DataMaintenanceService")
     private init() {}
 
     /// Deletes ToolResult and SpeedTestResult records older than the configured retention period
@@ -15,17 +17,17 @@ final class DataMaintenanceService {
         do {
             try modelContext.delete(model: ToolResult.self, where: #Predicate { $0.timestamp < cutoff })
         } catch {
-            print("Failed to prune old tool results: \(error)")
+            logger.error("Failed to prune old tool results: \(error)")
         }
         do {
             try modelContext.delete(model: SpeedTestResult.self, where: #Predicate { $0.timestamp < cutoff })
         } catch {
-            print("Failed to prune old speed test results: \(error)")
+            logger.error("Failed to prune old speed test results: \(error)")
         }
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save after pruning: \(error)")
+            logger.error("Failed to save after pruning: \(error)")
         }
     }
 }

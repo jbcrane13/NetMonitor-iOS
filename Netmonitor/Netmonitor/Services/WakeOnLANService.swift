@@ -83,7 +83,13 @@ final class WakeOnLANService {
             connection.cancel()
         }
         
-        // Capture connection as nonisolated(unsafe) to allow cross-actor use in NWConnection callbacks
+        // SAFETY: nonisolated(unsafe) is safe here because `connection` is a local variable
+        // created on the same line above, used only within this function scope. The NWConnection
+        // callbacks (stateUpdateHandler, send completion) access `conn` on NWConnection's
+        // internal queue, but the connection's lifetime is bounded by the enclosing `defer`
+        // block which cancels it. No data races occur — the reference is read-only after
+        // assignment and all callback paths either resume the continuation or are guarded
+        // by ResumeState.
         nonisolated(unsafe) let conn = connection
         
         return await withCheckedContinuation { continuation in

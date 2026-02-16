@@ -1,5 +1,4 @@
 import SwiftUI
-import NetworkScanKit
 
 struct NetworkMapView: View {
     @State private var viewModel = NetworkMapViewModel()

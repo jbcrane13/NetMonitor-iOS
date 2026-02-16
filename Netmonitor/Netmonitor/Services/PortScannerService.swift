@@ -41,7 +41,7 @@ actor PortScannerService {
         }
     }
     
-    func stop() {
+    func stop() async {
         isRunning = false
         activeRunID = nil
     }

@@ -10,6 +10,7 @@ import os
 @MainActor
 final class BackgroundTaskService {
     static let shared = BackgroundTaskService()
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "BackgroundTaskService")
 
     static let refreshTaskIdentifier = "com.blakemiller.netmonitor.refresh"
     static let syncTaskIdentifier = "com.blakemiller.netmonitor.sync"
@@ -50,7 +51,7 @@ final class BackgroundTaskService {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("Failed to schedule refresh task: \(error)")
+            Self.logger.error("Failed to schedule refresh task: \(error)")
         }
     }
 
@@ -62,7 +63,7 @@ final class BackgroundTaskService {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("Failed to schedule sync task: \(error)")
+            Self.logger.error("Failed to schedule sync task: \(error)")
         }
     }
 
@@ -199,7 +200,7 @@ final class BackgroundTaskService {
             for: schema,
             configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)]
         ) else {
-            print("Failed to create ModelContainer for background task")
+            Self.logger.error("Failed to create ModelContainer for background task")
             return
         }
 
@@ -209,7 +210,7 @@ final class BackgroundTaskService {
         )
 
         guard let targets = try? context.fetch(descriptor) else {
-            print("Failed to fetch monitoring targets")
+            Self.logger.error("Failed to fetch monitoring targets")
             return
         }
 

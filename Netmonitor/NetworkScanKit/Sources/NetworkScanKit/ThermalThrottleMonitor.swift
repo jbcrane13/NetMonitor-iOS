@@ -7,6 +7,12 @@ import Foundation
 /// - `.nominal` / `.fair` → 1.0× (full concurrency)
 /// - `.serious` → 0.5× (half concurrency)
 /// - `.critical` → 0.25× (quarter concurrency)
+///
+/// SAFETY: @unchecked Sendable is safe here because all mutable state (`_multiplier`)
+/// is protected by `lock` (NSLock). The `observer` field is only written in `init`
+/// and never mutated afterward. The `shared` singleton is a `let` constant. All public
+/// access goes through `multiplier` or `effectiveLimit(from:)`, both of which acquire
+/// the lock before reading `_multiplier`.
 public final class ThermalThrottleMonitor: @unchecked Sendable {
     public static let shared = ThermalThrottleMonitor()
 

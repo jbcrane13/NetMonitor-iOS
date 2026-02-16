@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import os
 
 // MARK: - Connection State
 
@@ -47,6 +48,7 @@ final class MacConnectionService: MacConnectionServiceProtocol {
     // MARK: - Shared Instance
 
     static let shared = MacConnectionService()
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "MacConnectionService")
 
     // MARK: - Public State
 
@@ -256,7 +258,7 @@ final class MacConnectionService: MacConnectionServiceProtocol {
                 })
             }
         } catch {
-            print("[MacConnectionService] Send error: \(error)")
+            Self.logger.error("Send error: \(error)")
         }
     }
 
@@ -303,7 +305,7 @@ final class MacConnectionService: MacConnectionServiceProtocol {
                 let message = try CompanionMessage.decode(from: jsonData)
                 handleMessage(message)
             } catch {
-                print("[MacConnectionService] Decode error: \(error)")
+                Self.logger.error("Decode error: \(error)")
             }
         }
     }
@@ -317,9 +319,9 @@ final class MacConnectionService: MacConnectionServiceProtocol {
         case .deviceList(let payload):
             lastDeviceList = payload
         case .toolResult(let payload):
-            print("[MacConnectionService] Tool result: \(payload.tool) - \(payload.success)")
+            Self.logger.info("Tool result: \(payload.tool) - \(payload.success)")
         case .error(let payload):
-            print("[MacConnectionService] Error from Mac: \(payload.message)")
+            Self.logger.error("Error from Mac: \(payload.message)")
         case .heartbeat:
             // Heartbeat received — connection is alive
             break

@@ -109,38 +109,6 @@ final class DNSLookupService {
 
     nonisolated private func performDNSServiceLookup(domain: String, type: DNSRecordType) async throws -> [DNSRecord] {
         return try await withCheckedThrowingContinuation { continuation in
-            var serviceRef: DNSServiceRef?
-
-            let rrtype = dnsRecordTypeToConstant(type)
-
-            let callback: DNSServiceQueryRecordReply = { _, flags, _, errorCode, _, rrtype, _, rdlen, rdata, ttl, context in
-                guard errorCode == kDNSServiceErr_NoError else { return }
-                guard let context = context else { return }
-
-                let queryContext = Unmanaged<QueryContext>.fromOpaque(context).takeUnretainedValue()
-
-                if let record = DNSLookupService.parseRecord(
-                    domain: queryContext.domain,
-                    type: queryContext.recordType,
-                    rdata: rdata,
-                    rdlen: rdlen,
-                    ttl: ttl
-                ) {
-                    queryContext.records.append(record)
-                }
-
-                // If MoreComing flag is not set, we're done
-                if (flags & kDNSServiceFlagsMoreComing) == 0 {
-                    let records = queryContext.records
-                    let resumeState = queryContext.resumeState
-                    let cont = queryContext.continuation
-                    Task {
-                        guard await resumeState.tryResume() else { return }
-                        cont.resume(returning: records)
-                    }
-                }
-            }
-
             let queryContext = QueryContext(
                 domain: domain,
                 recordType: type,
@@ -152,52 +120,93 @@ final class DNSLookupService {
             let unmanaged = Unmanaged.passRetained(queryContext)
             let rawPtr = unmanaged.toOpaque()
 
+            var serviceRef: DNSServiceRef?
             let error = DNSServiceQueryRecord(
                 &serviceRef,
                 0, // flags
                 0, // interfaceIndex (0 = all interfaces)
                 domain,
-                UInt16(rrtype),
+                UInt16(dnsRecordTypeToConstant(type)),
                 UInt16(kDNSServiceClass_IN),
-                callback,
+                Self.dnsQueryCallback,
                 rawPtr
             )
 
             guard error == kDNSServiceErr_NoError, let service = serviceRef else {
-                let resumeState = queryContext.resumeState
-                Task {
-                    guard await resumeState.tryResume() else { return }
-                    continuation.resume(throwing: DNSError.lookupFailed)
-                }
-                unmanaged.release()
+                resumeContinuationWithError(queryContext: queryContext, unmanaged: unmanaged, error: .lookupFailed)
                 return
             }
 
-            // Schedule on run loop
-            let socket = DNSServiceRefSockFD(service)
-            let source = DispatchSource.makeReadSource(fileDescriptor: socket)
+            scheduleResultProcessing(service: service, rawPtr: rawPtr, resumeState: queryContext.resumeState, continuation: continuation)
+        }
+    }
 
-            source.setEventHandler {
-                DNSServiceProcessResult(service)
-            }
+    /// C-compatible callback for DNSServiceQueryRecord that accumulates DNS records.
+    nonisolated private static let dnsQueryCallback: DNSServiceQueryRecordReply = { _, flags, _, errorCode, _, _, _, rdlen, rdata, ttl, context in
+        guard errorCode == kDNSServiceErr_NoError else { return }
+        guard let context = context else { return }
 
-            source.setCancelHandler {
-                DNSServiceRefDeallocate(service)
-            }
+        let queryContext = Unmanaged<QueryContext>.fromOpaque(context).takeUnretainedValue()
 
-            source.resume()
+        if let record = DNSLookupService.parseRecord(
+            domain: queryContext.domain,
+            type: queryContext.recordType,
+            rdata: rdata,
+            rdlen: rdlen,
+            ttl: ttl
+        ) {
+            queryContext.records.append(record)
+        }
 
-            // Set timeout
+        if (flags & kDNSServiceFlagsMoreComing) == 0 {
+            let records = queryContext.records
             let resumeState = queryContext.resumeState
-            DispatchQueue.global().asyncAfter(deadline: .now() + 5.0) {
-                source.cancel()
-                let rs = resumeState
-                Task {
-                    guard await rs.tryResume() else { return }
-                    continuation.resume(throwing: DNSError.timeout)
-                }
-                Unmanaged<QueryContext>.fromOpaque(rawPtr).release()
+            let cont = queryContext.continuation
+            Task {
+                guard await resumeState.tryResume() else { return }
+                cont.resume(returning: records)
             }
+        }
+    }
+
+    /// Resumes the continuation with an error and releases the retained query context.
+    nonisolated private func resumeContinuationWithError(queryContext: QueryContext, unmanaged: Unmanaged<QueryContext>, error: DNSError) {
+        let resumeState = queryContext.resumeState
+        let continuation = queryContext.continuation
+        Task {
+            guard await resumeState.tryResume() else { return }
+            continuation.resume(throwing: error)
+        }
+        unmanaged.release()
+    }
+
+    /// Sets up a dispatch source to process DNS results and schedules a timeout.
+    nonisolated private func scheduleResultProcessing(
+        service: DNSServiceRef,
+        rawPtr: UnsafeMutableRawPointer,
+        resumeState: ResumeState,
+        continuation: CheckedContinuation<[DNSRecord], Error>
+    ) {
+        let socket = DNSServiceRefSockFD(service)
+        let source = DispatchSource.makeReadSource(fileDescriptor: socket)
+
+        source.setEventHandler {
+            DNSServiceProcessResult(service)
+        }
+
+        source.setCancelHandler {
+            DNSServiceRefDeallocate(service)
+        }
+
+        source.resume()
+
+        DispatchQueue.global().asyncAfter(deadline: .now() + 5.0) {
+            source.cancel()
+            Task {
+                guard await resumeState.tryResume() else { return }
+                continuation.resume(throwing: DNSError.timeout)
+            }
+            Unmanaged<QueryContext>.fromOpaque(rawPtr).release()
         }
     }
 

@@ -1,9 +1,11 @@
 import Foundation
 import UserNotifications
+import os
 
 /// Manages local notifications for network events
 @MainActor
 final class NotificationService {
+    private nonisolated static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.blakemiller.netmonitor", category: "NotificationService")
     static let shared = NotificationService()
 
     private let center = UNUserNotificationCenter.current()
@@ -27,7 +29,7 @@ final class NotificationService {
             }
             return granted
         } catch {
-            print("Notification authorization failed: \(error)")
+            Self.logger.error("Notification authorization failed: \(error)")
             return false
         }
     }
@@ -96,7 +98,7 @@ final class NotificationService {
         )
 
         center.add(request) { error in
-            if let error { print("Failed to schedule target down notification: \(error)") }
+            if let error { Self.logger.error("Failed to schedule target down notification: \(error)") }
         }
     }
 
@@ -122,7 +124,7 @@ final class NotificationService {
         )
 
         center.add(request) { error in
-            if let error { print("Failed to schedule high latency notification: \(error)") }
+            if let error { Self.logger.error("Failed to schedule high latency notification: \(error)") }
         }
     }
 
@@ -149,7 +151,7 @@ final class NotificationService {
         )
 
         center.add(request) { error in
-            if let error { print("Failed to schedule new device notification: \(error)") }
+            if let error { Self.logger.error("Failed to schedule new device notification: \(error)") }
         }
     }
 

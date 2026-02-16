@@ -158,4 +158,22 @@ A running log of significant architecture and design decisions. Both Daneel (Ope
 
 ---
 
+## ADR-013: GatewayService/PublicIPService remain fresh-instance (no singleton)
+**Date:** 2026-02-15
+**Status:** Active
+**Decision:** Keep GatewayService and PublicIPService as fresh instances created via DI defaults in ViewModel `init()`. Do not introduce singletons.
+**Context:** Architecture review bead `NetMonitor-iOS-rnx` flagged that GatewayService (5 instantiation sites) and PublicIPService (2 sites) create independent instances that don't share cached results. Evaluation found this is the correct pattern:
+
+- **GatewayService** performs a single LAN TCP connection (<10ms). No caching, no long-lived state. The three ViewModels (Dashboard, Map, Tools) live on separate tabs — only the active tab calls `detectGateway()`. SwiftUI `@State` preserves VM instances across tab switches, so services aren't constantly recreated.
+- **PublicIPService** is only used in DashboardViewModel (one ViewModel). Its 5-minute per-instance cache prevents excessive API calls during auto-refresh. BackgroundTaskService correctly uses fresh instances since background tasks have separate lifecycles.
+- Services that ARE singletons (`NetworkMonitorService`, `DeviceDiscoveryService`, `MacConnectionService`) hold long-lived NWPathMonitor connections, discovered device lists, or persistent connections — genuinely shared state. Gateway/PublicIP are stateless query services.
+
+**Consequences:**
+- Reinforces ADR-008 pattern: ViewModels own services via `@State`, not singletons
+- No new shared mutable state introduced
+- Negligible duplicate network cost (LAN TCP vs external API with cache)
+- Consistent with Phase 1-3 direction of moving away from singletons toward DI
+
+---
+
 *To add a new ADR: append with the next number, include date, status, decision, context, and consequences. Reference the bead ID if applicable.*

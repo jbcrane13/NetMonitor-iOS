@@ -16,6 +16,7 @@
 		0C7129BD9C6F7B71D7B217DC /* BonjourDiscoveryToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AF94739B269FC1575A7C64 /* BonjourDiscoveryToolView.swift */; };
 		0CCCF61D6809602C14B4F17A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 92B8CCA175E76ACA18B069C2 /* PrivacyInfo.xcprivacy */; };
 		0FCBCE8E45AD0FADCEB99791 /* PortScannerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F72A5E2B2F8BD0FF46273248 /* PortScannerServiceTests.swift */; };
+		107FA5F641FBB71BA4B63BD7 /* NetworkScanKitExports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E190A7E596C0615E2A3506B /* NetworkScanKitExports.swift */; };
 		11D6D335DD833055D860BF49 /* WakeOnLANServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79084B57EDBD23729D7FE79C /* WakeOnLANServiceTests.swift */; };
 		15D579785613EF9DA5F01B87 /* BonjourToolUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF37CB8EA2B149229CD1189 /* BonjourToolUITests.swift */; };
 		15E4B5C7ED0C12C04F3BF9A3 /* BonjourDiscoveryToolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12104D7EB06574920F40B209 /* BonjourDiscoveryToolViewModel.swift */; };
@@ -251,6 +252,7 @@
 		9762B6DA09AEC19DA25F8AD1 /* SpeedTestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestService.swift; sourceTree = "<group>"; };
 		9DE3BC8C2E8587C19E12A25C /* ToolClearButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolClearButton.swift; sourceTree = "<group>"; };
 		9E0DB342806E632283625FA7 /* Netmonitor.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Netmonitor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E190A7E596C0615E2A3506B /* NetworkScanKitExports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkScanKitExports.swift; sourceTree = "<group>"; };
 		9E923657203E10C881ED154E /* MonitoringTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitoringTarget.swift; sourceTree = "<group>"; };
 		A33559F156548EF73D7F1450 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		A4E43B068AB8EBBB18213B75 /* PingToolUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingToolUITests.swift; sourceTree = "<group>"; };
@@ -350,6 +352,7 @@
 				9E923657203E10C881ED154E /* MonitoringTarget.swift */,
 				7CC30DB1C8834D21D07E32BC /* NetworkError.swift */,
 				387E8A5019BF41DED96B6607 /* NetworkModels.swift */,
+				9E190A7E596C0615E2A3506B /* NetworkScanKitExports.swift */,
 				ADEEF7F783FBDFEB17C97E6D /* PairedMac.swift */,
 				954EBF38DF1DD94E0A9534E2 /* ToolModels.swift */,
 				4E84D20209C2F8E01041E94F /* ToolResult.swift */,
@@ -836,6 +839,7 @@
 				ABC118726ED04F028A998A90 /* NetworkMapViewModel.swift in Sources */,
 				AD941ED8C66CDA2BD700D464 /* NetworkModels.swift in Sources */,
 				C617227F80117A77B1A24CAB /* NetworkMonitorService.swift in Sources */,
+				107FA5F641FBB71BA4B63BD7 /* NetworkScanKitExports.swift in Sources */,
 				CD39589B010EE8B9672B8083 /* NetworkUtilities.swift in Sources */,
 				768CD1ABF37484D6D02E319B /* NotificationService.swift in Sources */,
 				F6F6DB2DFAABAD10B21F7BC9 /* PairedMac.swift in Sources */,
