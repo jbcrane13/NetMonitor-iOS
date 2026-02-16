@@ -3,20 +3,24 @@ import os.log
 
 private let logger = Logger(subsystem: "com.netmonitor.scankit", category: "ICMPLatency")
 
+/// Global serial queue for ICMP I/O — keeps blocking poll() off the cooperative pool.
+private let icmpQueue = DispatchQueue(label: "com.netmonitor.scankit.icmp", qos: .userInitiated)
+
 /// Enriches already-discovered devices with ICMP-based latency measurements.
 ///
-/// Uses a single-socket ping sweep: sends ICMP echo requests to all target IPs
-/// rapidly, then collects responses as they arrive. This avoids kernel ICMP rate
-/// limiting and socket creation overhead that inflate per-probe latency.
+/// Uses a single-socket ping sweep on a dedicated dispatch queue:
+/// 1. Send ICMP echo requests to all targets rapidly
+/// 2. Collect ALL responses in a tight synchronous loop (no async suspension)
+/// 3. Batch-update the accumulator with results
 ///
-/// Falls back gracefully: if the ICMP socket can't be created (e.g. Simulator),
-/// the phase completes immediately.
+/// The dedicated queue prevents cooperative thread pool scheduling from inflating
+/// RTT measurements between recvfrom calls.
 public struct ICMPLatencyPhase: ScanPhase, Sendable {
     public let id = "icmpLatency"
     public let displayName = "Measuring latency…"
     public let weight: Double = 0.10
 
-    /// How long to wait for all responses after sending.
+    /// How long to wait for responses after sending all probes.
     private let collectTimeout: TimeInterval
 
     public init(collectTimeout: TimeInterval = 2.0) {
@@ -43,27 +47,61 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
             await onProgress(1.0)
             return
         }
-        defer { close(fd) }
 
         // Non-blocking for poll-based collection
         let flags = fcntl(fd, F_GETFL, 0)
         _ = fcntl(fd, F_SETFL, flags | O_NONBLOCK)
 
-        logger.info("ICMP ping sweep: \(ipsNeedingLatency.count) devices to probe")
+        logger.info("ICMP ping sweep: \(ipsNeedingLatency.count) devices")
 
-        // Map sequence number → (ip, sendTime)
         let ident = UInt16(ProcessInfo.processInfo.processIdentifier & 0xFFFF)
-        var pending: [UInt16: (ip: String, sendTime: ContinuousClock.Instant)] = [:]
-        var enriched = 0
+        let timeout = collectTimeout
 
-        // Phase 1: Send all echo requests rapidly
-        for (index, ip) in ipsNeedingLatency.enumerated() {
-            let seq = UInt16(index + 1)
+        // Run all I/O on a dedicated queue — no async suspension between reads
+        let results: [(ip: String, rtt: Double)] = await withCheckedContinuation { continuation in
+            icmpQueue.async {
+                let results = Self.pingSweep(
+                    fd: fd,
+                    ips: ipsNeedingLatency,
+                    identifier: ident,
+                    timeout: timeout
+                )
+                close(fd)
+                continuation.resume(returning: results)
+            }
+        }
+
+        // Batch-update accumulator (async is fine here — I/O is done)
+        for (ip, rtt) in results {
+            await accumulator.updateLatency(ip: ip, latency: rtt)
+        }
+
+        logger.info("ICMP ping sweep complete: \(results.count)/\(ipsNeedingLatency.count) enriched")
+        await onProgress(1.0)
+    }
+
+    // MARK: - Synchronous Ping Sweep (runs entirely on icmpQueue)
+
+    /// Sends all echo requests and collects responses in a tight loop.
+    /// No async suspension points — timing is accurate.
+    private static func pingSweep(
+        fd: Int32,
+        ips: [String],
+        identifier: UInt16,
+        timeout: TimeInterval
+    ) -> [(ip: String, rtt: Double)] {
+
+        // Map sequence → (ip, sendTime)
+        var pending: [UInt16: (ip: String, sendTime: ContinuousClock.Instant)] = [:]
+
+        // Phase 1: Blast all echo requests
+        for (index, ip) in ips.enumerated() {
+            let seq = UInt16((index % Int(UInt16.max)) + 1)
             var addr = sockaddr_in()
             addr.sin_family = sa_family_t(AF_INET)
             guard inet_pton(AF_INET, ip, &addr.sin_addr) == 1 else { continue }
 
-            let packet = Self.buildEchoRequest(identifier: ident, sequence: seq)
+            let packet = buildEchoRequest(identifier: identifier, sequence: seq)
             let sendTime = ContinuousClock.now
 
             let sent = withUnsafePointer(to: &addr) { ptr in
@@ -77,14 +115,12 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
             }
         }
 
-        logger.debug("Sent \(pending.count) ICMP echo requests")
-        await onProgress(0.5)
+        logger.debug("Sent \(pending.count) echo requests, collecting responses…")
 
-        // Phase 2: Collect responses until timeout or all received
-        let deadline = ContinuousClock.now + .milliseconds(Int(collectTimeout * 1000))
+        // Phase 2: Collect responses — tight synchronous loop
+        var results: [(ip: String, rtt: Double)] = []
+        let deadline = ContinuousClock.now + .milliseconds(Int(timeout * 1000))
         var buf = [UInt8](repeating: 0, count: 256)
-        var fromAddr = sockaddr_in()
-        var fromLen = socklen_t(MemoryLayout<sockaddr_in>.size)
 
         while !pending.isEmpty && ContinuousClock.now < deadline {
             let remaining = deadline - .now
@@ -94,84 +130,71 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
             ))
 
             var pollFd = pollfd(fd: fd, events: Int16(POLLIN), revents: 0)
-            let pollResult = poll(&pollFd, 1, min(remainingMs, 100)) // 100ms max per poll to update progress
+            let pollResult = poll(&pollFd, 1, min(remainingMs, 200))
 
             guard pollResult > 0 else {
-                if pollResult == 0 && remainingMs <= 1 { break } // Timed out
+                if remainingMs <= 1 { break }
                 continue
             }
 
-            fromLen = socklen_t(MemoryLayout<sockaddr_in>.size)
-            let received = withUnsafeMutablePointer(to: &fromAddr) { ptr in
-                ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
-                    recvfrom(fd, &buf, buf.count, 0, sockaddrPtr, &fromLen)
+            // Read ALL available responses without blocking between reads
+            while true {
+                var fromAddr = sockaddr_in()
+                var fromLen = socklen_t(MemoryLayout<sockaddr_in>.size)
+
+                let received = withUnsafeMutablePointer(to: &fromAddr) { ptr in
+                    ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
+                        recvfrom(fd, &buf, buf.count, 0, sockaddrPtr, &fromLen)
+                    }
                 }
+
+                let recvTime = ContinuousClock.now
+
+                guard received > 0 else { break } // EWOULDBLOCK = no more data
+
+                // Parse: skip IP header if present
+                var offset = 0
+                if received >= 20 && (buf[0] >> 4) == 4 {
+                    offset = Int(buf[0] & 0x0F) * 4
+                }
+
+                guard received > offset + 7 else { continue }
+                let icmpType = buf[offset]
+                guard icmpType == 0 else { continue } // Echo Reply only
+
+                let respIdent = UInt16(buf[offset + 4]) << 8 | UInt16(buf[offset + 5])
+                let respSeq = UInt16(buf[offset + 6]) << 8 | UInt16(buf[offset + 7])
+
+                guard respIdent == identifier else { continue }
+                guard let probe = pending.removeValue(forKey: respSeq) else { continue }
+
+                let elapsed = recvTime - probe.sendTime
+                let rtt = Double(elapsed.components.seconds) * 1000.0
+                    + Double(elapsed.components.attoseconds) / 1e15
+
+                results.append((ip: probe.ip, rtt: rtt))
             }
-            guard received > 0 else { continue }
-
-            let recvTime = ContinuousClock.now
-
-            // Parse: skip IP header if present
-            let data = Array(buf[0..<received])
-            var offset = 0
-            if data.count >= 20 && (data[0] >> 4) == 4 {
-                offset = Int(data[0] & 0x0F) * 4
-            }
-
-            guard data.count > offset + 7 else { continue }
-            let icmpType = data[offset]
-            // Type 0 = Echo Reply
-            guard icmpType == 0 else { continue }
-
-            // Extract identifier and sequence
-            let respIdent = UInt16(data[offset + 4]) << 8 | UInt16(data[offset + 5])
-            let respSeq = UInt16(data[offset + 6]) << 8 | UInt16(data[offset + 7])
-
-            // Match our identifier
-            guard respIdent == ident else { continue }
-
-            // Match pending probe
-            guard let probe = pending.removeValue(forKey: respSeq) else { continue }
-
-            let elapsed = recvTime - probe.sendTime
-            let rtt = Double(elapsed.components.seconds) * 1000.0
-                + Double(elapsed.components.attoseconds) / 1e15
-
-            await accumulator.updateLatency(ip: probe.ip, latency: rtt)
-            enriched += 1
-
-            let progress = 0.5 + 0.5 * Double(enriched) / Double(max(ipsNeedingLatency.count, 1))
-            await onProgress(progress)
         }
 
-        logger.info("ICMP ping sweep complete: \(enriched)/\(ipsNeedingLatency.count) devices enriched")
-        await onProgress(1.0)
+        return results
     }
 
     // MARK: - Packet Building
 
-    /// Build an ICMP echo request packet (type 8, code 0).
     private static func buildEchoRequest(identifier: UInt16, sequence: UInt16, payloadSize: Int = 16) -> [UInt8] {
         var packet = [UInt8](repeating: 0, count: 8 + payloadSize)
+        packet[0] = 8  // Echo Request
+        packet[1] = 0  // Code
 
-        // Type 8 (Echo Request), Code 0
-        packet[0] = 8
-        packet[1] = 0
-
-        // Identifier
         packet[4] = UInt8(identifier >> 8)
         packet[5] = UInt8(identifier & 0xFF)
-
-        // Sequence number
         packet[6] = UInt8(sequence >> 8)
         packet[7] = UInt8(sequence & 0xFF)
 
-        // Payload
         for i in 0..<payloadSize {
             packet[8 + i] = UInt8(i & 0xFF)
         }
 
-        // Checksum (RFC 1071)
         let checksum = internetChecksum(packet)
         packet[2] = UInt8(checksum >> 8)
         packet[3] = UInt8(checksum & 0xFF)
@@ -179,7 +202,6 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
         return packet
     }
 
-    /// RFC 1071 Internet Checksum.
     private static func internetChecksum(_ data: [UInt8]) -> UInt16 {
         var sum: UInt32 = 0
         var i = 0
