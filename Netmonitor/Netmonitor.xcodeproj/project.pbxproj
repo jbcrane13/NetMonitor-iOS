@@ -27,6 +27,7 @@
 		221A23892136397E2B0BF33E /* ToolStatisticsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009BEA7EB9DB17F0BDC2453B /* ToolStatisticsCard.swift */; };
 		222389FC69992542DDB437D0 /* PingToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFE5E5DCE34D3FC50475D52 /* PingToolScreen.swift */; };
 		2242AE5ADB94D50FA44B806E /* NetworkUtilitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2993797E00656C1D42117DCC /* NetworkUtilitiesTests.swift */; };
+		224E493B7D31315D981AA42F /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38990F764259D3EDCECD248D /* AppSettings.swift */; };
 		238D2A8042A6A08822DA1B56 /* SpeedTestToolScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC5A13735AF98830DC10D74 /* SpeedTestToolScreen.swift */; };
 		26A8AD63310A016D0E197E7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A9F4E58CD7C9A2BB40E204D4 /* Assets.xcassets */; };
 		27DC896E46B4025DB940681A /* NetworkMapScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB1C480E81630053E84B74E /* NetworkMapScreen.swift */; };
@@ -882,6 +883,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				224E493B7D31315D981AA42F /* AppSettings.swift in Sources */,
 				5C6277856F65A219D6B3818F /* NetmonitorWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

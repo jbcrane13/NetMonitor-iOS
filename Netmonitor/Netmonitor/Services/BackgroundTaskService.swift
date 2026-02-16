@@ -104,12 +104,12 @@ final class BackgroundTaskService {
         await gatewayService.detectGateway()
 
         // Update shared UserDefaults for widget
-        let defaults = UserDefaults(suiteName: "group.com.blakemiller.netmonitor") ?? .standard
-        defaults.set(networkMonitor.isConnected, forKey: "widget_isConnected")
-        defaults.set(networkMonitor.connectionType.displayName, forKey: "widget_connectionType")
+        let defaults = UserDefaults(suiteName: AppSettings.appGroupSuiteName) ?? .standard
+        defaults.set(networkMonitor.isConnected, forKey: AppSettings.Keys.widgetIsConnected)
+        defaults.set(networkMonitor.connectionType.displayName, forKey: AppSettings.Keys.widgetConnectionType)
 
         if let gateway = gatewayService.gateway {
-            defaults.set(gateway.latencyText, forKey: "widget_gatewayLatency")
+            defaults.set(gateway.latencyText, forKey: AppSettings.Keys.widgetGatewayLatency)
 
             // Trigger high latency notification if above threshold
             if let latency = gateway.latency {
@@ -166,16 +166,16 @@ final class BackgroundTaskService {
         await publicIPService.fetchPublicIP(forceRefresh: true)
 
         // Update shared UserDefaults for widget
-        let defaults = UserDefaults(suiteName: "group.com.blakemiller.netmonitor") ?? .standard
-        defaults.set(networkMonitor.isConnected, forKey: "widget_isConnected")
-        defaults.set(networkMonitor.connectionType.displayName, forKey: "widget_connectionType")
+        let defaults = UserDefaults(suiteName: AppSettings.appGroupSuiteName) ?? .standard
+        defaults.set(networkMonitor.isConnected, forKey: AppSettings.Keys.widgetIsConnected)
+        defaults.set(networkMonitor.connectionType.displayName, forKey: AppSettings.Keys.widgetConnectionType)
 
         if let gateway = gatewayService.gateway {
-            defaults.set(gateway.latencyText, forKey: "widget_gatewayLatency")
+            defaults.set(gateway.latencyText, forKey: AppSettings.Keys.widgetGatewayLatency)
         }
 
         if let isp = publicIPService.ispInfo {
-            defaults.set(isp.publicIP, forKey: "widget_publicIP")
+            defaults.set(isp.publicIP, forKey: AppSettings.Keys.widgetPublicIP)
         }
 
         // Check monitoring targets

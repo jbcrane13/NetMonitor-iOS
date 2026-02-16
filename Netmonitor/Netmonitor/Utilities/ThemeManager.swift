@@ -2,7 +2,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class ThemeManager: @unchecked Sendable {
+final class ThemeManager {
     static let shared = ThemeManager()
 
     var selectedAccentColor: String {

@@ -80,6 +80,7 @@ targets:
       - path: NetmonitorWidget
         excludes:
           - "**/.gitkeep"
+      - path: Netmonitor/Utilities/AppSettings.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.blakemiller.netmonitor.widget

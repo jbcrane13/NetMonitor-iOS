@@ -26,7 +26,7 @@ struct ThemeManagerTests {
         let originalValue = ThemeManager.shared.selectedAccentColor
 
         ThemeManager.shared.selectedAccentColor = "purple"
-        let saved = UserDefaults.standard.string(forKey: "selectedAccentColor")
+        let saved = UserDefaults.standard.string(forKey: AppSettings.Keys.selectedAccentColor)
         #expect(saved == "purple")
 
         // Restore original
@@ -69,7 +69,7 @@ struct ThemeManagerTests {
         // Set via ThemeManager (which writes to UserDefaults)
         ThemeManager.shared.selectedAccentColor = "blue"
         #expect(ThemeManager.shared.selectedAccentColor == "blue")
-        #expect(UserDefaults.standard.string(forKey: "selectedAccentColor") == "blue")
+        #expect(UserDefaults.standard.string(forKey: AppSettings.Keys.selectedAccentColor) == "blue")
 
         // Restore original
         ThemeManager.shared.selectedAccentColor = originalValue
@@ -359,7 +359,7 @@ struct SettingsViewModelTests {
         let vm = SettingsViewModel()
         vm.defaultPingCount = 10
 
-        let saved = UserDefaults.standard.integer(forKey: "defaultPingCount")
+        let saved = UserDefaults.standard.integer(forKey: AppSettings.Keys.defaultPingCount)
         #expect(saved == 10)
 
         // Reset
@@ -441,7 +441,7 @@ struct NotificationServiceTests {
         testDefaults.removePersistentDomain(forName: "test.notifications.latency")
 
         // Set threshold to 100 in standard defaults
-        UserDefaults.standard.set(100, forKey: "highLatencyThreshold")
+        UserDefaults.standard.set(100, forKey: AppSettings.Keys.highLatencyThreshold)
 
         // Below threshold - should not notify (we can't test actual notification, but method should execute)
         NotificationService.shared.notifyHighLatency(host: "test.com", latency: 50)
@@ -456,18 +456,18 @@ struct NotificationServiceTests {
     @Test("notifyTargetDown respects enabled setting")
     func targetDownEnabled() {
         // When disabled, should return early
-        UserDefaults.standard.set(false, forKey: "targetDownAlertEnabled")
+        UserDefaults.standard.set(false, forKey: AppSettings.Keys.targetDownAlertEnabled)
         NotificationService.shared.notifyTargetDown(name: "Test", host: "test.com")
 
         // When enabled
-        UserDefaults.standard.set(true, forKey: "targetDownAlertEnabled")
+        UserDefaults.standard.set(true, forKey: AppSettings.Keys.targetDownAlertEnabled)
         NotificationService.shared.notifyTargetDown(name: "Test", host: "test.com")
 
         // Both should complete without error
         #expect(true)
 
         // Reset
-        UserDefaults.standard.set(true, forKey: "targetDownAlertEnabled")
+        UserDefaults.standard.set(true, forKey: AppSettings.Keys.targetDownAlertEnabled)
     }
 }
 
@@ -491,7 +491,7 @@ struct BackgroundTaskServiceTests {
 
     @Test("scheduleRefreshTask respects backgroundRefreshEnabled false")
     func scheduleRespectsSetting() {
-        UserDefaults.standard.set(false, forKey: "backgroundRefreshEnabled")
+        UserDefaults.standard.set(false, forKey: AppSettings.Keys.backgroundRefreshEnabled)
 
         // Should cancel task when disabled
         BackgroundTaskService.shared.scheduleRefreshTask()
@@ -500,7 +500,7 @@ struct BackgroundTaskServiceTests {
         #expect(true)
 
         // Reset
-        UserDefaults.standard.set(true, forKey: "backgroundRefreshEnabled")
+        UserDefaults.standard.set(true, forKey: AppSettings.Keys.backgroundRefreshEnabled)
     }
 }
 

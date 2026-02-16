@@ -38,24 +38,6 @@ struct DiscoveredMac: Identifiable, Sendable, Equatable {
 
 // MARK: - Protocol
 
-@MainActor
-protocol MacConnectionServiceProtocol: AnyObject {
-    var connectionState: MacConnectionState { get }
-    var discoveredMacs: [DiscoveredMac] { get }
-    var isBrowsing: Bool { get }
-    var connectedMacName: String? { get }
-    var lastStatusUpdate: StatusUpdatePayload? { get }
-    var lastTargetList: TargetListPayload? { get }
-    var lastDeviceList: DeviceListPayload? { get }
-
-    func startBrowsing()
-    func stopBrowsing()
-    func connect(to mac: DiscoveredMac)
-    func connectDirect(host: String, port: UInt16)
-    func disconnect()
-    func send(command: CommandPayload) async
-}
-
 // MARK: - MacConnectionService
 
 @MainActor

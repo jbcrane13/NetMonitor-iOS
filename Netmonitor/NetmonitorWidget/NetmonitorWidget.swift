@@ -52,18 +52,18 @@ struct NetworkStatusProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NetworkStatusEntry>) -> Void) {
         // Read cached data from shared UserDefaults (app group)
-        let defaults = UserDefaults(suiteName: "group.com.blakemiller.netmonitor") ?? .standard
-        
+        let defaults = UserDefaults(suiteName: AppSettings.appGroupSuiteName) ?? .standard
+
         let entry = NetworkStatusEntry(
             date: .now,
-            isConnected: defaults.bool(forKey: "widget_isConnected"),
-            connectionType: defaults.string(forKey: "widget_connectionType") ?? "Unknown",
-            ssid: defaults.string(forKey: "widget_ssid"),
-            publicIP: defaults.string(forKey: "widget_publicIP"),
-            gatewayLatency: defaults.string(forKey: "widget_gatewayLatency"),
-            deviceCount: defaults.integer(forKey: "widget_deviceCount"),
-            downloadSpeed: defaults.string(forKey: "widget_downloadSpeed"),
-            uploadSpeed: defaults.string(forKey: "widget_uploadSpeed")
+            isConnected: defaults.bool(forKey: AppSettings.Keys.widgetIsConnected),
+            connectionType: defaults.string(forKey: AppSettings.Keys.widgetConnectionType) ?? "Unknown",
+            ssid: defaults.string(forKey: AppSettings.Keys.widgetSSID),
+            publicIP: defaults.string(forKey: AppSettings.Keys.widgetPublicIP),
+            gatewayLatency: defaults.string(forKey: AppSettings.Keys.widgetGatewayLatency),
+            deviceCount: defaults.integer(forKey: AppSettings.Keys.widgetDeviceCount),
+            downloadSpeed: defaults.string(forKey: AppSettings.Keys.widgetDownloadSpeed),
+            uploadSpeed: defaults.string(forKey: AppSettings.Keys.widgetUploadSpeed)
         )
 
         // Refresh every 15 minutes
