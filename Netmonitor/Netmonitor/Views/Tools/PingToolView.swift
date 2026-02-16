@@ -13,7 +13,7 @@ struct PingToolView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Layout.sectionSpacing) {
-                inputSection
+                PingInputSection(viewModel: viewModel)
                 controlSection
                 resultsSection
                 statisticsSection
@@ -26,48 +26,6 @@ struct PingToolView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
         .accessibilityIdentifier("screen_pingTool")
-    }
-
-    // MARK: - Input Section
-
-    private var inputSection: some View {
-        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
-            Text("Target")
-                .font(.headline)
-                .foregroundStyle(Theme.Colors.textPrimary)
-
-            ToolInputField(
-                text: $viewModel.host,
-                placeholder: "Enter hostname or IP address",
-                icon: "network",
-                keyboardType: .URL,
-                accessibilityID: "pingTool_input_host",
-                onSubmit: {
-                    if viewModel.canStartPing {
-                        viewModel.startPing()
-                    }
-                }
-            )
-
-            // Ping count picker
-            HStack {
-                Text("Ping Count")
-                    .font(.subheadline)
-                    .foregroundStyle(Theme.Colors.textSecondary)
-
-                Spacer()
-
-                Picker("Count", selection: $viewModel.pingCount) {
-                    ForEach(viewModel.availablePingCounts, id: \.self) { count in
-                        Text("\(count)").tag(count)
-                    }
-                }
-                .pickerStyle(.menu)
-                .tint(Theme.Colors.accent)
-                .accessibilityIdentifier("pingTool_picker_count")
-            }
-            .padding(.horizontal, 4)
-        }
     }
 
     // MARK: - Control Section
@@ -98,6 +56,12 @@ struct PingToolView: View {
         }
     }
 
+    // MARK: - Settings
+
+    private var showDetailedResults: Bool {
+        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
+    }
+
     // MARK: - Results Section
 
     @ViewBuilder
@@ -117,9 +81,10 @@ struct PingToolView: View {
                 }
 
                 GlassCard {
+                    let detailed = showDetailedResults
                     VStack(spacing: 0) {
                         ForEach(Array(viewModel.results.enumerated()), id: \.element.id) { index, result in
-                            PingResultRow(result: result)
+                            PingResultRow(result: result, showDetailed: detailed)
 
                             if index < viewModel.results.count - 1 {
                                 Divider()
@@ -135,10 +100,6 @@ struct PingToolView: View {
     }
 
     // MARK: - Statistics Section
-
-    private var showDetailedResults: Bool {
-        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
-    }
 
     @ViewBuilder
     private var statisticsSection: some View {
@@ -194,13 +155,57 @@ struct PingToolView: View {
     }
 }
 
+// MARK: - Input Section (isolated to prevent full-body re-render on keystrokes)
+
+private struct PingInputSection: View {
+    @Bindable var viewModel: PingToolViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
+            Text("Target")
+                .font(.headline)
+                .foregroundStyle(Theme.Colors.textPrimary)
+
+            ToolInputField(
+                text: $viewModel.host,
+                placeholder: "Enter hostname or IP address",
+                icon: "network",
+                keyboardType: .URL,
+                accessibilityID: "pingTool_input_host",
+                onSubmit: {
+                    if viewModel.canStartPing {
+                        viewModel.startPing()
+                    }
+                }
+            )
+
+            // Ping count picker
+            HStack {
+                Text("Ping Count")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+
+                Spacer()
+
+                Picker("Count", selection: $viewModel.pingCount) {
+                    ForEach(viewModel.availablePingCounts, id: \.self) { count in
+                        Text("\(count)").tag(count)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("pingTool_picker_count")
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+}
+
 // MARK: - Ping Result Row
 
 private struct PingResultRow: View {
     let result: PingResult
-    private var showDetailed: Bool {
-        UserDefaults.standard.object(forKey: AppSettings.Keys.showDetailedResults) as? Bool ?? true
-    }
+    let showDetailed: Bool
 
     var body: some View {
         HStack(spacing: Theme.Layout.itemSpacing) {
