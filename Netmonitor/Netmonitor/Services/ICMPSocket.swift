@@ -144,6 +144,9 @@ actor ICMPSocket {
         // Build ICMP echo request packet
         let packet = buildEchoRequest(sequence: sequence, payloadSize: payloadSize)
 
+        // Drain any stale responses from previous pings before timing
+        drainSocket(fd: fd)
+
         // Start timing with ContinuousClock for sub-millisecond precision
         let startTime = ContinuousClock.now
 
@@ -166,51 +169,76 @@ actor ICMPSocket {
 
         icmpLog.debug("Sent \(packet.count) bytes to \(target) seq=\(sequence)")
 
-        // Poll for response with timeout
-        let timeoutMs = Int32(timeout * 1000)
-        var pollFd = pollfd(fd: fd, events: Int16(POLLIN), revents: 0)
-        let pollResult = poll(&pollFd, 1, timeoutMs)
+        // Poll+receive loop: keep reading until we get our sequence or timeout
+        let deadline = startTime + .milliseconds(Int(timeout * 1000))
 
-        let elapsed = ContinuousClock.now - startTime
-        let rtt = Double(elapsed.components.seconds) * 1000.0
-            + Double(elapsed.components.attoseconds) / 1e15
+        while true {
+            let remaining = deadline - .now
+            let remainingMs = max(1, Int32(remaining.components.seconds * 1000
+                + remaining.components.attoseconds / 1_000_000_000_000_000))
 
-        guard pollResult > 0 else {
-            icmpLog.warning("poll timeout after \(rtt, format: .fixed(precision: 1))ms (pollResult=\(pollResult), revents=\(pollFd.revents))")
-            return ICMPResponse(kind: .timeout, sourceIP: nil, rtt: rtt)
-        }
+            var pollFd = pollfd(fd: fd, events: Int16(POLLIN), revents: 0)
+            let pollResult = poll(&pollFd, 1, remainingMs)
 
-        // Receive response
-        var responseBuffer = [UInt8](repeating: 0, count: 1024)
-        var fromAddr = sockaddr_in()
-        var fromLen = socklen_t(MemoryLayout<sockaddr_in>.size)
+            let elapsed = ContinuousClock.now - startTime
+            let rtt = Double(elapsed.components.seconds) * 1000.0
+                + Double(elapsed.components.attoseconds) / 1e15
 
-        let received = withUnsafeMutablePointer(to: &fromAddr) { ptr in
-            ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
-                recvfrom(fd, &responseBuffer, responseBuffer.count, 0, sockaddrPtr, &fromLen)
+            guard pollResult > 0 else {
+                icmpLog.warning("poll timeout after \(rtt, format: .fixed(precision: 1))ms seq=\(sequence)")
+                return ICMPResponse(kind: .timeout, sourceIP: nil, rtt: rtt)
+            }
+
+            // Receive response
+            var responseBuffer = [UInt8](repeating: 0, count: 1024)
+            var fromAddr = sockaddr_in()
+            var fromLen = socklen_t(MemoryLayout<sockaddr_in>.size)
+
+            let received = withUnsafeMutablePointer(to: &fromAddr) { ptr in
+                ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) { sockaddrPtr in
+                    recvfrom(fd, &responseBuffer, responseBuffer.count, 0, sockaddrPtr, &fromLen)
+                }
+            }
+
+            if received < 0 {
+                let err = errno
+                icmpLog.error("recvfrom failed: errno=\(err) (\(String(cString: strerror(err))))")
+                return ICMPResponse(kind: .error, sourceIP: nil, rtt: rtt)
+            }
+
+            guard received > 0 else {
+                return ICMPResponse(kind: .error, sourceIP: nil, rtt: rtt)
+            }
+
+            let sourceIP = ipString(from: fromAddr)
+            let buf = Array(responseBuffer[0..<received])
+
+            // Log raw response for debugging
+            let headerBytes = buf.prefix(40)
+            icmpLog.debug("Received \(received) bytes from \(sourceIP ?? "?") seq=\(sequence) header: \(headerBytes.map { String(format: "%02x", $0) }.joined(separator: " "))")
+
+            let parsed = parseResponse(buffer: buf, sourceIP: sourceIP, rtt: rtt)
+
+            // Verify this is the response we're looking for
+            switch parsed.kind {
+            case .echoReply(let respSeq):
+                if respSeq == sequence {
+                    return parsed
+                }
+                icmpLog.debug("Skipping echo reply with wrong seq: got=\(respSeq) expected=\(sequence)")
+                continue // Read next message
+
+            case .timeExceeded(_, let origSeq):
+                if origSeq == sequence {
+                    return parsed
+                }
+                icmpLog.debug("Skipping time exceeded with wrong seq: got=\(origSeq) expected=\(sequence)")
+                continue
+
+            case .timeout, .error:
+                return parsed
             }
         }
-
-        if received < 0 {
-            let err = errno
-            icmpLog.error("recvfrom failed: errno=\(err) (\(String(cString: strerror(err))))")
-        }
-
-        guard received > 0 else {
-            return ICMPResponse(kind: .error, sourceIP: nil, rtt: rtt)
-        }
-
-        let sourceIP = ipString(from: fromAddr)
-
-        // Log raw response for debugging
-        let headerBytes = Array(responseBuffer[0..<min(received, 40)])
-        icmpLog.debug("Received \(received) bytes from \(sourceIP ?? "?") header: \(headerBytes.map { String(format: "%02x", $0) }.joined(separator: " "))")
-
-        return parseResponse(
-            buffer: Array(responseBuffer[0..<received]),
-            sourceIP: sourceIP,
-            rtt: rtt
-        )
     }
 
     // MARK: - Packet Construction
@@ -346,6 +374,24 @@ actor ICMPSocket {
         }
 
         return ~UInt16(sum & 0xFFFF)
+    }
+
+    // MARK: - Socket Buffer Management
+
+    /// Drains any pending data from the socket receive buffer.
+    /// Called before each new probe to prevent stale responses from being
+    /// read as replies to the current probe.
+    private nonisolated static func drainSocket(fd: Int32) {
+        var buf = [UInt8](repeating: 0, count: 1024)
+        var drained = 0
+        while true {
+            let n = recv(fd, &buf, buf.count, MSG_DONTWAIT)
+            if n <= 0 { break }
+            drained += 1
+        }
+        if drained > 0 {
+            icmpLog.debug("Drained \(drained) stale message(s) from socket buffer")
+        }
     }
 
     // MARK: - Utilities
