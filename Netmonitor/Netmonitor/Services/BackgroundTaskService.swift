@@ -20,13 +20,13 @@ final class BackgroundTaskService {
     // MARK: - Registration
 
     func registerTasks() {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.refreshTaskIdentifier, using: nil) { task in
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.refreshTaskIdentifier, using: .main) { task in
             Task { @MainActor in
                 await self.handleRefreshTask(task as! BGAppRefreshTask)
             }
         }
 
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTaskIdentifier, using: nil) { task in
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.syncTaskIdentifier, using: .main) { task in
             Task { @MainActor in
                 await self.handleSyncTask(task as! BGProcessingTask)
             }
