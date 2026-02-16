@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let icmpLog = Logger(subsystem: "com.netmonitor", category: "ICMPSocket")
 
 // MARK: - ICMP Types & Constants
 
@@ -50,8 +53,12 @@ actor ICMPSocket {
 
     init() throws {
         let rawFd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)
-        guard rawFd >= 0 else { throw ICMPError.socketCreationFailed }
+        guard rawFd >= 0 else {
+            icmpLog.error("socket() failed: errno=\(errno)")
+            throw ICMPError.socketCreationFailed
+        }
         self.fd = rawFd
+        icmpLog.info("ICMP socket created: fd=\(rawFd)")
 
         // Set non-blocking for poll-based timeout
         let flags = fcntl(rawFd, F_GETFL, 0)
@@ -130,6 +137,7 @@ actor ICMPSocket {
         var addr = sockaddr_in()
         addr.sin_family = sa_family_t(AF_INET)
         guard inet_pton(AF_INET, target, &addr.sin_addr) == 1 else {
+            icmpLog.error("inet_pton failed for target: \(target)")
             return ICMPResponse(kind: .error, sourceIP: nil, rtt: 0)
         }
 
@@ -146,9 +154,17 @@ actor ICMPSocket {
             }
         }
 
+        if sent < 0 {
+            let err = errno
+            icmpLog.error("sendto failed: errno=\(err) (\(String(cString: strerror(err))))")
+        }
+
         guard sent == packet.count else {
+            icmpLog.error("sendto short write: sent=\(sent) expected=\(packet.count)")
             return ICMPResponse(kind: .error, sourceIP: nil, rtt: 0)
         }
+
+        icmpLog.debug("Sent \(packet.count) bytes to \(target) seq=\(sequence)")
 
         // Poll for response with timeout
         let timeoutMs = Int32(timeout * 1000)
@@ -160,6 +176,7 @@ actor ICMPSocket {
             + Double(elapsed.components.attoseconds) / 1e15
 
         guard pollResult > 0 else {
+            icmpLog.warning("poll timeout after \(rtt, format: .fixed(precision: 1))ms (pollResult=\(pollResult), revents=\(pollFd.revents))")
             return ICMPResponse(kind: .timeout, sourceIP: nil, rtt: rtt)
         }
 
@@ -174,11 +191,20 @@ actor ICMPSocket {
             }
         }
 
+        if received < 0 {
+            let err = errno
+            icmpLog.error("recvfrom failed: errno=\(err) (\(String(cString: strerror(err))))")
+        }
+
         guard received > 0 else {
             return ICMPResponse(kind: .error, sourceIP: nil, rtt: rtt)
         }
 
         let sourceIP = ipString(from: fromAddr)
+
+        // Log raw response for debugging
+        let headerBytes = Array(responseBuffer[0..<min(received, 40)])
+        icmpLog.debug("Received \(received) bytes from \(sourceIP ?? "?") header: \(headerBytes.map { String(format: "%02x", $0) }.joined(separator: " "))")
 
         return parseResponse(
             buffer: Array(responseBuffer[0..<received]),
