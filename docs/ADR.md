@@ -236,4 +236,64 @@ The scan pipeline uses `withTaskGroup` that waits for ALL phases in a step. If `
 
 ---
 
+## ADR-017: Monorepo with shared SPM packages for 2.0
+**Date:** 2026-02-17  
+**Status:** Proposed  
+**Bead:** NetMonitor-iOS-hib  
+**Decision:** Consolidate macOS and iOS apps into a single monorepo with shared Swift Package Manager libraries (`NetMonitorCore`, `NetworkScanKit`), platform-specific app targets, and XcodeGen for project generation.
+
+**Context:**  
+NetMonitor exists as two separate repositories — macOS (`~/Projects/NetMonitor`, on App Store as "NetMonitor Pro") and iOS (`~/Projects/NetMonitor-iOS`, 1.0 just submitted). Both apps share ~60% of non-UI code, but the codebases have diverged independently:
+
+- **ICMPSocket** is byte-for-byte identical across both
+- **Services** (Traceroute, PortScanner, WOL, SpeedTest, Bonjour, etc.) are 60-95% similar but with different patterns — macOS uses `ContinuationTracker`, shell-based ping, simpler models; iOS uses `ResumeState` actors, ICMP-first ping, `ConnectionBudget`, richer models
+- **Models** have diverged naming and raw values (e.g., `ConnectionType.wifi` = `"WiFi"` on macOS vs `"wifi"` on iOS)
+- **CompanionMessage** was originally shared via `NetMonitorShared` SPM but iOS copied and evolved it independently
+- Bug fixes must be applied twice (e.g., `ConnectionBudget` deadlock fix in ADR-016 only exists on iOS)
+- iOS has a complete MVVM architecture with ViewModels, service protocols, and 25+ test files; macOS has logic-in-Views and minimal tests
+
+The 2.0 roadmap goal is: "Shared codebase — expand NetMonitorShared, eliminate cross-platform divergence."
+
+**Alternatives considered:**
+
+1. **Git submodule for shared code:** Rejected — submodule workflows are fragile, version pinning creates sync headaches, and PRs span multiple repos.
+2. **Published SPM packages (separate repos):** Rejected — overhead of versioning/publishing for a single-developer project. Local packages in a monorepo give the same modularity with simpler workflows.
+3. **Keep separate repos, manually sync:** Rejected — this is the status quo and it's already causing divergence. The ICMPSocket being identical is lucky; most services have drifted.
+4. **Multiplatform SwiftUI (single target with `#if os()`):** Rejected — too many View differences (sidebar vs tabs, MenuBar, Widget, macOS Settings panes). Platform targets are cleaner.
+
+**Structure:**
+```
+NetMonitor-2.0/
+├── Packages/
+│   ├── NetMonitorCore/      ← shared models, services, utilities
+│   └── NetworkScanKit/      ← scan engine (already exists on iOS)
+├── NetMonitor-macOS/        ← macOS views, platform services
+├── NetMonitor-iOS/          ← iOS views, ViewModels, platform services
+├── Tests/
+└── project.yml              ← XcodeGen
+```
+
+**Key design decisions within this ADR:**
+- iOS codebase is the primary source for shared services (newer, better patterns, more tests)
+- `ResumeState` (actor-based) replaces `ContinuationTracker` everywhere
+- `PingService` uses ICMP socket (iOS approach), not shell-based ping
+- `ConnectionType` raw values standardized to lowercase (iOS convention)
+- ViewModels remain platform-specific initially; shared business logic lives in services
+- WiFi info remains platform-specific (CoreWLAN vs NEHotspotNetwork)
+- `CompanionMessage` reunified from `NetMonitorShared` as the single source of truth
+
+**Consequences:**
+- All bug fixes to services apply to both platforms automatically
+- New features (e.g., WHOIS, DNS Lookup currently iOS-only) become available on macOS "for free"
+- macOS app gains: proper MVVM separation, ICMP-based ping, parallel speed test, service protocol DI, `ConnectionBudget` throttling, full test suite
+- SwiftData `LocalDevice` model needs schema migration (different field sets between platforms)
+- macOS Views require refactoring to work with new model types (biggest effort, ~5-7 days)
+- Must preserve existing App Store bundle IDs for continuity
+- Old repos archived, not deleted — available for reference/rollback
+- Estimated total effort: 3-4 weeks
+
+**Full plan:** `docs/plans/2026-02-17-monorepo-2.0-plan.md`
+
+---
+
 *To add a new ADR: append with the next number, include date, status, decision, context, and consequences. Reference the bead ID if applicable.*

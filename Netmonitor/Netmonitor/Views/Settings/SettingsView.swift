@@ -104,17 +104,26 @@ struct SettingsView: View {
 
             // MARK: - Notification Settings Section
             Section {
-                HStack {
-                    Text("High Latency Threshold")
+                Toggle(isOn: $viewModel.highLatencyAlertEnabled) {
+                    Text("High Latency Alerts")
                         .foregroundStyle(Theme.Colors.textPrimary)
-                    Spacer()
-                    Stepper("\(viewModel.highLatencyThreshold)ms",
-                            value: $viewModel.highLatencyThreshold,
-                            in: 50...500,
-                            step: 50)
-                        .foregroundStyle(Theme.Colors.accent)
                 }
-                .accessibilityIdentifier("settings_stepper_highLatencyThreshold")
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_highLatencyAlert")
+
+                if viewModel.highLatencyAlertEnabled {
+                    HStack {
+                        Text("Threshold")
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                        Spacer()
+                        Stepper("\(viewModel.highLatencyThreshold)ms",
+                                value: $viewModel.highLatencyThreshold,
+                                in: 50...500,
+                                step: 50)
+                            .foregroundStyle(Theme.Colors.accent)
+                    }
+                    .accessibilityIdentifier("settings_stepper_highLatencyThreshold")
+                }
             } header: {
                 Text("Notifications")
                     .foregroundStyle(Theme.Colors.textSecondary)

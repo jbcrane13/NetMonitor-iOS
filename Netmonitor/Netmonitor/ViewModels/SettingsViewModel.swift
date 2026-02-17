@@ -59,6 +59,11 @@ final class SettingsViewModel {
         set { defaults.set(newValue, forKey: AppSettings.Keys.targetDownAlertEnabled) }
     }
 
+    var highLatencyAlertEnabled: Bool {
+        get { defaults.object(forKey: AppSettings.Keys.highLatencyAlertEnabled) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: AppSettings.Keys.highLatencyAlertEnabled) }
+    }
+
     var highLatencyThreshold: Int {
         get { defaults.object(forKey: AppSettings.Keys.highLatencyThreshold) as? Int ?? 100 }
         set { defaults.set(newValue, forKey: AppSettings.Keys.highLatencyThreshold) }

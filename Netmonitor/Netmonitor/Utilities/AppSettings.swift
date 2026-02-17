@@ -27,9 +27,10 @@ enum AppSettings {
         static let backgroundRefreshEnabled = "backgroundRefreshEnabled"
 
         // MARK: Notifications
-        static let targetDownAlertEnabled = "targetDownAlertEnabled"
-        static let highLatencyThreshold   = "highLatencyThreshold"
-        static let newDeviceAlertEnabled  = "newDeviceAlertEnabled"
+        static let targetDownAlertEnabled   = "targetDownAlertEnabled"
+        static let highLatencyAlertEnabled  = "highLatencyAlertEnabled"
+        static let highLatencyThreshold     = "highLatencyThreshold"
+        static let newDeviceAlertEnabled    = "newDeviceAlertEnabled"
 
         // MARK: Appearance
         static let selectedTheme       = "selectedTheme"
