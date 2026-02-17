@@ -28,8 +28,9 @@ public struct ARPScanPhase: ScanPhase, Sendable {
         let results = ARPCacheScanner.readARPCache()
         await onProgress(0.8)
 
-        // Upsert discovered devices
-        for (ip, mac) in results {
+        // Upsert discovered devices — filter to target subnet only
+        // (the ARP cache contains entries from all interfaces: VPN, Docker, stale, etc.)
+        for (ip, mac) in results where context.subnetFilter(ip) {
             await accumulator.upsert(DiscoveredDevice(
                 ipAddress: ip,
                 hostname: nil,
