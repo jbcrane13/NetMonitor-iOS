@@ -18,8 +18,11 @@ final class WHOISToolViewModel {
 
     private let whoisService: any WHOISServiceProtocol
 
-    init(whoisService: any WHOISServiceProtocol = WHOISService()) {
+    init(whoisService: any WHOISServiceProtocol = WHOISService(), initialDomain: String? = nil) {
         self.whoisService = whoisService
+        if let initialDomain = initialDomain {
+            self.domain = initialDomain
+        }
     }
 
     // MARK: - Computed Properties
@@ -36,10 +39,23 @@ final class WHOISToolViewModel {
         isLoading = true
         errorMessage = nil
 
+        let trimmedDomain = domain.trimmingCharacters(in: .whitespaces)
         do {
-            result = try await whoisService.lookup(query: domain.trimmingCharacters(in: .whitespaces))
+            result = try await whoisService.lookup(query: trimmedDomain)
+            ToolActivityLog.shared.add(
+                tool: "WHOIS",
+                target: trimmedDomain,
+                result: "Lookup complete",
+                success: true
+            )
         } catch {
             errorMessage = NetworkError.from(error).userFacingMessage
+            ToolActivityLog.shared.add(
+                tool: "WHOIS",
+                target: trimmedDomain,
+                result: "Failed",
+                success: false
+            )
         }
 
         isLoading = false

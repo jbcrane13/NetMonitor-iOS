@@ -104,13 +104,6 @@ struct SettingsView: View {
 
             // MARK: - Notification Settings Section
             Section {
-                Toggle(isOn: $viewModel.targetDownAlertEnabled) {
-                    Text("Target Down Alert")
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                }
-                .tint(Theme.Colors.accent)
-                .accessibilityIdentifier("settings_toggle_targetDownAlert")
-
                 HStack {
                     Text("High Latency Threshold")
                         .foregroundStyle(Theme.Colors.textPrimary)
@@ -122,13 +115,6 @@ struct SettingsView: View {
                         .foregroundStyle(Theme.Colors.accent)
                 }
                 .accessibilityIdentifier("settings_stepper_highLatencyThreshold")
-
-                Toggle(isOn: $viewModel.newDeviceAlertEnabled) {
-                    Text("New Device Detected Alert")
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                }
-                .tint(Theme.Colors.accent)
-                .accessibilityIdentifier("settings_toggle_newDeviceAlert")
             } header: {
                 Text("Notifications")
                     .foregroundStyle(Theme.Colors.textSecondary)

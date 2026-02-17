@@ -2,7 +2,11 @@ import SwiftUI
 
 /// Traceroute tool view for tracing network path
 struct TracerouteToolView: View {
-    @State private var viewModel = TracerouteToolViewModel()
+    @State private var viewModel: TracerouteToolViewModel
+
+    init(initialHost: String? = nil) {
+        self._viewModel = State(initialValue: TracerouteToolViewModel(initialHost: initialHost))
+    }
 
     var body: some View {
         ScrollView {

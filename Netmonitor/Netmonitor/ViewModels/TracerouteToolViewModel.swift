@@ -24,8 +24,11 @@ final class TracerouteToolViewModel {
     private let tracerouteService: any TracerouteServiceProtocol
     private var traceTask: Task<Void, Never>?
 
-    init(tracerouteService: any TracerouteServiceProtocol = TracerouteService()) {
+    init(tracerouteService: any TracerouteServiceProtocol = TracerouteService(), initialHost: String? = nil) {
         self.tracerouteService = tracerouteService
+        if let initialHost = initialHost {
+            self.host = initialHost
+        }
     }
 
     // MARK: - Computed Properties
@@ -58,6 +61,13 @@ final class TracerouteToolViewModel {
             }
 
             isRunning = false
+
+            ToolActivityLog.shared.add(
+                tool: "Traceroute",
+                target: host,
+                result: "\(hops.count) hops",
+                success: !hops.isEmpty
+            )
         }
     }
 

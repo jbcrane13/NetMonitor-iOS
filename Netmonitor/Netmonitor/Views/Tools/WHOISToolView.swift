@@ -2,7 +2,11 @@ import SwiftUI
 
 /// WHOIS tool view for domain information lookup
 struct WHOISToolView: View {
-    @State private var viewModel = WHOISToolViewModel()
+    @State private var viewModel: WHOISToolViewModel
+
+    init(initialDomain: String? = nil) {
+        self._viewModel = State(initialValue: WHOISToolViewModel(initialDomain: initialDomain))
+    }
 
     var body: some View {
         ScrollView {

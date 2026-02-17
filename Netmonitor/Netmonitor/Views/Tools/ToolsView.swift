@@ -45,21 +45,22 @@ enum ToolDestination: Hashable {
     @ViewBuilder
     @MainActor
     var view: some View {
+        let target = TargetManager.shared.currentTarget
         switch self {
         case .ping:
-            PingToolView()
+            PingToolView(initialHost: target)
         case .traceroute:
-            TracerouteToolView()
+            TracerouteToolView(initialHost: target)
         case .dnsLookup:
-            DNSLookupToolView()
+            DNSLookupToolView(initialDomain: target)
         case .portScanner:
-            PortScannerToolView()
+            PortScannerToolView(initialHost: target)
         case .bonjour:
             BonjourDiscoveryToolView()
         case .speedTest:
             SpeedTestToolView()
         case .whois:
-            WHOISToolView()
+            WHOISToolView(initialDomain: target)
         case .wakeOnLAN:
             WakeOnLANToolView()
         case .webBrowser:
@@ -72,6 +73,8 @@ enum ToolDestination: Hashable {
 
 struct QuickActionsSection: View {
     let viewModel: ToolsViewModel
+    @State private var showingTargetSheet = false
+    var targetManager = TargetManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Layout.itemSpacing) {
@@ -80,25 +83,39 @@ struct QuickActionsSection: View {
                 .foregroundStyle(Theme.Colors.textPrimary)
 
             HStack(spacing: Theme.Layout.itemSpacing) {
-                NavigationLink(value: ToolDestination.networkMonitor) {
+                // Set Target
+                Button {
+                    showingTargetSheet = true
+                } label: {
                     VStack(spacing: Theme.Layout.smallCornerRadius) {
-                        Image(systemName: "network")
+                        Image(systemName: targetManager.currentTarget != nil ? "scope" : "target")
                             .font(.title2)
-                            .foregroundStyle(Theme.Colors.accent)
+                            .foregroundStyle(targetManager.currentTarget != nil ? Theme.Colors.success : Theme.Colors.accent)
 
-                        Text("Monitor Network")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.8)
+                        if let target = targetManager.currentTarget {
+                            Text(target)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Theme.Colors.success)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                        } else {
+                            Text("Set Target")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .glassCard(cornerRadius: 16, padding: 0)
                 }
-                .accessibilityIdentifier("quickAction_monitor_network")
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("quickAction_set_target")
 
                 NavigationLink(value: ToolDestination.speedTest) {
                     VStack(spacing: Theme.Layout.smallCornerRadius) {
@@ -143,6 +160,140 @@ struct QuickActionsSection: View {
             }
         }
         .accessibilityIdentifier("tools_section_quickActions")
+        .sheet(isPresented: $showingTargetSheet) {
+            SetTargetSheet()
+        }
+    }
+}
+
+// MARK: - Set Target Sheet
+
+struct SetTargetSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    private var targetManager = TargetManager.shared
+    @State private var newTarget: String = ""
+    @FocusState private var isTextFieldFocused: Bool
+
+    var body: some View {
+        NavigationStack {
+            List {
+                // Input section
+                Section {
+                    HStack {
+                        TextField("Hostname or IP address", text: $newTarget)
+                            .keyboardType(.URL)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .focused($isTextFieldFocused)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                setAndDismiss(newTarget)
+                            }
+                            .accessibilityIdentifier("setTarget_input_address")
+
+                        if !newTarget.isEmpty {
+                            Button {
+                                setAndDismiss(newTarget)
+                            } label: {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .foregroundStyle(Theme.Colors.accent)
+                            }
+                            .accessibilityIdentifier("setTarget_button_set")
+                        }
+                    }
+                } header: {
+                    Text("Enter Target")
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                } footer: {
+                    Text("This address will pre-fill Ping, Traceroute, DNS, Port Scanner, and WHOIS tools.")
+                        .foregroundStyle(Theme.Colors.textTertiary)
+                }
+                .listRowBackground(Theme.Colors.glassBackground)
+
+                // Current target
+                if let current = targetManager.currentTarget {
+                    Section {
+                        HStack {
+                            Image(systemName: "scope")
+                                .foregroundStyle(Theme.Colors.success)
+                            Text(current)
+                                .font(.system(.body, design: .monospaced))
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                            Spacer()
+                            Button {
+                                targetManager.clearSelection()
+                            } label: {
+                                Text("Clear")
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.Colors.error)
+                            }
+                            .accessibilityIdentifier("setTarget_button_clear")
+                        }
+                    } header: {
+                        Text("Active Target")
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+                    .listRowBackground(Theme.Colors.glassBackground)
+                }
+
+                // Saved targets
+                if !targetManager.savedTargets.isEmpty {
+                    Section {
+                        ForEach(targetManager.savedTargets, id: \.self) { target in
+                            Button {
+                                targetManager.setTarget(target)
+                                dismiss()
+                            } label: {
+                                HStack {
+                                    Text(target)
+                                        .font(.system(.body, design: .monospaced))
+                                        .foregroundStyle(Theme.Colors.textPrimary)
+                                    Spacer()
+                                    if target == targetManager.currentTarget {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(Theme.Colors.success)
+                                    }
+                                }
+                            }
+                            .accessibilityIdentifier("setTarget_saved_\(target.replacingOccurrences(of: ".", with: "_"))")
+                        }
+                        .onDelete { offsets in
+                            targetManager.removeFromSaved(at: offsets)
+                        }
+                    } header: {
+                        Text("Saved Targets")
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+                    .listRowBackground(Theme.Colors.glassBackground)
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .themedBackground()
+            .navigationTitle("Set Target")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundStyle(Theme.Colors.textSecondary)
+                }
+            }
+            .onAppear {
+                newTarget = targetManager.currentTarget ?? ""
+                isTextFieldFocused = true
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    private func setAndDismiss(_ target: String) {
+        let trimmed = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        targetManager.setTarget(trimmed)
+        dismiss()
     }
 }
 
