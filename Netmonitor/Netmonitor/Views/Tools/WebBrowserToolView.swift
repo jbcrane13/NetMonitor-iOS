@@ -6,15 +6,18 @@ struct WebBrowserToolView: View {
     @State private var urlText: String = ""
     @State private var showingSafari = false
     @State private var recentURLs: [String] = []
-    
-    private let quickBookmarks = [
-        BookmarkItem(name: "Router Admin", url: "http://192.168.1.1", icon: "router", description: "Access router settings"),
-        BookmarkItem(name: "Speed Test", url: "https://speed.cloudflare.com", icon: "speedometer", description: "Cloudflare speed test"),
-        BookmarkItem(name: "DNS Checker", url: "https://dns.google", icon: "globe", description: "Google DNS tools"),
-        BookmarkItem(name: "What's My IP", url: "https://whatismyipaddress.com", icon: "location", description: "Check public IP"),
-        BookmarkItem(name: "Port Checker", url: "https://www.yougetsignal.com/tools/open-ports/", icon: "door.left.hand.open", description: "Test port connectivity"),
-        BookmarkItem(name: "Ping Test", url: "https://tools.pingdom.com", icon: "arrow.up.arrow.down", description: "Online ping tools")
-    ]
+    @State private var routerAdminURL: String = "http://192.168.1.1"
+
+    private var quickBookmarks: [BookmarkItem] {
+        [
+            BookmarkItem(name: "Router Admin", url: routerAdminURL, icon: "wifi.router", description: "Access router settings"),
+            BookmarkItem(name: "Speed Test", url: "https://speed.cloudflare.com", icon: "speedometer", description: "Cloudflare speed test"),
+            BookmarkItem(name: "DNS Checker", url: "https://dns.google", icon: "globe", description: "Google DNS tools"),
+            BookmarkItem(name: "What's My IP", url: "https://whatismyipaddress.com", icon: "location", description: "Check public IP"),
+            BookmarkItem(name: "Port Checker", url: "https://www.yougetsignal.com/tools/open-ports/", icon: "door.left.hand.open", description: "Test port connectivity"),
+            BookmarkItem(name: "Ping Test", url: "https://tools.pingdom.com", icon: "arrow.up.arrow.down", description: "Online ping tools")
+        ]
+    }
 
     var body: some View {
         ScrollView {
@@ -42,6 +45,7 @@ struct WebBrowserToolView: View {
         }
         .onAppear {
             loadRecentURLs()
+            detectRouterAddress()
         }
     }
     
@@ -199,6 +203,12 @@ struct WebBrowserToolView: View {
     private func saveRecentURLs() {
         if let data = try? JSONEncoder().encode(recentURLs) {
             UserDefaults.standard.set(data, forKey: AppSettings.Keys.webBrowserRecentURLs)
+        }
+    }
+
+    private func detectRouterAddress() {
+        if let gateway = NetworkUtilities.detectDefaultGateway() {
+            routerAdminURL = "http://\(gateway)"
         }
     }
 }
