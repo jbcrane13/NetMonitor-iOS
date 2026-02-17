@@ -25,8 +25,8 @@ import os
 import sys
 
 # === Configuration ===
-CANVAS_W = 1320
-CANVAS_H = 2868
+CANVAS_W = 1284
+CANVAS_H = 2778
 
 # Screenshot placement
 SCREENSHOT_SCALE = 0.82
