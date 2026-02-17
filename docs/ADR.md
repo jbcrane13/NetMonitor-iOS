@@ -191,4 +191,49 @@ A running log of significant architecture and design decisions. Both Daneel (Ope
 
 ---
 
+## ADR-015: Set Target quick action with shared TargetManager
+**Date:** 2026-02-16
+**Status:** Active
+**Decision:** Replace the "Monitor Network" quick action on the Tools tab with a "Set Target" button backed by a `TargetManager` singleton. The selected target pre-fills the input field in Ping, Traceroute, DNS Lookup, Port Scanner, and WHOIS tools.
+**Context:** The "Monitor Network" quick action was redundant — it navigated to `NetworkMapView`, which already has its own tab (Map). The space is better used for a target management feature that reduces repetitive typing when investigating a specific host across multiple tools. Blake identified this during 1.0 final polish.
+**Consequences:**
+- `TargetManager` is `@MainActor @Observable` singleton with `currentTarget` (in-memory, resets on launch) and `savedTargets` (persisted to UserDefaults, max 10)
+- `ToolDestination.view` reads `TargetManager.shared.currentTarget` and passes it as `initialHost`/`initialDomain` to each applicable tool view
+- `TracerouteToolViewModel` and `WHOISToolViewModel` gained `initialHost`/`initialDomain` init params (Ping, DNS, PortScanner already had them)
+- Tools that don't take a host/domain target (Bonjour, Speed Test, Wake on LAN, Web Browser) are unaffected
+- "Target Down Alert" and "New Device Detected Alert" removed from Settings (not useful without continuous monitoring)
+- Web Browser "Router Admin" bookmark now uses `NetworkUtilities.detectDefaultGateway()` instead of hardcoded `192.168.1.1`
+
+---
+
+## ADR-016: ConnectionBudget deadlock fix and scan-start reset
+**Date:** 2026-02-16
+**Status:** Active
+**Decision:** Fix `ConnectionBudget.release()` to always resume waiters unconditionally, and add a `reset()` call at scan start to reclaim any leaked slots from prior tool usage.
+**Context:** Blake reported a reproducible bug: use other tools (ping, port scanner) first, then navigate to network scan for the first time — scan hangs forever, never finds devices. Root cause was a two-part deadlock in `ConnectionBudget`:
+
+1. **Thermal throttle deadlock:** `release()` checked `active < effectiveLimit` before waking waiters. If the device heated up during port scanning, `effectiveLimit` dropped (e.g., 60→30 at `.serious`). Subsequent `release()` calls decremented `active` but refused to wake waiters because `active` was still >= the lowered limit. Waiters were permanently stuck.
+2. **`defer { Task { release() } }` slot leaks:** Every acquire/release pair across the codebase (6 call sites) used `defer { Task { await ConnectionBudget.shared.release() } }` — unstructured Tasks for release. When parent tasks are cancelled (e.g., user stops port scanner) or the cooperative pool is saturated, these release Tasks can be delayed or dropped, leaking budget slots.
+
+The scan pipeline uses `withTaskGroup` that waits for ALL phases in a step. If `TCPProbeScanPhase` or `SSDPScanPhase` blocked on `acquire()` waiting for leaked slots, the entire pipeline hung.
+
+**1.0 fix (safe, minimal):**
+- `release()`: Removed `active < effectiveLimit` guard — always resumes next waiter when a slot frees
+- `reset()`: New method that force-drains all waiters and zeros active count
+- `DeviceDiscoveryService.performScan()`: Calls `reset()` at scan start to reclaim leaked slots
+- Also fixed `"router"` → `"wifi.router"` SF Symbol (was failing at runtime)
+
+**2.0 fix (proper, requires refactor):**
+- Replace `defer { Task { release() } }` pattern with structured concurrency. Each call site should use a helper like `withConnectionSlot { connection in ... }` that guarantees release via `defer { await release() }` in an async context, or uses `withTaskCancellationHandler` to release on cancellation
+- Consider making `ConnectionBudget` cancellation-aware: if a task waiting in `acquire()` is cancelled, automatically remove its continuation from the waiters list and don't increment `active`
+- Add budget health diagnostics (log warning when active count exceeds threshold for >N seconds)
+- Evaluate whether `effectiveLimit` should only affect new `acquire()` calls, never block `release()` from waking waiters (the 1.0 fix already achieves this)
+
+**Consequences:**
+- 1.0: Scan always starts with a clean budget — can't be starved by prior tool usage
+- 1.0: Slight over-admission possible if reset() fires while tools are still actively using slots (unlikely in practice since scan only starts from user action on a different tab)
+- 2.0: Structured `withConnectionSlot` pattern eliminates the leak class entirely
+
+---
+
 *To add a new ADR: append with the next number, include date, status, decision, context, and consequences. Reference the bead ID if applicable.*
