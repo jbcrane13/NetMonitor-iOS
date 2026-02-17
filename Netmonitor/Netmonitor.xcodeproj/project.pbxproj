@@ -140,6 +140,7 @@
 		E9DF8E6383ED2F2EA52E6D98 /* ViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74178C7E8AA832115BDCA9A7 /* ViewModelTests.swift */; };
 		EB4F25F232323CA4C7BCAEF5 /* DeviceDetailUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 895EE4823C60744461636CC4 /* DeviceDetailUITests.swift */; };
 		EC86D1E45F3607F5FD1BC075 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CC30DB1C8834D21D07E32BC /* NetworkError.swift */; };
+		ED1A9B572C0340E9465F6F2D /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65047312E26C9F4D692B210C /* SmokeTests.swift */; };
 		ED6D876602929689798E5FC3 /* ScanPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79D4652F2816B022857E3273 /* ScanPipelineTests.swift */; };
 		F1FFC624C0E0BA2C75666725 /* CompanionMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033F1255B0B57C017086E8F8 /* CompanionMessage.swift */; };
 		F3C9B852652E69E7847B8801 /* ToolsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D7A67DB0C2408DDC15FAF1 /* ToolsScreen.swift */; };
@@ -245,6 +246,7 @@
 		5E9C7221991792C8A1A196D4 /* NetworkMapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapViewModel.swift; sourceTree = "<group>"; };
 		5FA287DBFBE09678EC985C93 /* DataExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExportService.swift; sourceTree = "<group>"; };
 		61A684E333115E6A9D9307FB /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
+		65047312E26C9F4D692B210C /* SmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmokeTests.swift; sourceTree = "<group>"; };
 		666B7D3676F199D98F8CDAE6 /* PingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingService.swift; sourceTree = "<group>"; };
 		66834196F05AEFC207F67B35 /* NetworkMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMapView.swift; sourceTree = "<group>"; };
 		676FDFA6FA30CE17EDD55C4B /* DashboardUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardUITests.swift; sourceTree = "<group>"; };
@@ -606,6 +608,7 @@
 				A100D7B5211FE04BE3ADDD98 /* ServiceTestsBatch1.swift */,
 				17E6FEF37C5EFEBD3623A82B /* ServiceTestsBatch2.swift */,
 				E1C84CA0C7CA20866F59AFC3 /* ServiceTestsBatch3.swift */,
+				65047312E26C9F4D692B210C /* SmokeTests.swift */,
 				BC4C461CC53D9516D2C89B39 /* TargetManagerTests.swift */,
 				CE295798A2DF807B729F2303 /* ToolActivityLogTests.swift */,
 				D2DE7F8A1D8140441C29A3B2 /* TracerouteServiceTests.swift */,
@@ -981,6 +984,7 @@
 				11F45E103B262DA097EE589E /* ServiceTestsBatch1.swift in Sources */,
 				C26F0CC89349041B3029ED19 /* ServiceTestsBatch2.swift in Sources */,
 				E87231BB66EC8BCB7B55D3D5 /* ServiceTestsBatch3.swift in Sources */,
+				ED1A9B572C0340E9465F6F2D /* SmokeTests.swift in Sources */,
 				6B236EFEAE71DE512B9A2D16 /* TargetManagerTests.swift in Sources */,
 				B2DC2F5D25166DC4D1B2B43D /* ToolActivityLogTests.swift in Sources */,
 				6D292D027E89D59621C61A56 /* TracerouteServiceTests.swift in Sources */,
