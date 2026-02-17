@@ -105,6 +105,8 @@ final class NotificationService {
     // MARK: - High Latency Alert
 
     func notifyHighLatency(host: String, latency: Double) {
+        guard defaults.object(forKey: AppSettings.Keys.highLatencyAlertEnabled) as? Bool ?? false else { return }
+
         let threshold = defaults.integer(forKey: AppSettings.Keys.highLatencyThreshold)
         let effectiveThreshold = threshold > 0 ? threshold : 100
 
