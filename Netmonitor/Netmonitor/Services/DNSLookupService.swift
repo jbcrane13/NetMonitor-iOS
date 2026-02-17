@@ -305,15 +305,17 @@ final class DNSLookupService {
         var offset = 0
 
         // Parse mname (primary name server)
-        guard let mname = parseDNSName(from: data[offset...], offset: &offset) else { return nil }
+        // Pass the full data with offset — don't slice, to avoid startIndex issues
+        guard let mname = parseDNSName(from: data, offset: &offset) else { return nil }
 
         // Parse rname (responsible authority's mailbox)
-        guard let rname = parseDNSName(from: data[offset...], offset: &offset) else { return nil }
+        guard let rname = parseDNSName(from: data, offset: &offset) else { return nil }
 
         // Parse 5 UInt32 values: serial, refresh, retry, expire, minimum
-        guard offset + 20 <= data.count else { return nil }
+        guard data.startIndex + offset + 20 <= data.endIndex else { return nil }
 
-        let values = data[offset..<offset + 20].withUnsafeBytes { ptr in
+        let base = data.startIndex + offset
+        let values = data[base..<base + 20].withUnsafeBytes { ptr in
             (0..<5).map { i in
                 ptr.load(fromByteOffset: i * 4, as: UInt32.self).bigEndian
             }
@@ -339,18 +341,20 @@ final class DNSLookupService {
 
     nonisolated private static func parseDNSName(from data: Data, offset: inout Int) -> String? {
         var labels: [String] = []
-        var currentOffset = offset
+        // Use startIndex-relative addressing so this works correctly with
+        // Data slices (e.g. data.dropFirst(2)) whose startIndex != 0.
+        var currentOffset = data.startIndex + offset
 
-        while currentOffset < data.count {
+        while currentOffset < data.endIndex {
             let length = Int(data[currentOffset])
             currentOffset += 1
 
             if length == 0 {
-                offset = currentOffset
+                offset = currentOffset - data.startIndex
                 return labels.joined(separator: ".")
             }
 
-            guard currentOffset + length <= data.count else { return nil }
+            guard currentOffset + length <= data.endIndex else { return nil }
 
             let labelData = data[currentOffset..<currentOffset + length]
             guard let label = String(data: labelData, encoding: .utf8) else { return nil }
