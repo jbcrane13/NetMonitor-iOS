@@ -52,8 +52,22 @@ final class DNSLookupToolViewModel {
             server: effectiveServer
         )
 
-        if result == nil {
+        let trimmedDomain = domain.trimmingCharacters(in: .whitespaces)
+        if let result {
+            ToolActivityLog.shared.add(
+                tool: "DNS Lookup",
+                target: trimmedDomain,
+                result: "\(result.records.count) records",
+                success: true
+            )
+        } else {
             errorMessage = dnsService.lastError ?? "Lookup failed"
+            ToolActivityLog.shared.add(
+                tool: "DNS Lookup",
+                target: trimmedDomain,
+                result: "Failed",
+                success: false
+            )
         }
 
         isLoading = false

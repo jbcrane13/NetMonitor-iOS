@@ -77,6 +77,13 @@ final class WakeOnLANToolViewModel {
             errorMessage = wolService.lastError ?? "Failed to send wake packet"
         }
 
+        ToolActivityLog.shared.add(
+            tool: "Wake on LAN",
+            target: macAddress.trimmingCharacters(in: .whitespaces),
+            result: success ? "Packet sent" : "Failed",
+            success: success
+        )
+
         isSending = false
     }
 

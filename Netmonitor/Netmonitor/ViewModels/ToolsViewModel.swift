@@ -4,20 +4,20 @@ import SwiftData
 @MainActor
 @Observable
 final class ToolsViewModel {
-    private(set) var recentResults: [ToolActivityItem] = []
+    var recentResults: [ToolActivityItem] { ToolActivityLog.shared.entries }
     private(set) var isPingRunning = false
     private(set) var isPortScanRunning = false
     private(set) var currentPingResults: [PingResult] = []
     private(set) var currentPortScanResults: [PortScanResult] = []
     private(set) var lastGatewayResult: String?
-    
+
     let pingService: any PingServiceProtocol
     let portScannerService: any PortScannerServiceProtocol
     let dnsLookupService: any DNSLookupServiceProtocol
     let wakeOnLANService: any WakeOnLANServiceProtocol
     let deviceDiscoveryService: any DeviceDiscoveryServiceProtocol
     let gatewayService: any GatewayServiceProtocol
-    
+
     init(
         pingService: any PingServiceProtocol = PingService(),
         portScannerService: any PortScannerServiceProtocol = PortScannerService(),
@@ -33,24 +33,24 @@ final class ToolsViewModel {
         self.deviceDiscoveryService = deviceDiscoveryService
         self.gatewayService = gatewayService
     }
-    
+
     var isScanning: Bool {
         deviceDiscoveryService.isScanning
     }
-    
+
     func runPing(host: String, count: Int = 4) async {
         guard !isPingRunning else { return }
         isPingRunning = true
         currentPingResults = []
-        
+
         defer { isPingRunning = false }
-        
+
         let stream = await pingService.ping(host: host, count: count, timeout: 5)
-        
+
         for await result in stream {
             currentPingResults.append(result)
         }
-        
+
         if let stats = await pingService.calculateStatistics(currentPingResults, requestedCount: nil) {
             addActivity(
                 tool: "Ping",
@@ -60,26 +60,26 @@ final class ToolsViewModel {
             )
         }
     }
-    
+
     func stopPing() async {
         await pingService.stop()
     }
-    
+
     func runPortScan(host: String, ports: [Int]) async {
         guard !isPortScanRunning else { return }
         isPortScanRunning = true
         currentPortScanResults = []
-        
+
         defer { isPortScanRunning = false }
-        
+
         let stream = await portScannerService.scan(host: host, ports: ports, timeout: 2)
-        
+
         for await result in stream {
             if result.state == .open {
                 currentPortScanResults.append(result)
             }
         }
-        
+
         let openCount = currentPortScanResults.count
         addActivity(
             tool: "Port Scan",
@@ -88,14 +88,14 @@ final class ToolsViewModel {
             success: true
         )
     }
-    
+
     func stopPortScan() async {
         await portScannerService.stop()
     }
-    
+
     func runDNSLookup(domain: String) async -> DNSQueryResult? {
         let result = await dnsLookupService.lookup(domain: domain, recordType: .a, server: nil)
-        
+
         if let result = result {
             addActivity(
                 tool: "DNS Lookup",
@@ -111,26 +111,26 @@ final class ToolsViewModel {
                 success: false
             )
         }
-        
+
         return result
     }
-    
+
     func sendWakeOnLAN(macAddress: String) async -> Bool {
         let success = await wakeOnLANService.wake(macAddress: macAddress, broadcastAddress: "255.255.255.255", port: 9)
-        
+
         addActivity(
             tool: "Wake on LAN",
             target: macAddress,
             result: success ? "Sent" : "Failed",
             success: success
         )
-        
+
         return success
     }
-    
+
     func runNetworkScan() async {
         await deviceDiscoveryService.scanNetwork(subnet: nil)
-        
+
         addActivity(
             tool: "Network Scan",
             target: "Local Network",
@@ -138,7 +138,7 @@ final class ToolsViewModel {
             success: true
         )
     }
-    
+
     func pingGateway() async {
         await gatewayService.detectGateway()
 
@@ -168,24 +168,13 @@ final class ToolsViewModel {
             }
         }
     }
-    
+
     func clearActivity() {
-        recentResults = []
+        ToolActivityLog.shared.clear()
     }
-    
+
     private func addActivity(tool: String, target: String, result: String, success: Bool) {
-        let item = ToolActivityItem(
-            tool: tool,
-            target: target,
-            result: result,
-            success: success,
-            timestamp: Date()
-        )
-        recentResults.insert(item, at: 0)
-        
-        if recentResults.count > 20 {
-            recentResults = Array(recentResults.prefix(20))
-        }
+        ToolActivityLog.shared.add(tool: tool, target: target, result: result, success: success)
     }
 }
 
@@ -196,10 +185,10 @@ struct ToolActivityItem: Identifiable {
     let result: String
     let success: Bool
     let timestamp: Date
-    
+
     var timeAgoText: String {
         let interval = Date().timeIntervalSince(timestamp)
-        
+
         if interval < 60 {
             return "Just now"
         } else if interval < 3600 {

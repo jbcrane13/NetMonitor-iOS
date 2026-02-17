@@ -85,6 +85,13 @@ final class PortScannerToolViewModel {
             // Sort by port number
             results.sort { $0.port < $1.port }
             isRunning = false
+
+            ToolActivityLog.shared.add(
+                tool: "Port Scan",
+                target: host,
+                result: "\(openPorts.count) open / \(totalPorts) scanned",
+                success: true
+            )
         }
     }
 

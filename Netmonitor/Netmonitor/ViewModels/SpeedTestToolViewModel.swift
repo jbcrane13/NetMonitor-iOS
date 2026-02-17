@@ -84,12 +84,25 @@ final class SpeedTestToolViewModel {
                 // Persist result
                 modelContext.insert(result)
                 try? modelContext.save()
+
+                ToolActivityLog.shared.add(
+                    tool: "Speed Test",
+                    target: data.serverName ?? "Server",
+                    result: "↓\(String(format: "%.0f", data.downloadSpeed)) ↑\(String(format: "%.0f", data.uploadSpeed)) Mbps",
+                    success: true
+                )
             } catch is CancellationError {
                 // User cancelled — no error
                 phase = .idle
             } catch {
                 errorMessage = NetworkError.from(error).userFacingMessage
                 phase = .idle
+                ToolActivityLog.shared.add(
+                    tool: "Speed Test",
+                    target: "Server",
+                    result: "Failed",
+                    success: false
+                )
             }
             isRunning = false
         }

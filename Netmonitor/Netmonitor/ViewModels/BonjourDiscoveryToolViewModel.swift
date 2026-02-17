@@ -73,6 +73,12 @@ final class BonjourDiscoveryToolViewModel {
 
             if !Task.isCancelled {
                 isDiscovering = false
+                ToolActivityLog.shared.add(
+                    tool: "Bonjour",
+                    target: "Local Network",
+                    result: "\(services.count) services",
+                    success: !services.isEmpty
+                )
             }
         }
     }

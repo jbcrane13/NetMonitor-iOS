@@ -61,6 +61,15 @@ final class PingToolViewModel {
             // Calculate statistics after completion
             statistics = await pingService.calculateStatistics(results, requestedCount: pingCount)
             isRunning = false
+
+            if let stats = statistics {
+                ToolActivityLog.shared.add(
+                    tool: "Ping",
+                    target: host,
+                    result: stats.received > 0 ? "\(String(format: "%.0f", stats.avgTime)) ms avg" : "No response",
+                    success: stats.received > 0
+                )
+            }
         }
     }
 
