@@ -31,15 +31,15 @@ A running log of significant architecture and design decisions. Both Daneel (Ope
 
 ---
 
-## ADR-003: TCP-based ping instead of ICMP
-**Date:** 2026-02-10  
-**Status:** Active  
-**Decision:** PingService uses TCP connect probes (ports 443, 80, 22) rather than raw ICMP.  
-**Context:** iOS doesn't allow raw sockets without special entitlements. TCP connect to common ports is a reliable proxy for host reachability and latency.  
+## ADR-003: ICMP-primary ping with TCP fallback
+**Date:** 2026-02-10 (revised 2026-02-16)
+**Status:** Active
+**Decision:** PingService uses ICMP echo (`SOCK_DGRAM/IPPROTO_ICMP`) as the primary ping method and falls back to TCP connect probes (ports 443, 80, 22) only when ICMP socket creation fails.
+**Context:** Originally TCP-only because iOS raw sockets require special entitlements. However, `SOCK_DGRAM` ICMP sockets are unprivileged and App Store approved — no entitlements needed. ICMP gives accurate sub-millisecond RTT via `ContinuousClock`, whereas TCP handshake timing via NWConnection adds ~70ms of framework overhead.
 **Consequences:**
-- Latency reflects TCP handshake time, not ICMP RTT (slightly higher)
-- Hosts that block all three ports appear unreachable
-- No special entitlements needed
+- ICMP latency matches what users expect from `ping` (true network RTT)
+- TCP fallback preserves reachability on Simulator and environments where ICMP socket creation fails
+- `ICMPSocket` actor manages BSD socket lifecycle with dedicated I/O dispatch queue
 
 ---
 
@@ -173,6 +173,21 @@ A running log of significant architecture and design decisions. Both Daneel (Ope
 - No new shared mutable state introduced
 - Negligible duplicate network cost (LAN TCP vs external API with cache)
 - Consistent with Phase 1-3 direction of moving away from singletons toward DI
+
+---
+
+## ADR-014: ICMP latency enrichment in scan pipeline
+**Date:** 2026-02-16
+**Status:** Active
+**Decision:** Add `ICMPLatencyPhase` to the `DeviceDiscoveryService` scan pipeline (after TCP+SSDP, before Reverse DNS). ICMP measurements overwrite TCP-based latency for all discovered devices.
+**Context:** Scan latency was consistently ~70ms higher than standalone ping tests. Root cause: `DeviceDiscoveryService` built a custom pipeline omitting `ICMPLatencyPhase` (which existed in `ScanPipeline.standard()` but wasn't used). All device latency came from NWConnection TCP handshake timing, which is inflated by framework overhead, dispatch queue congestion (40 hosts x 3 ports = 120 concurrent NWConnections on shared `scanQueue`), and `Date()` wall-clock vs `ContinuousClock` precision. Bead: `NetMonitor-iOS-qbx`.
+**Consequences:**
+- Pipeline order: ARP+Bonjour → TCP+SSDP → **ICMP Latency** → Reverse DNS
+- `ScanAccumulator` gained `allDeviceIPs()` and `replaceLatency()` so ICMP overwrites TCP measurements
+- ICMP uses single-socket ping sweep on dedicated serial queue (`icmpQueue`) — no async suspension between reads ensures accurate timing
+- Removed broken `identifier` check from `ICMPLatencyPhase.pingSweep()` — `SOCK_DGRAM` ICMP sockets have kernel-remapped identifiers, so the check always failed silently. Sequence-number matching is sufficient since the kernel filters responses per-socket
+- TCP latency preserved as fallback when ICMP socket creation fails (e.g., Simulator)
+- Adds ~2s to scan time (ICMP collect timeout) but produces accurate latency
 
 ---
 
