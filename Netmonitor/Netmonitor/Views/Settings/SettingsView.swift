@@ -123,14 +123,6 @@ struct SettingsView: View {
 
             // MARK: - Appearance Section
             Section {
-                Picker("Theme", selection: $viewModel.selectedTheme) {
-                    Text("System").tag("system")
-                    Text("Dark").tag("dark")
-                    Text("Light").tag("light")
-                }
-                .foregroundStyle(Theme.Colors.textPrimary)
-                .accessibilityIdentifier("settings_picker_theme")
-
                 Picker("Accent Color", selection: $viewModel.selectedAccentColor) {
                     Text("Cyan").tag("cyan")
                     Text("Blue").tag("blue")
