@@ -46,6 +46,27 @@ public actor ScanAccumulator {
         devices.filter { $0.latency == nil }.map(\.ipAddress)
     }
 
+    /// All device IPs (for ICMP latency enrichment that overwrites TCP-based measurements).
+    public func allDeviceIPs() -> [String] {
+        devices.map(\.ipAddress)
+    }
+
+    /// Replace latency for an already-known device, even if it already has a measurement.
+    /// Used by ICMP enrichment to replace less-accurate TCP-based latency.
+    public func replaceLatency(ip: String, latency: Double) {
+        guard let idx = indexByIP[ip] else { return }
+        let existing = devices[idx]
+        devices[idx] = DiscoveredDevice(
+            ipAddress: existing.ipAddress,
+            hostname: existing.hostname,
+            vendor: existing.vendor,
+            macAddress: existing.macAddress,
+            latency: latency,
+            discoveredAt: existing.discoveredAt,
+            source: existing.source
+        )
+    }
+
     public func snapshot() -> [DiscoveredDevice] {
         devices
     }

@@ -19,6 +19,7 @@ enum ScanDisplayPhase: String, Sendable {
     case tcpProbe = "Probing ports…"
     case bonjour = "Bonjour discovery…"
     case ssdp = "UPnP discovery…"
+    case icmpLatency = "Measuring latency…"
     case companion = "Mac companion…"
     case resolving = "Resolving names…"
     case done = "Complete"

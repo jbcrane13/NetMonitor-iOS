@@ -34,7 +34,7 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
     ) async {
         await onProgress(0.0)
 
-        let ipsNeedingLatency = await accumulator.ipsWithoutLatency()
+        let ipsNeedingLatency = await accumulator.allDeviceIPs()
         guard !ipsNeedingLatency.isEmpty else {
             await onProgress(1.0)
             return
@@ -54,7 +54,6 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
 
         logger.info("ICMP ping sweep: \(ipsNeedingLatency.count) devices")
 
-        let ident = UInt16(ProcessInfo.processInfo.processIdentifier & 0xFFFF)
         let timeout = collectTimeout
 
         // Run all I/O on a dedicated queue — no async suspension between reads
@@ -63,7 +62,6 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
                 let results = Self.pingSweep(
                     fd: fd,
                     ips: ipsNeedingLatency,
-                    identifier: ident,
                     timeout: timeout
                 )
                 close(fd)
@@ -71,9 +69,9 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
             }
         }
 
-        // Batch-update accumulator (async is fine here — I/O is done)
+        // Batch-update accumulator — ICMP replaces any TCP-based latency
         for (ip, rtt) in results {
-            await accumulator.updateLatency(ip: ip, latency: rtt)
+            await accumulator.replaceLatency(ip: ip, latency: rtt)
         }
 
         logger.info("ICMP ping sweep complete: \(results.count)/\(ipsNeedingLatency.count) enriched")
@@ -87,7 +85,6 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
     private static func pingSweep(
         fd: Int32,
         ips: [String],
-        identifier: UInt16,
         timeout: TimeInterval
     ) -> [(ip: String, rtt: Double)] {
 
@@ -101,7 +98,7 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
             addr.sin_family = sa_family_t(AF_INET)
             guard inet_pton(AF_INET, ip, &addr.sin_addr) == 1 else { continue }
 
-            let packet = buildEchoRequest(identifier: identifier, sequence: seq)
+            let packet = buildEchoRequest(identifier: 0, sequence: seq)
             let sendTime = ContinuousClock.now
 
             let sent = withUnsafePointer(to: &addr) { ptr in
@@ -162,10 +159,9 @@ public struct ICMPLatencyPhase: ScanPhase, Sendable {
                 let icmpType = buf[offset]
                 guard icmpType == 0 else { continue } // Echo Reply only
 
-                let respIdent = UInt16(buf[offset + 4]) << 8 | UInt16(buf[offset + 5])
+                // Sequence number matching only — the kernel already filters SOCK_DGRAM
+                // ICMP responses to our socket, and remaps the identifier field internally.
                 let respSeq = UInt16(buf[offset + 6]) << 8 | UInt16(buf[offset + 7])
-
-                guard respIdent == identifier else { continue }
                 guard let probe = pending.removeValue(forKey: respSeq) else { continue }
 
                 let elapsed = recvTime - probe.sendTime
