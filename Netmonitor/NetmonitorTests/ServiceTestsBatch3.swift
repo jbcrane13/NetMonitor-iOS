@@ -332,6 +332,7 @@ struct ScanDisplayPhaseTests {
         #expect(ScanDisplayPhase.tcpProbe.rawValue == "Probing ports…")
         #expect(ScanDisplayPhase.bonjour.rawValue == "Bonjour discovery…")
         #expect(ScanDisplayPhase.ssdp.rawValue == "UPnP discovery…")
+        #expect(ScanDisplayPhase.icmpLatency.rawValue == "Measuring latency…")
         #expect(ScanDisplayPhase.companion.rawValue == "Mac companion…")
         #expect(ScanDisplayPhase.resolving.rawValue == "Resolving names…")
         #expect(ScanDisplayPhase.done.rawValue == "Complete")
@@ -341,9 +342,9 @@ struct ScanDisplayPhaseTests {
     func allPhasesDefined() {
         let phases: [ScanDisplayPhase] = [
             .idle, .arpScan, .tcpProbe, .bonjour,
-            .ssdp, .companion, .resolving, .done
+            .ssdp, .icmpLatency, .companion, .resolving, .done
         ]
-        #expect(phases.count == 8)
+        #expect(phases.count == 9)
     }
 }
 

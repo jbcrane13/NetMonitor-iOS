@@ -18,6 +18,10 @@ public actor ScanEngine {
     ///   - context: Shared scan context (hosts, subnet filter, local IP).
     ///   - onProgress: Called with `(overallProgress, phaseDisplayName)` as scanning proceeds.
     /// - Returns: Sorted array of all discovered devices.
+    /// Maximum time any single phase is allowed to run before being cancelled.
+    /// Prevents a broken NWConnection / NECP state from hanging the entire pipeline.
+    private static let phaseTimeout: Duration = .seconds(30)
+
     public func scan(
         pipeline: ScanPipeline,
         context: ScanContext,
@@ -33,14 +37,17 @@ public actor ScanEngine {
 
             if step.concurrent && step.phases.count > 1 {
                 let accum = accumulator
+                let timeout = Self.phaseTimeout
                 await withTaskGroup(of: Void.self) { group in
                     for phase in step.phases {
                         let tw = totalWeight
                         let bw = baseWeight
                         group.addTask {
-                            await phase.execute(context: context, accumulator: accum) { phaseProgress in
-                                let overall = (bw + phase.weight * phaseProgress) / tw
-                                await onProgress(overall, phase.displayName)
+                            await Self.withTimeout(timeout) {
+                                await phase.execute(context: context, accumulator: accum) { phaseProgress in
+                                    let overall = (bw + phase.weight * phaseProgress) / tw
+                                    await onProgress(overall, phase.displayName)
+                                }
                             }
                         }
                     }
@@ -50,9 +57,13 @@ public actor ScanEngine {
                 for phase in step.phases {
                     let phaseBase = completedWeight
                     let tw = totalWeight
-                    await phase.execute(context: context, accumulator: accumulator) { phaseProgress in
-                        let overall = (phaseBase + phase.weight * phaseProgress) / tw
-                        await onProgress(overall, phase.displayName)
+                    let timeout = Self.phaseTimeout
+                    let accum = self.accumulator
+                    await Self.withTimeout(timeout) {
+                        await phase.execute(context: context, accumulator: accum) { phaseProgress in
+                            let overall = (phaseBase + phase.weight * phaseProgress) / tw
+                            await onProgress(overall, phase.displayName)
+                        }
                     }
                     completedWeight += phase.weight
                 }
@@ -60,6 +71,23 @@ public actor ScanEngine {
         }
 
         return await accumulator.sortedSnapshot()
+    }
+
+    /// Run an async operation with a timeout. If the operation exceeds the
+    /// timeout, its task is cancelled and we move on.
+    private static func withTimeout(_ duration: Duration, operation: @escaping @Sendable () async -> Void) async {
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                await operation()
+            }
+            group.addTask {
+                try? await Task.sleep(for: duration)
+            }
+            // When the first task completes (either operation finishes or timeout fires),
+            // cancel the remaining one and return.
+            await group.next()
+            group.cancelAll()
+        }
     }
 
     /// Reset the accumulator for a fresh scan.

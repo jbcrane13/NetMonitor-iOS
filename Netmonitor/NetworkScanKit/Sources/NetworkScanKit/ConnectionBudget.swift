@@ -35,11 +35,26 @@ public actor ConnectionBudget {
     }
 
     /// Release a connection slot, waking the next waiter if any.
+    ///
+    /// Always resumes a waiter when slots are available, even if thermal
+    /// throttling reduced `effectiveLimit` since the waiter was enqueued.
+    /// This prevents deadlock when the thermal state changes mid-scan.
     public func release() {
         active = max(active - 1, 0)
-        if !waiters.isEmpty, active < effectiveLimit {
+        if !waiters.isEmpty {
             let next = waiters.removeFirst()
             next.resume()
+        }
+    }
+
+    /// Force-drain all waiters and reset the active count.
+    /// Called when scan infrastructure detects a potential budget leak.
+    public func reset() {
+        active = 0
+        let pending = waiters
+        waiters.removeAll()
+        for waiter in pending {
+            waiter.resume()
         }
     }
 
