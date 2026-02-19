@@ -5,7 +5,7 @@ import Foundation
 // MARK: - Mock Services
 
 @MainActor
-final class MockWHOISService: WHOISServiceProtocol {
+final class MockSimpleWHOISService: WHOISServiceProtocol {
     nonisolated func lookup(query: String) async throws -> WHOISResult {
         if query == "error.com" {
             throw NetworkError.connectionFailed
@@ -164,7 +164,7 @@ struct WHOISToolViewModelTests {
 
     @Test("Initial state is correct")
     func initialState() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
 
         #expect(vm.domain == "")
         #expect(vm.isLoading == false)
@@ -174,14 +174,14 @@ struct WHOISToolViewModelTests {
 
     @Test("canStartLookup is false when domain is empty")
     func canStartLookupEmpty() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
 
         #expect(vm.canStartLookup == false)
     }
 
     @Test("canStartLookup is false when domain is only whitespace")
     func canStartLookupWhitespace() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = "   "
 
         #expect(vm.canStartLookup == false)
@@ -189,7 +189,7 @@ struct WHOISToolViewModelTests {
 
     @Test("canStartLookup is true when domain has text")
     func canStartLookupWithDomain() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = "example.com"
 
         #expect(vm.canStartLookup == true)
@@ -197,7 +197,7 @@ struct WHOISToolViewModelTests {
 
     @Test("canStartLookup is false when loading")
     func canStartLookupWhileLoading() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = "example.com"
         vm.isLoading = true
 
@@ -206,7 +206,7 @@ struct WHOISToolViewModelTests {
 
     @Test("clearResults resets result and error")
     func clearResults() {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.errorMessage = "Some error"
 
         vm.clearResults()
@@ -217,7 +217,7 @@ struct WHOISToolViewModelTests {
 
     @Test("lookup sets result on success")
     func lookupSuccess() async {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = "example.com"
 
         await vm.lookup()
@@ -231,7 +231,7 @@ struct WHOISToolViewModelTests {
 
     @Test("lookup sets error on failure")
     func lookupError() async {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = "error.com"
 
         await vm.lookup()
@@ -243,7 +243,7 @@ struct WHOISToolViewModelTests {
 
     @Test("lookup does nothing when canStartLookup is false")
     func lookupSkipsWhenCannotStart() async {
-        let vm = WHOISToolViewModel(whoisService: MockWHOISService())
+        let vm = WHOISToolViewModel(whoisService: MockSimpleWHOISService())
         vm.domain = ""
 
         await vm.lookup()

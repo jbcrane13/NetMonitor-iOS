@@ -95,7 +95,7 @@ actor MockTracerouteService: TracerouteServiceProtocol {
 
 // MARK: - Mock WHOIS Service
 
-actor MockWHOISService: WHOISServiceProtocol {
+actor MockWHOISLookupService: WHOISServiceProtocol {
     var mockResult: WHOISResult? = nil
     var mockError: Error? = nil
 
@@ -451,7 +451,7 @@ struct MockWHOISServiceTests {
 
     @Test("mock lookup for well-known domain returns all configured parsed fields")
     func mockLookupWellKnownDomain() async throws {
-        let service = MockWHOISService()
+        let service = MockWHOISLookupService()
         let calendar = Calendar.current
         let creation = calendar.date(byAdding: .year, value: -10, to: Date())!
         let expiration = calendar.date(byAdding: .year, value: 1, to: Date())!
@@ -478,8 +478,8 @@ struct MockWHOISServiceTests {
 
     @Test("configured network error is thrown when performing invalid domain lookup")
     func invalidDomainHandling() async {
-        let service = MockWHOISService()
-        await service.configureError(MockWHOISService.MockError.networkFailure)
+        let service = MockWHOISLookupService()
+        await service.configureError(MockWHOISLookupService.MockError.networkFailure)
 
         do {
             _ = try await service.lookup(query: "invalid-domain-xyz.invalid")
@@ -491,7 +491,7 @@ struct MockWHOISServiceTests {
 
     @Test("IP address query returns result with IP preserved as query field")
     func ipAddressWHOISReturnsResult() async throws {
-        let service = MockWHOISService()
+        let service = MockWHOISLookupService()
         let mockResult = WHOISResult(
             query: "8.8.8.8",
             rawData: "NetRange: 8.8.8.0 - 8.8.8.255\nOrganization: Google LLC"
@@ -515,14 +515,14 @@ struct MockWHOISServiceTests {
 
     @Test("configured timeout error is propagated with descriptive message")
     func timeoutHandling() async {
-        let service = MockWHOISService()
-        await service.configureError(MockWHOISService.MockError.timeout)
+        let service = MockWHOISLookupService()
+        await service.configureError(MockWHOISLookupService.MockError.timeout)
 
         do {
             _ = try await service.lookup(query: "cloudflare.com")
             #expect(Bool(false), "Expected timeout error to be thrown")
         } catch {
-            let mockErr = error as? MockWHOISService.MockError
+            let mockErr = error as? MockWHOISLookupService.MockError
             #expect(mockErr != nil)
             #expect(mockErr?.errorDescription?.contains("timed out") == true)
         }
@@ -530,7 +530,7 @@ struct MockWHOISServiceTests {
 
     @Test("empty query string throws error without performing any lookup")
     func emptyQueryThrows() async {
-        let service = MockWHOISService()
+        let service = MockWHOISLookupService()
         // No mock result configured — error must come from empty-query guard
         do {
             _ = try await service.lookup(query: "")
@@ -542,7 +542,7 @@ struct MockWHOISServiceTests {
 
     @Test("concurrent lookups on actor-isolated service all return correct results")
     func concurrentLookups() async throws {
-        let service = MockWHOISService()
+        let service = MockWHOISLookupService()
         let mockResult = WHOISResult(
             query: "example.com",
             rawData: "Mock WHOIS data for example.com"
