@@ -260,6 +260,11 @@ struct WHOISToolViewModelTests {
 @MainActor
 struct ToolsViewModelTests {
 
+    init() {
+        // Clear shared singleton so tests don't inherit log entries from other suites
+        ToolActivityLog.shared.clear()
+    }
+
     @Test("Initial state is correct")
     func initialState() {
         let vm = ToolsViewModel(
