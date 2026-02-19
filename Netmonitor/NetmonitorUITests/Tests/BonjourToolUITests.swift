@@ -152,4 +152,34 @@ final class BonjourToolUITests: XCTestCase {
             )
         }
     }
+
+    // MARK: - Functional Verification Tests
+
+    func testServiceGroupingByCategory() {
+        bonjourScreen.startDiscovery()
+
+        let servicesFound = bonjourScreen.waitForServices(timeout: 15)
+        guard servicesFound else {
+            // Simulator may not discover Bonjour services — accept graceful degradation
+            let emptyState = bonjourScreen.hasEmptyState()
+            let toolFunctional = bonjourScreen.runButton.waitForExistence(timeout: 5)
+            XCTAssertTrue(
+                emptyState || toolFunctional,
+                "Bonjour tool should show empty state or remain functional when no services found"
+            )
+            return
+        }
+
+        // If services were found, the section or category groupings should be visible
+        let hasServiceSection = bonjourScreen.servicesSection.exists
+        let hasCategoryHeader = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] 'HTTP' OR label CONTAINS[c] 'AirPlay' OR label CONTAINS[c] 'Printer' OR label CONTAINS[c] 'Apple TV' OR label CONTAINS[c] 'Services'")
+        ).count > 0
+        let hasAnyService = bonjourScreen.getServiceCount() > 0
+
+        XCTAssertTrue(
+            hasServiceSection || hasCategoryHeader || hasAnyService,
+            "Bonjour results should show services section or category headers when services are found"
+        )
+    }
 }

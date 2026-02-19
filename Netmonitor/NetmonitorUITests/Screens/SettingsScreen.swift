@@ -55,6 +55,10 @@ final class SettingsScreen: BaseScreen {
         app.descendants(matching: .any)["settings_stepper_highLatencyThreshold"]
     }
 
+    var highLatencyAlertToggle: XCUIElement {
+        app.switches["settings_toggle_highLatencyAlert"]
+    }
+
     var newDeviceAlertToggle: XCUIElement {
         app.switches["settings_toggle_newDeviceAlert"]
     }

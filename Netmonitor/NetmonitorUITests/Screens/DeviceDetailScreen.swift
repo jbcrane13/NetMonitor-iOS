@@ -89,6 +89,11 @@ final class DeviceDetailScreen: BaseScreen {
         app.buttons["deviceDetail_button_wakeOnLan"]
     }
 
+    /// Row in the Status section that indicates Wake-on-LAN capability
+    var wakeOnLanStatusRow: XCUIElement {
+        app.descendants(matching: .any)["deviceDetail_row_wakeOnLan"]
+    }
+
     // MARK: - Services Section
     var servicesSection: XCUIElement {
         app.descendants(matching: .any)["deviceDetail_section_services"]
@@ -100,6 +105,20 @@ final class DeviceDetailScreen: BaseScreen {
 
     var discoverServicesButton: XCUIElement {
         app.buttons["deviceDetail_button_discoverServices"]
+    }
+
+    /// All open-port result rows (identifiers begin with "deviceDetail_row_port_")
+    var openPortRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'deviceDetail_row_port_'")
+        )
+    }
+
+    /// All discovered-service result rows (identifiers begin with "deviceDetail_row_service_")
+    var discoveredServiceRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'deviceDetail_row_service_'")
+        )
     }
 
     // MARK: - Notes Section

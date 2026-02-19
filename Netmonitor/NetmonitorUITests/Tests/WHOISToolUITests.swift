@@ -163,4 +163,64 @@ final class WHOISToolUITests: XCTestCase {
             "WHOIS navigation title should exist"
         )
     }
+
+    // MARK: - Functional Verification Tests
+
+    func testDomainInfoCardContent() {
+        let testDomain = "example.com"
+        whoisScreen
+            .enterDomain(testDomain)
+            .startLookup()
+
+        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
+        guard gotInfo else {
+            XCTAssertTrue(
+                whoisScreen.hasError() || whoisScreen.runButton.waitForExistence(timeout: 5),
+                "WHOIS tool should show error or remain functional"
+            )
+            return
+        }
+
+        // Domain info card should reference the queried domain or show registrar info
+        let domainInUI = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@ OR label CONTAINS[c] 'example'", testDomain)
+        ).count > 0
+
+        let hasDomainLabel = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] 'Domain Name' OR label CONTAINS[c] 'Registrar'")
+        ).count > 0
+
+        XCTAssertTrue(
+            domainInUI || hasDomainLabel || whoisScreen.domainInfoCard.exists,
+            "Domain info card should show content related to the queried domain"
+        )
+    }
+
+    func testNameServersDisplay() {
+        whoisScreen
+            .enterDomain("google.com")
+            .startLookup()
+
+        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
+        guard gotInfo else {
+            XCTAssertTrue(
+                whoisScreen.hasError() || whoisScreen.runButton.waitForExistence(timeout: 5),
+                "WHOIS tool should remain functional"
+            )
+            return
+        }
+
+        whoisScreen.swipeUp()
+
+        let hasNameServersCard = whoisScreen.nameServersCard.waitForExistence(timeout: 5)
+        let hasNameServersText = whoisScreen.nameServersText.exists
+        let hasNSContent = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] 'ns' OR label CONTAINS[c] 'nameserver' OR label CONTAINS[c] '.NS'")
+        ).count > 0
+
+        XCTAssertTrue(
+            hasNameServersCard || hasNameServersText || hasNSContent || whoisScreen.domainInfoCard.exists,
+            "WHOIS result should include name servers section or at least domain info"
+        )
+    }
 }

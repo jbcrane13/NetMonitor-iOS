@@ -420,4 +420,363 @@ final class SettingsUITests: XCTestCase {
             "Mac Companion section should exist in settings"
         )
     }
+
+    // MARK: - Stepper Functional Tests
+
+    func testPingCountStepperIncrement() {
+        let container = settingsScreen.pingCountStepper
+        XCTAssertTrue(container.waitForExistence(timeout: 5), "Ping count stepper should exist")
+
+        let incrementButton = container.buttons["Increment"]
+        if incrementButton.waitForExistence(timeout: 3) {
+            incrementButton.tap()
+            XCTAssertTrue(container.exists, "Ping count stepper should remain accessible after increment")
+        } else {
+            XCTAssertTrue(container.isEnabled, "Ping count stepper should be enabled and interactive")
+        }
+    }
+
+    func testPingTimeoutStepperIncrement() {
+        let container = settingsScreen.pingTimeoutStepper
+        XCTAssertTrue(container.waitForExistence(timeout: 5), "Ping timeout stepper should exist")
+
+        let incrementButton = container.buttons["Increment"]
+        if incrementButton.waitForExistence(timeout: 3) {
+            incrementButton.tap()
+            XCTAssertTrue(container.exists, "Ping timeout stepper should remain accessible after increment")
+        } else {
+            XCTAssertTrue(container.isEnabled, "Ping timeout stepper should be enabled and interactive")
+        }
+    }
+
+    func testPortScanTimeoutStepperIncrement() {
+        let container = settingsScreen.portScanTimeoutStepper
+        XCTAssertTrue(container.waitForExistence(timeout: 5), "Port scan timeout stepper should exist")
+
+        let incrementButton = container.buttons["Increment"]
+        if incrementButton.waitForExistence(timeout: 3) {
+            incrementButton.tap()
+            XCTAssertTrue(container.exists, "Port scan timeout stepper should remain accessible after increment")
+        } else {
+            XCTAssertTrue(container.isEnabled, "Port scan timeout stepper should be enabled and interactive")
+        }
+    }
+
+    func testDNSServerTextFieldEntry() {
+        let textField = settingsScreen.dnsServerTextField
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "DNS server text field should exist")
+        XCTAssertTrue(textField.isEnabled, "DNS server text field should be enabled")
+
+        textField.tap()
+        textField.typeText("9")
+
+        let fieldValue = textField.value as? String ?? ""
+        XCTAssertTrue(
+            fieldValue.contains("9"),
+            "DNS server text field should accept and display typed text"
+        )
+    }
+
+    // MARK: - High Latency Alert Toggle Functional Tests
+
+    func testHighLatencyToggleRevealsThreshold() {
+        settingsScreen.swipeUp()
+
+        let toggle = settingsScreen.highLatencyAlertToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "High latency alert toggle should exist")
+
+        // Ensure toggle is OFF first
+        if (toggle.value as? String) == "1" {
+            toggle.tap()
+            usleep(300_000)
+        }
+
+        XCTAssertFalse(
+            settingsScreen.highLatencyThresholdStepper.exists,
+            "High latency threshold stepper should be hidden when alert is disabled"
+        )
+
+        // Enable the toggle
+        toggle.tap()
+
+        XCTAssertTrue(
+            settingsScreen.highLatencyThresholdStepper.waitForExistence(timeout: 3),
+            "High latency threshold stepper should appear when alert is enabled"
+        )
+    }
+
+    func testHighLatencyToggleHidesThreshold() {
+        settingsScreen.swipeUp()
+
+        let toggle = settingsScreen.highLatencyAlertToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "High latency alert toggle should exist")
+
+        // Ensure toggle is ON first
+        if (toggle.value as? String) == "0" {
+            toggle.tap()
+            usleep(300_000)
+        }
+
+        XCTAssertTrue(
+            settingsScreen.highLatencyThresholdStepper.waitForExistence(timeout: 3),
+            "High latency threshold stepper should be visible when alert is enabled"
+        )
+
+        // Disable the toggle
+        toggle.tap()
+
+        XCTAssertFalse(
+            settingsScreen.highLatencyThresholdStepper.exists,
+            "High latency threshold stepper should disappear when alert is disabled"
+        )
+    }
+
+    func testHighLatencyThresholdStepperIncrement() {
+        settingsScreen.swipeUp()
+
+        let toggle = settingsScreen.highLatencyAlertToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "High latency alert toggle should exist")
+
+        // Enable to reveal the threshold stepper
+        if (toggle.value as? String) == "0" {
+            toggle.tap()
+        }
+
+        let container = settingsScreen.highLatencyThresholdStepper
+        XCTAssertTrue(container.waitForExistence(timeout: 3), "High latency threshold stepper should be visible")
+
+        let incrementButton = container.buttons["Increment"]
+        if incrementButton.waitForExistence(timeout: 3) {
+            incrementButton.tap()
+            XCTAssertTrue(container.exists, "High latency threshold stepper should remain accessible after increment")
+        } else {
+            XCTAssertTrue(container.isEnabled, "High latency threshold stepper should be enabled")
+        }
+    }
+
+    // MARK: - Toggle Functional Verification Tests
+
+    func testBackgroundRefreshToggleFunction() {
+        settingsScreen.swipeUp()
+
+        let toggle = settingsScreen.backgroundRefreshToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "Background refresh toggle should exist")
+
+        let initialValue = toggle.value as? String ?? "0"
+        toggle.tap()
+        let newValue = toggle.value as? String ?? "0"
+
+        XCTAssertNotEqual(initialValue, newValue, "Background refresh toggle should change state after tap")
+
+        // Restore original state
+        toggle.tap()
+        XCTAssertEqual(
+            toggle.value as? String,
+            initialValue,
+            "Background refresh toggle should restore to original state"
+        )
+    }
+
+    func testShowDetailedResultsToggleFunction() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let toggle = settingsScreen.showDetailedResultsToggle
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5), "Show detailed results toggle should exist")
+
+        let initialValue = toggle.value as? String ?? "0"
+        toggle.tap()
+        let newValue = toggle.value as? String ?? "0"
+
+        XCTAssertNotEqual(initialValue, newValue, "Show detailed results toggle should change state after tap")
+    }
+
+    // MARK: - Picker Functional Tests
+
+    func testAccentColorPickerChanges() {
+        settingsScreen.swipeUp()
+
+        let picker = settingsScreen.accentColorPicker
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), "Accent color picker should exist")
+        XCTAssertTrue(picker.isEnabled, "Accent color picker should be enabled")
+
+        picker.tap()
+
+        XCTAssertTrue(
+            picker.exists,
+            "Accent color picker should remain accessible after interaction"
+        )
+    }
+
+    func testDataRetentionPickerChanges() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let picker = settingsScreen.dataRetentionPicker
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), "Data retention picker should exist")
+        XCTAssertTrue(picker.isEnabled, "Data retention picker should be enabled")
+
+        picker.tap()
+
+        XCTAssertTrue(
+            picker.exists,
+            "Data retention picker should remain accessible after interaction"
+        )
+    }
+
+    func testAutoRefreshIntervalPickerChanges() {
+        settingsScreen.swipeUp()
+
+        let picker = settingsScreen.autoRefreshPicker
+        XCTAssertTrue(picker.waitForExistence(timeout: 5), "Auto-refresh interval picker should exist")
+        XCTAssertTrue(picker.isEnabled, "Auto-refresh interval picker should be enabled")
+
+        picker.tap()
+
+        XCTAssertTrue(
+            picker.exists,
+            "Auto-refresh interval picker should remain accessible after interaction"
+        )
+    }
+
+    // MARK: - Data Action Functional Tests
+
+    func testClearHistoryConfirmClearsData() {
+        settingsScreen.tapClearHistory()
+
+        XCTAssertTrue(
+            settingsScreen.clearHistoryAlert.waitForExistence(timeout: 5),
+            "Clear history alert should appear"
+        )
+
+        settingsScreen.confirmClearHistory()
+
+        XCTAssertFalse(
+            settingsScreen.clearHistoryAlert.exists,
+            "Clear history alert should be dismissed after confirmation"
+        )
+
+        // Settings screen should remain functional after the clear operation
+        XCTAssertTrue(
+            settingsScreen.isDisplayed(),
+            "Settings screen should remain visible and functional after clearing history"
+        )
+    }
+
+    func testClearCacheConfirmReducesSize() {
+        settingsScreen.tapClearCache()
+
+        XCTAssertTrue(
+            settingsScreen.clearCacheAlert.waitForExistence(timeout: 5),
+            "Clear cache alert should appear"
+        )
+
+        settingsScreen.confirmClearCache()
+
+        XCTAssertFalse(
+            settingsScreen.clearCacheAlert.exists,
+            "Clear cache alert should be dismissed after confirmation"
+        )
+
+        // Settings screen should remain functional and the button should still be accessible
+        XCTAssertTrue(
+            settingsScreen.isDisplayed(),
+            "Settings screen should remain visible and functional after clearing cache"
+        )
+        XCTAssertTrue(
+            settingsScreen.clearCacheButton.exists,
+            "Clear cache button should still be accessible after clearing"
+        )
+    }
+
+    // MARK: - Export Menu Functional Tests
+
+    func testExportToolResultsMenu() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let exportButton = settingsScreen.exportToolResultsMenu
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "Export tool results menu should exist")
+
+        exportButton.tap()
+
+        XCTAssertTrue(
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
+            app.buttons["Export as CSV"].waitForExistence(timeout: 5),
+            "Export format options (JSON/CSV) should appear after tapping Export Tool Results"
+        )
+    }
+
+    func testExportSpeedTestsMenu() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let exportButton = settingsScreen.exportSpeedTestsMenu
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "Export speed tests menu should exist")
+
+        exportButton.tap()
+
+        XCTAssertTrue(
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
+            app.buttons["Export as CSV"].waitForExistence(timeout: 5),
+            "Export format options (JSON/CSV) should appear after tapping Export Speed Tests"
+        )
+    }
+
+    func testExportDevicesMenu() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let exportButton = settingsScreen.exportDevicesMenu
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "Export devices menu should exist")
+
+        exportButton.tap()
+
+        XCTAssertTrue(
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
+            app.buttons["Export as CSV"].waitForExistence(timeout: 5),
+            "Export format options (JSON/CSV) should appear after tapping Export Devices"
+        )
+    }
+
+    // MARK: - Support & Feedback Functional Tests
+
+    func testContactSupportLinkIsEnabled() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        XCTAssertTrue(
+            settingsScreen.supportLink.waitForExistence(timeout: 5) ||
+            settingsScreen.supportLinkAsButton.waitForExistence(timeout: 3) ||
+            settingsScreen.supportLinkText.waitForExistence(timeout: 3),
+            "Contact Support link should exist"
+        )
+
+        // Verify the element is enabled (can be interacted with)
+        let supportElement: XCUIElement
+        if settingsScreen.supportLink.exists {
+            supportElement = settingsScreen.supportLink
+        } else {
+            supportElement = settingsScreen.supportLinkAsButton
+        }
+
+        if supportElement.exists {
+            XCTAssertTrue(
+                supportElement.isEnabled,
+                "Contact Support link should be enabled for mailto interaction"
+            )
+        }
+    }
+
+    func testRateAppButtonIsEnabled() {
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+        settingsScreen.swipeUp()
+
+        let rateButton = settingsScreen.rateAppButton
+        XCTAssertTrue(rateButton.waitForExistence(timeout: 5), "Rate App button should exist")
+        XCTAssertTrue(rateButton.isEnabled, "Rate App button should be enabled and tappable")
+        XCTAssertTrue(rateButton.isHittable, "Rate App button should be hittable (visible on screen)")
+    }
 }

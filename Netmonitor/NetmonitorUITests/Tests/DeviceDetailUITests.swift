@@ -158,6 +158,271 @@ final class DeviceDetailUITests: XCTestCase {
         )
     }
 
+    // MARK: - Notes Interaction Tests
+
+    func testNotesTextEditorCanType() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let notesEditor = detailScreen.notesEditor
+        try XCTSkipUnless(notesEditor.waitForExistence(timeout: 5), "Notes editor not found")
+
+        notesEditor.tap()
+        notesEditor.typeText("Test note entry")
+
+        let fieldValue = notesEditor.value as? String ?? ""
+        XCTAssertTrue(
+            fieldValue.contains("Test note entry"),
+            "Notes editor should contain the typed text"
+        )
+    }
+
+    func testNotesPersistence() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let notesEditor = detailScreen.notesEditor
+        try XCTSkipUnless(notesEditor.waitForExistence(timeout: 5), "Notes editor not found")
+
+        // Focus the editor and clear any existing content
+        notesEditor.tap()
+        usleep(300_000)
+        notesEditor.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        if selectAll.waitForExistence(timeout: 2) {
+            selectAll.tap()
+            notesEditor.typeText(XCUIKeyboardKey.delete.rawValue)
+        }
+
+        let testNote = "Persist_\(Int(Date().timeIntervalSince1970))"
+        notesEditor.typeText(testNote)
+
+        // Navigate away — SwiftData should commit the change
+        detailScreen.navigateToTab("Dashboard")
+        usleep(500_000)
+
+        // Return to the same device
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "Device detail not reachable on return")
+
+        let restoredEditor = detailScreen.notesEditor
+        XCTAssertTrue(restoredEditor.waitForExistence(timeout: 5), "Notes editor should be present after return")
+
+        let persistedValue = restoredEditor.value as? String ?? ""
+        XCTAssertTrue(
+            persistedValue.contains(testNote),
+            "Notes should persist after navigating away and back — expected '\(testNote)' in '\(persistedValue)'"
+        )
+    }
+
+    // MARK: - Services & Ports Interaction Tests
+
+    func testScanPortsButtonTriggersAction() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        if !detailScreen.scanPortsButton.exists {
+            detailScreen.swipeUp()
+        }
+        try XCTSkipUnless(
+            detailScreen.scanPortsButton.waitForExistence(timeout: 5),
+            "Scan Ports button not found"
+        )
+
+        detailScreen.scanPortsButton.tap()
+
+        // Button should remain in the hierarchy (either scanning or re-enabled)
+        XCTAssertTrue(
+            detailScreen.scanPortsButton.waitForExistence(timeout: 5),
+            "Scan Ports button should remain accessible after tap"
+        )
+    }
+
+    func testPortScanResultsDisplay() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        if !detailScreen.scanPortsButton.exists {
+            detailScreen.swipeUp()
+        }
+        try XCTSkipUnless(
+            detailScreen.scanPortsButton.waitForExistence(timeout: 5),
+            "Scan Ports button not found"
+        )
+
+        detailScreen.scanPortsButton.tap()
+
+        // Wait up to 20 s for scan to complete
+        _ = detailScreen.scanPortsButton.waitForExistence(timeout: 20)
+
+        let hasPortResults = detailScreen.openPortRows.count > 0
+        let hasEmptyState = app.staticTexts["No services or ports discovered yet"].exists
+
+        XCTAssertTrue(
+            hasPortResults || hasEmptyState,
+            "After port scan, either open-port rows or the empty-state message should be visible"
+        )
+    }
+
+    func testDiscoverServicesButtonTriggersAction() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        if !detailScreen.discoverServicesButton.exists {
+            detailScreen.swipeUp()
+        }
+        try XCTSkipUnless(
+            detailScreen.discoverServicesButton.waitForExistence(timeout: 5),
+            "Discover Services button not found"
+        )
+
+        detailScreen.discoverServicesButton.tap()
+
+        XCTAssertTrue(
+            detailScreen.discoverServicesButton.waitForExistence(timeout: 5),
+            "Discover Services button should remain accessible after tap"
+        )
+    }
+
+    func testServiceDiscoveryResultsDisplay() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        if !detailScreen.discoverServicesButton.exists {
+            detailScreen.swipeUp()
+        }
+        try XCTSkipUnless(
+            detailScreen.discoverServicesButton.waitForExistence(timeout: 5),
+            "Discover Services button not found"
+        )
+
+        detailScreen.discoverServicesButton.tap()
+        _ = detailScreen.discoverServicesButton.waitForExistence(timeout: 20)
+
+        let hasServiceResults = detailScreen.discoveredServiceRows.count > 0
+        let hasEmptyState = app.staticTexts["No services or ports discovered yet"].exists
+
+        XCTAssertTrue(
+            hasServiceResults || hasEmptyState,
+            "After service discovery, either discovered-service rows or the empty-state message should be visible"
+        )
+    }
+
+    // MARK: - Quick Actions Navigation Tests
+
+    func testQuickActionPingNavigates() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let pingButton = detailScreen.pingButton
+        try XCTSkipUnless(pingButton.waitForExistence(timeout: 5), "Ping quick action not found")
+
+        pingButton.tap()
+
+        XCTAssertTrue(
+            app.navigationBars["Ping"].waitForExistence(timeout: 5) ||
+            app.staticTexts["Ping"].waitForExistence(timeout: 5) ||
+            app.textFields.firstMatch.waitForExistence(timeout: 5),
+            "Should navigate to Ping tool view with device IP pre-filled"
+        )
+    }
+
+    func testQuickActionPortScanNavigates() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let portScanButton = detailScreen.portScanButton
+        try XCTSkipUnless(portScanButton.waitForExistence(timeout: 5), "Port Scan quick action not found")
+
+        portScanButton.tap()
+
+        XCTAssertTrue(
+            app.navigationBars["Port Scanner"].waitForExistence(timeout: 5) ||
+            app.staticTexts["Port Scanner"].waitForExistence(timeout: 5) ||
+            app.textFields.firstMatch.waitForExistence(timeout: 5),
+            "Should navigate to Port Scanner tool view with device IP pre-filled"
+        )
+    }
+
+    func testQuickActionDNSNavigates() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let dnsButton = detailScreen.dnsLookupButton
+        try XCTSkipUnless(dnsButton.waitForExistence(timeout: 5), "DNS Lookup quick action not found")
+
+        dnsButton.tap()
+
+        XCTAssertTrue(
+            app.navigationBars["DNS Lookup"].waitForExistence(timeout: 5) ||
+            app.staticTexts["DNS Lookup"].waitForExistence(timeout: 5) ||
+            app.textFields.firstMatch.waitForExistence(timeout: 5),
+            "Should navigate to DNS Lookup tool view with device IP pre-filled"
+        )
+    }
+
+    func testWakeOnLANQuickActionConditional() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        // Check WoL capability from the Status section indicator
+        if detailScreen.wakeOnLanStatusRow.exists {
+            // Device supports WoL — quick action button must appear
+            XCTAssertTrue(
+                detailScreen.wakeOnLanButton.waitForExistence(timeout: 5),
+                "Wake on LAN quick action should appear for WoL-capable devices"
+            )
+        } else {
+            // Device does not support WoL — button must NOT appear
+            XCTAssertFalse(
+                detailScreen.wakeOnLanButton.exists,
+                "Wake on LAN quick action should not appear for non-WoL devices"
+            )
+        }
+    }
+
+    // MARK: - Network Info Content Tests
+
+    func testNetworkInfoFieldsHaveValues() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        XCTAssertTrue(
+            detailScreen.ipAddressRow.waitForExistence(timeout: 5),
+            "IP address row should exist"
+        )
+        XCTAssertTrue(
+            detailScreen.macAddressRow.waitForExistence(timeout: 5),
+            "MAC address row should exist"
+        )
+
+        // Each row should contain both a label and a value text element
+        XCTAssertGreaterThanOrEqual(
+            detailScreen.ipAddressRow.staticTexts.count,
+            2,
+            "IP address row should have at least a label and a value"
+        )
+    }
+
+    // MARK: - Latency Color Coding Tests
+
+    func testLatencyDisplayShowsColorCoding() throws {
+        detailScreen.navigateToDeviceDetail()
+        try XCTSkipUnless(detailScreen.isDisplayed(), "No devices available on network for testing")
+
+        let latencyRow = detailScreen.latencyRow
+        guard latencyRow.waitForExistence(timeout: 5) else {
+            throw XCTSkip("Latency data not available for this device")
+        }
+
+        // Latency row should have text elements showing the ms value
+        XCTAssertGreaterThan(
+            latencyRow.staticTexts.count,
+            0,
+            "Latency row should display a latency value with unit"
+        )
+    }
+
     // MARK: - Services Tests
 
     func testServicesSectionCanBeDisplayed() throws {

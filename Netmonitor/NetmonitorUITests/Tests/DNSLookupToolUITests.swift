@@ -167,4 +167,67 @@ final class DNSLookupToolUITests: XCTestCase {
             "Clear button should appear after lookup, or tool should remain functional"
         )
     }
+
+    // MARK: - Functional Verification Tests
+
+    func testRecordTypePickerFunctional() {
+        guard dnsScreen.recordTypePicker.waitForExistence(timeout: 5) else {
+            XCTFail("Record type picker should exist")
+            return
+        }
+
+        let initialLabel = dnsScreen.recordTypePicker.label
+        dnsScreen.recordTypePicker.tap()
+
+        // Try selecting a different record type
+        let recordTypes = ["AAAA", "MX", "TXT", "CNAME", "NS", "PTR"]
+        var tapped = false
+        for recordType in recordTypes {
+            let btn = app.buttons[recordType]
+            if btn.waitForExistence(timeout: 2) && btn.label != initialLabel {
+                btn.tap()
+                tapped = true
+                break
+            }
+        }
+
+        if tapped {
+            XCTAssertTrue(
+                dnsScreen.recordTypePicker.exists,
+                "Record type picker should remain after selection"
+            )
+            let newLabel = dnsScreen.recordTypePicker.label
+            XCTAssertNotEqual(newLabel, initialLabel, "Picker label should update to new record type")
+        } else {
+            app.tap()
+            XCTAssertTrue(dnsScreen.isDisplayed(), "DNS Lookup tool should remain functional")
+        }
+    }
+
+    func testQueryInfoCardContent() {
+        let testDomain = "example.com"
+        dnsScreen
+            .enterDomain(testDomain)
+            .startLookup()
+
+        let gotInfo = dnsScreen.waitForQueryInfo(timeout: 15)
+        guard gotInfo else {
+            // Network unavailable in simulator — accept graceful degradation
+            XCTAssertTrue(
+                dnsScreen.hasError() || dnsScreen.runButton.waitForExistence(timeout: 5),
+                "DNS tool should show error or remain functional"
+            )
+            return
+        }
+
+        // Query info card should reference the domain we looked up
+        let domainInUI = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] %@ OR label CONTAINS[c] 'example'", testDomain)
+        ).count > 0
+
+        XCTAssertTrue(
+            domainInUI || dnsScreen.queryInfoCard.exists,
+            "Query info card should contain content matching the queried domain"
+        )
+    }
 }
