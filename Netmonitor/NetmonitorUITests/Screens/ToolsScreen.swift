@@ -2,15 +2,26 @@ import XCTest
 
 /// Tools screen page object
 final class ToolsScreen: BaseScreen {
-    
+
     // MARK: - Screen Identifier
     var screen: XCUIElement {
         app.descendants(matching: .any)["screen_tools"]
     }
-    
+
     // MARK: - Sections
-    // Note: SwiftUI containers with accessibilityIdentifier are unreliable as otherElements
-    // in XCUITest. Use staticTexts section headers as proxy for section existence.
+    var quickActionsSection: XCUIElement {
+        app.descendants(matching: .any)["tools_section_quickActions"]
+    }
+
+    var toolsGridSection: XCUIElement {
+        app.descendants(matching: .any)["tools_section_grid"]
+    }
+
+    var recentActivitySection: XCUIElement {
+        app.descendants(matching: .any)["tools_section_recentActivity"]
+    }
+
+    // Header fallbacks if section containers are not exposed as hittable elements.
     var quickActionsSectionHeader: XCUIElement {
         app.staticTexts["Quick Actions"]
     }
@@ -22,18 +33,18 @@ final class ToolsScreen: BaseScreen {
     var recentActivitySectionHeader: XCUIElement {
         app.staticTexts["Recent Activity"]
     }
-    
+
     // MARK: - Quick Action Buttons
     var scanNetworkButton: XCUIElement {
-        app.buttons["quickAction_set_target"]
+        app.descendants(matching: .any)["quickAction_set_target"]
     }
 
     var speedTestQuickButton: XCUIElement {
-        app.buttons["quickAction_speed_test"]
+        app.descendants(matching: .any)["quickAction_speed_test"]
     }
 
     var pingGatewayButton: XCUIElement {
-        app.buttons["quickAction_ping_gateway"]
+        app.descendants(matching: .any)["quickAction_ping_gateway"]
     }
 
     /// Check if a quick action button exists (by ID or label text fallback)
@@ -87,7 +98,13 @@ final class ToolsScreen: BaseScreen {
     var clearActivityButton: XCUIElement {
         app.buttons["tools_button_clearActivity"]
     }
-    
+
+    var activityRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'activityRow_'")
+        )
+    }
+
     // MARK: - Navigation
     @discardableResult
     func navigateToTools() -> Self {

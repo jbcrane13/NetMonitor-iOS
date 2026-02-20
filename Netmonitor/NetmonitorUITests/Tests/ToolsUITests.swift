@@ -28,30 +28,25 @@ final class ToolsUITests: XCTestCase {
     }
     
     func testQuickActionsSectionExists() {
-        // Verify quick actions section by checking for its header text and a known child button
         XCTAssertTrue(
-            toolsScreen.quickActionsSectionHeader.waitForExistence(timeout: 5) ||
-            toolsScreen.scanNetworkButton.waitForExistence(timeout: 5),
-            "Quick Actions section should exist"
+            toolsScreen.quickActionsSection.waitForExistence(timeout: 5),
+            "Quick Actions section should expose tools_section_quickActions identifier"
         )
     }
 
     func testToolsGridSectionExists() {
-        // Verify tools grid section by checking for its header text and a known child card
         XCTAssertTrue(
-            toolsScreen.toolsGridSectionHeader.waitForExistence(timeout: 5) ||
-            toolsScreen.pingToolCard.waitForExistence(timeout: 5),
-            "Tools grid section should exist"
+            toolsScreen.toolsGridSection.waitForExistence(timeout: 5),
+            "Tools grid section should expose tools_section_grid identifier"
         )
     }
 
     func testRecentActivitySectionExists() {
-        // Scroll down to reveal recent activity section
         toolsScreen.swipeUp()
         toolsScreen.swipeUp()
         XCTAssertTrue(
-            toolsScreen.recentActivitySectionHeader.waitForExistence(timeout: 5),
-            "Recent activity section should exist"
+            toolsScreen.recentActivitySection.waitForExistence(timeout: 5),
+            "Recent activity section should expose tools_section_recentActivity identifier"
         )
     }
     
@@ -271,27 +266,27 @@ final class ToolsUITests: XCTestCase {
     func testSetTargetOpensSheet() {
         toolsScreen.scrollToQuickActions()
 
-        let setTargetButton = app.buttons.matching(
-            NSPredicate(format: "identifier CONTAINS[c] 'target' OR label CONTAINS[c] 'Set Target'")
+        let setTargetButtonByID = toolsScreen.scanNetworkButton
+        let setTargetButtonByLabel = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS[c] 'Set Target'")
         ).firstMatch
 
-        if setTargetButton.waitForExistence(timeout: 5) {
-            setTargetButton.tap()
-
-            let sheetAppeared = app.sheets.count > 0 || app.otherElements["sheet"].exists
-            let hasTargetContent = app.staticTexts.matching(
-                NSPredicate(format: "label CONTAINS[c] 'Target' OR label CONTAINS[c] 'Host' OR label CONTAINS[c] 'IP'")
-            ).count > 0
-            let hasTextField = app.textFields.count > 0
-
-            XCTAssertTrue(
-                sheetAppeared || hasTargetContent || hasTextField || toolsScreen.isDisplayed(),
-                "Set Target should open a sheet or show target input"
-            )
+        let didTapQuickAction: Bool
+        if setTargetButtonByID.waitForExistence(timeout: 3) {
+            setTargetButtonByID.tap()
+            didTapQuickAction = true
+        } else if setTargetButtonByLabel.waitForExistence(timeout: 3) {
+            setTargetButtonByLabel.tap()
+            didTapQuickAction = true
         } else {
-            // Set Target button not visible — verify tools screen is functional
-            XCTAssertTrue(toolsScreen.isDisplayed(), "Tools screen should remain functional")
+            didTapQuickAction = false
         }
+
+        XCTAssertTrue(didTapQuickAction, "Set Target quick action should be reachable by identifier or label")
+        XCTAssertTrue(
+            app.navigationBars["Set Target"].waitForExistence(timeout: 5),
+            "Tapping Set Target quick action should open Set Target sheet"
+        )
     }
 
     func testRecentActivityEntriesDisplay() {
@@ -306,9 +301,7 @@ final class ToolsUITests: XCTestCase {
         toolsScreen.swipeUp()
 
         let hasActivitySection = toolsScreen.recentActivitySectionHeader.waitForExistence(timeout: 5)
-        let hasActivityEntry = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'tools_activity_'")
-        ).count > 0
+        let hasActivityEntry = toolsScreen.activityRows.count > 0
         let hasActivityText = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS[c] 'Ping' OR label CONTAINS[c] 'ping'")
         ).count > 0
@@ -326,19 +319,15 @@ final class ToolsUITests: XCTestCase {
 
         let clearButton = toolsScreen.clearActivityButton
         if clearButton.waitForExistence(timeout: 5) {
-            let entriesBefore = app.descendants(matching: .any).matching(
-                NSPredicate(format: "identifier BEGINSWITH 'tools_activity_'")
-            ).count
+            let entriesBefore = toolsScreen.activityRows.count
 
             clearButton.tap()
 
-            let entriesAfter = app.descendants(matching: .any).matching(
-                NSPredicate(format: "identifier BEGINSWITH 'tools_activity_'")
-            ).count
+            let entriesAfter = toolsScreen.activityRows.count
 
             XCTAssertTrue(
-                entriesAfter == 0 || entriesAfter < entriesBefore || toolsScreen.isDisplayed(),
-                "Clear activity should remove activity entries"
+                entriesAfter == 0 || entriesAfter < entriesBefore,
+                "Clear activity should reduce or remove activity rows"
             )
         } else {
             // No activity entries to clear — verify tools screen is still displayed

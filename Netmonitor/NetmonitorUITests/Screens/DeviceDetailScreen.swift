@@ -137,12 +137,18 @@ final class DeviceDetailScreen: BaseScreen {
         let mapScreen = NetworkMapScreen(app: app)
         _ = mapScreen.isDisplayed()
 
-        // Check for device nodes (excluding gateway)
-        let deviceNodes = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'networkMap_node_' AND identifier != 'networkMap_node_gateway'")
-        )
+        // Check for device rows in the current map implementation.
+        if mapScreen.hasAnyDeviceRow(timeout: 8) {
+            return true
+        }
 
-        return deviceNodes.count > 0
+        // Trigger a scan once before declaring no rows available.
+        if mapScreen.scanButton.waitForExistence(timeout: 3) {
+            mapScreen.scanButton.tap()
+            return mapScreen.hasAnyDeviceRow(timeout: 12)
+        }
+
+        return false
     }
 
     @discardableResult
@@ -154,16 +160,18 @@ final class DeviceDetailScreen: BaseScreen {
         let mapScreen = NetworkMapScreen(app: app)
         _ = mapScreen.isDisplayed()
 
-        // Tap the first available device node (excluding gateway)
-        // Device nodes have identifiers like "networkMap_node_192_168_1_100"
-        let deviceNodes = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'networkMap_node_' AND identifier != 'networkMap_node_gateway'")
-        )
-
-        if deviceNodes.count > 0 {
-            deviceNodes.element(boundBy: 0).tap()
-            // Wait for detail screen to appear
+        // Try current rows first.
+        if mapScreen.tapFirstDeviceRow() {
             _ = waitForElement(screen)
+            return self
+        }
+
+        // Kick off one scan attempt and retry row tap.
+        if mapScreen.scanButton.waitForExistence(timeout: 3) {
+            mapScreen.scanButton.tap()
+            if mapScreen.tapFirstDeviceRow() {
+                _ = waitForElement(screen)
+            }
         }
 
         return self
@@ -175,14 +183,14 @@ final class DeviceDetailScreen: BaseScreen {
     }
 
     func verifyNetworkInfoPresent() -> Bool {
-        waitForElement(networkInfoTitle) ||
-        waitForElement(ipAddressRow) ||
+        waitForElement(networkInfoTitle) &&
+        waitForElement(ipAddressRow) &&
         waitForElement(macAddressRow)
     }
 
     func verifyQuickActionsPresent() -> Bool {
-        waitForElement(pingButton) ||
-        waitForElement(portScanButton) ||
+        waitForElement(pingButton) &&
+        waitForElement(portScanButton) &&
         waitForElement(dnsLookupButton)
     }
 
@@ -191,8 +199,8 @@ final class DeviceDetailScreen: BaseScreen {
     }
 
     func verifyServicesPresent() -> Bool {
-        waitForElement(servicesSection) ||
-        waitForElement(scanPortsButton) ||
+        waitForElement(servicesSection) &&
+        waitForElement(scanPortsButton) &&
         waitForElement(discoverServicesButton)
     }
 }
