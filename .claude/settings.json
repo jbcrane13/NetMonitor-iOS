@@ -9,15 +9,6 @@
             "command": "/Users/blake/Projects/NetMonitor-iOS/.claude/hooks/supervisor/on-stop.sh"
           }
         ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/blake/Projects/NetMonitor-iOS/.claude/hooks/session-close-nudge.sh"
-          }
-        ]
       }
     ],
     "PostToolUseFailure": [
