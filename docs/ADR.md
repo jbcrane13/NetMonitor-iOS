@@ -296,4 +296,64 @@ NetMonitor-2.0/
 
 ---
 
+## ADR-018: App display name "NetMonitor Mobile" (Apple 5.2.5)
+**Date:** 2026-02-20
+**Status:** Active
+**Beads:** NMI-0jt.3, NMI-g4i
+**Decision:** Rename the app display name from "NetMonitor" to "NetMonitor Mobile" in all config files and App Store metadata.
+**Context:** Apple rejected the original submission under guideline 5.2.5 (use of Apple trademarks) because the name included "iOS". The app was resubmitted as "NetMonitor Mobile". During the release prep audit, we discovered that while the App Store Connect listing had been updated, the actual bundle config files (`project.yml`, `Info.plist`, `AppStore/copy.md`) still said "NetMonitor". The on-device name technically complied (no "iOS"), but for consistency with the ASC listing the display name was updated everywhere.
+**Consequences:**
+- `CFBundleDisplayName` and `CFBundleName` = "NetMonitor Mobile" in both `project.yml` and `Info.plist`
+- `AppStore/copy.md` app name section updated
+- Bundle ID unchanged: `com.blakemiller.netmonitor`
+- Code-level module names/imports unchanged (still `Netmonitor`)
+- Widget display name unchanged
+- Platform references ("built for iOS") in marketing copy are permitted — only the app name cannot contain "iOS"
+
+---
+
+## ADR-019: Info.plist version variables and copyright
+**Date:** 2026-02-20
+**Status:** Active
+**Bead:** NMI-0jt.4
+**Decision:** Info.plist must use `$(MARKETING_VERSION)` and `$(CURRENT_PROJECT_VERSION)` build setting variables instead of hardcoded version strings. Added `NSHumanReadableCopyright`.
+**Context:** Release audit found `CFBundleShortVersionString` hardcoded as `1.0` and `CFBundleVersion` hardcoded as `1`, while `project.yml` had `MARKETING_VERSION: 1.0` and `CURRENT_PROJECT_VERSION: 6`. The hardcoded values would override the build settings, shipping build number 1 instead of 6. Additionally, `NSHumanReadableCopyright` was missing entirely.
+**Consequences:**
+- `CFBundleShortVersionString` = `$(MARKETING_VERSION)` (resolved from `project.yml`)
+- `CFBundleVersion` = `$(CURRENT_PROJECT_VERSION)` (resolved from `project.yml`)
+- `NSHumanReadableCopyright` = "Copyright © 2026 Blake Crane. All rights reserved."
+- Build numbers now flow correctly from `project.yml` → Xcode build settings → Info.plist
+- Consistent with ADR-011 build number management (CLI override still works)
+
+---
+
+## ADR-020: Swift Testing framework for unit tests
+**Date:** 2026-02-20
+**Status:** Active
+**Bead:** NMI-kic
+**Decision:** The unit test suite uses Apple's Swift Testing framework (`import Testing`, `@Test`, `@Suite`) rather than XCTest.
+**Context:** During the final QA pass, `xcodebuild test` reported "0 tests executed" for the NetmonitorTests target despite 25 test files and 638 test methods existing. Investigation revealed this was a reporting artifact: Swift Testing tests run through a different execution path than XCTest, and older-style xcodebuild output may show "0 XCTest tests" while Swift Testing tests execute and pass separately. All 638 tests across 109 suites pass in ~68 seconds.
+**Consequences:**
+- Test methods use `@Test` attribute instead of `func test*()` naming convention
+- Test classes use `@Suite` instead of subclassing `XCTestCase`
+- `xcodebuild test` output may undercount tests in summary lines — check full output for Swift Testing results
+- UI tests (`NetmonitorUITests`) still use XCTest/XCUITest (Swift Testing doesn't support UI testing yet)
+- No action needed on `project.yml` — sources config is correct
+
+---
+
+## ADR-021: SettingsView missing UI elements (notification toggles, theme picker)
+**Date:** 2026-02-20
+**Status:** Active
+**Bead:** NMI-1fu
+**Decision:** Added notification toggle controls and theme picker to `SettingsView` that were supported by the ViewModel but never rendered in the view layer.
+**Context:** During UI test failure investigation, 8 SettingsUITests failures were traced to missing UI elements. `SettingsViewModel` already had properties for `targetDownAlert`, `newDeviceAlert`, and `theme` selection, but `SettingsView.swift` never rendered controls for them. This was a view-layer omission, not an architectural gap — the ViewModel and persistence were already wired. Related to ADR-015 which noted that "Target Down Alert" and "New Device Detected Alert" were removed from Settings, but the ViewModel retained the properties for the target-monitoring feature planned post-1.0.
+**Consequences:**
+- Notifications section in Settings now renders toggles for Target Down Alert, New Device Alert, and High Latency Alert
+- Appearance section renders theme picker
+- These features are UI-visible but depend on background monitoring (not yet shipping) — toggles are present for consistency and future-proofing
+- All 16 SettingsUITests now pass
+
+---
+
 *To add a new ADR: append with the next number, include date, status, decision, context, and consequences. Reference the bead ID if applicable.*
