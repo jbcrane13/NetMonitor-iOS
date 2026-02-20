@@ -43,8 +43,8 @@ targets:
     info:
       path: Netmonitor/Info.plist
       properties:
-        CFBundleName: NetMonitor
-        CFBundleDisplayName: NetMonitor
+        CFBundleName: NetMonitor Mobile
+        CFBundleDisplayName: NetMonitor Mobile
         UILaunchScreen:
           UIColorName: LaunchScreenBackground
         UISupportedInterfaceOrientations:

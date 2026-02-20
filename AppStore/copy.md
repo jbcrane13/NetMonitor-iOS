@@ -1,7 +1,7 @@
 # NetMonitor — App Store Copy
 
 ## App Name
-NetMonitor
+NetMonitor Mobile
 
 ## Subtitle (30 chars max)
 Network Diagnostics Toolkit

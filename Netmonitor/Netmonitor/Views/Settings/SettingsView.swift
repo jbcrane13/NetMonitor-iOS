@@ -104,6 +104,20 @@ struct SettingsView: View {
 
             // MARK: - Notification Settings Section
             Section {
+                Toggle(isOn: $viewModel.targetDownAlertEnabled) {
+                    Text("Target Down Alerts")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_targetDownAlert")
+
+                Toggle(isOn: $viewModel.newDeviceAlertEnabled) {
+                    Text("New Device Alerts")
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                }
+                .tint(Theme.Colors.accent)
+                .accessibilityIdentifier("settings_toggle_newDeviceAlert")
+
                 Toggle(isOn: $viewModel.highLatencyAlertEnabled) {
                     Text("High Latency Alerts")
                         .foregroundStyle(Theme.Colors.textPrimary)
@@ -132,6 +146,14 @@ struct SettingsView: View {
 
             // MARK: - Appearance Section
             Section {
+                Picker("Theme", selection: $viewModel.selectedTheme) {
+                    Text("Dark").tag("dark")
+                    Text("Light").tag("light")
+                    Text("System").tag("system")
+                }
+                .foregroundStyle(Theme.Colors.textPrimary)
+                .accessibilityIdentifier("settings_picker_theme")
+
                 Picker("Accent Color", selection: $viewModel.selectedAccentColor) {
                     Text("Cyan").tag("cyan")
                     Text("Blue").tag("blue")

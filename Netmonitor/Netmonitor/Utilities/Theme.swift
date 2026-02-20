@@ -1,7 +1,7 @@
 import SwiftUI
 
 // MARK: - App Theme
-/// Centralized theme configuration for NetMonitor iOS
+/// Centralized theme configuration for NetMonitor Mobile
 /// Implements iOS 26 Liquid Glass design aesthetic
 enum Theme {
     
