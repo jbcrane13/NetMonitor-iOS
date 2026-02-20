@@ -39,10 +39,6 @@ final class WHOISToolScreen: BaseScreen {
         app.descendants(matching: .any)["whois_error"]
     }
 
-    // Fallback text references
-    var domainDatesText: XCUIElement { app.staticTexts["Domain Dates"] }
-    var nameServersText: XCUIElement { app.staticTexts["Name Servers"] }
-    
     // MARK: - Verification
     func isDisplayed() -> Bool {
         // Check for run button instead of screen container for more reliable detection
@@ -73,26 +69,30 @@ final class WHOISToolScreen: BaseScreen {
     }
     
     func waitForDomainInfo(timeout: TimeInterval = 15) -> Bool {
-        // Try otherElements first, fall back to checking for the "Domain" label text
-        domainInfoCard.waitForExistence(timeout: timeout) ||
-        app.staticTexts["Registrar"].waitForExistence(timeout: 2)
+        domainInfoCard.waitForExistence(timeout: timeout)
     }
 
     func waitForDates(timeout: TimeInterval = 15) -> Bool {
-        datesCard.waitForExistence(timeout: timeout) ||
-        domainDatesText.waitForExistence(timeout: 2)
+        datesCard.waitForExistence(timeout: timeout)
     }
 
     func waitForNameServers(timeout: TimeInterval = 15) -> Bool {
-        nameServersCard.waitForExistence(timeout: timeout) ||
-        nameServersText.waitForExistence(timeout: 2)
+        nameServersCard.waitForExistence(timeout: timeout)
     }
 
     func hasError() -> Bool {
-        errorView.exists ||
-        app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'failed' OR label CONTAINS[c] 'error' OR label CONTAINS[c] 'timed out' OR label CONTAINS[c] 'could not'")).count > 0 ||
-        app.images["exclamationmark.triangle"].exists ||
-        app.images["exclamationmark.triangle.fill"].exists
+        errorView.exists
+    }
+
+    func waitForCompletedOutcome(timeout: TimeInterval = 35) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if domainInfoCard.exists || errorView.exists {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return domainInfoCard.exists || errorView.exists
     }
     
     /// Navigate back to Tools

@@ -38,6 +38,12 @@ final class DNSLookupToolScreen: BaseScreen {
     var errorView: XCUIElement {
         app.descendants(matching: .any)["dnsLookup_error"]
     }
+
+    var recordRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'dnsLookup_record_'")
+        )
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -87,6 +93,17 @@ final class DNSLookupToolScreen: BaseScreen {
     
     func hasError() -> Bool {
         errorView.exists
+    }
+
+    func waitForCompletedOutcome(timeout: TimeInterval = 20) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if queryInfoCard.exists || errorView.exists {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return queryInfoCard.exists || errorView.exists
     }
     
     /// Navigate back to Tools

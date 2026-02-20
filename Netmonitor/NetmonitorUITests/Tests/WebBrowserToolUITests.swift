@@ -135,11 +135,8 @@ final class WebBrowserToolUITests: XCTestCase {
         // Recent section should not be visible on first launch or should be empty
         let recentVisible = webBrowserScreen.recentSection.exists
 
-        // If recent section exists, it should either be hidden or have no items
         if recentVisible {
-            // Check if there are any recent items - there should be none initially
-            let recentItems = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'webBrowser_recent_'"))
-            XCTAssertEqual(recentItems.count, 0, "Recent section should be empty on first launch")
+            XCTAssertEqual(webBrowserScreen.recentRows.count, 0, "Recent section should be empty on first launch")
         } else {
             XCTAssertFalse(recentVisible, "Recent section should not be visible initially")
         }
@@ -149,18 +146,15 @@ final class WebBrowserToolUITests: XCTestCase {
 
     func testBookmarkTapOpensURL() {
         webBrowserScreen.tapBookmark(webBrowserScreen.routerAdminBookmark)
-
-        // Wait for async URL field population or web view to appear
-        _ = webBrowserScreen.openButton.waitForExistence(timeout: 3)
-
-        // After tapping a bookmark: URL field changes, web view opens, or tool stays functional
-        let urlFieldChanged = webBrowserScreen.getURLFieldValue() != ""
-        let webViewPresent = app.webViews.count > 0
-        let toolStillFunctional = webBrowserScreen.openButton.waitForExistence(timeout: 10)
+        XCTAssertTrue(
+            webBrowserScreen.safariDoneButton.waitForExistence(timeout: 10),
+            "Tapping bookmark should open in embedded Safari sheet"
+        )
+        webBrowserScreen.closeSafariIfVisible()
 
         XCTAssertTrue(
-            urlFieldChanged || webViewPresent || toolStillFunctional,
-            "Tapping a bookmark should populate URL field, open web view, or keep tool functional"
+            webBrowserScreen.getURLFieldValue().isEmpty == false,
+            "URL field should retain selected bookmark URL after returning from Safari"
         )
     }
 
@@ -169,29 +163,22 @@ final class WebBrowserToolUITests: XCTestCase {
         webBrowserScreen.enterURL("192.168.1.1")
         webBrowserScreen.tapOpen()
 
-        // Wait briefly for navigation
-        sleep(2)
-
-        // Navigate back if a web view opened
-        if !webBrowserScreen.openButton.exists {
-            let backButton = app.navigationBars.buttons.element(boundBy: 0)
-            if backButton.exists {
-                backButton.tap()
-            }
-        }
+        XCTAssertTrue(
+            webBrowserScreen.safariDoneButton.waitForExistence(timeout: 10),
+            "Opening a URL should present embedded Safari sheet"
+        )
+        webBrowserScreen.closeSafariIfVisible()
 
         // Recent section should now appear with an entry
         let recentVisible = webBrowserScreen.recentSection.waitForExistence(timeout: 5)
-        let hasRecentEntry = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'webBrowser_recent_'")
-        ).count > 0
+        let hasRecentEntry = webBrowserScreen.recentRows.count > 0
         let hasIPInUI = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS[c] '192.168'")
         ).count > 0
 
         XCTAssertTrue(
-            recentVisible || hasRecentEntry || hasIPInUI || webBrowserScreen.isDisplayed(),
-            "Recent URLs section should appear after opening a URL, or tool should remain functional"
+            recentVisible && (hasRecentEntry || hasIPInUI),
+            "Recent URLs section should include the URL that was opened"
         )
     }
 }

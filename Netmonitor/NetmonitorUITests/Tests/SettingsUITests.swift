@@ -33,24 +33,21 @@ final class SettingsUITests: XCTestCase {
     
     func testPingCountStepperExists() {
         XCTAssertTrue(
-            settingsScreen.pingCountStepper.waitForExistence(timeout: 5) ||
-            settingsScreen.pingCountText.waitForExistence(timeout: 3),
+            settingsScreen.pingCountStepper.waitForExistence(timeout: 5),
             "Ping count stepper should exist"
         )
     }
 
     func testPingTimeoutStepperExists() {
         XCTAssertTrue(
-            settingsScreen.pingTimeoutStepper.waitForExistence(timeout: 5) ||
-            settingsScreen.pingTimeoutText.waitForExistence(timeout: 3),
+            settingsScreen.pingTimeoutStepper.waitForExistence(timeout: 5),
             "Ping timeout stepper should exist"
         )
     }
 
     func testPortScanTimeoutStepperExists() {
         XCTAssertTrue(
-            settingsScreen.portScanTimeoutStepper.waitForExistence(timeout: 5) ||
-            settingsScreen.portScanTimeoutText.waitForExistence(timeout: 3),
+            settingsScreen.portScanTimeoutStepper.waitForExistence(timeout: 5),
             "Port scan timeout stepper should exist"
         )
     }
@@ -67,8 +64,7 @@ final class SettingsUITests: XCTestCase {
     func testAutoRefreshPickerExists() {
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.autoRefreshPicker.waitForExistence(timeout: 5) ||
-            settingsScreen.autoRefreshText.waitForExistence(timeout: 3),
+            settingsScreen.autoRefreshPicker.waitForExistence(timeout: 5),
             "Auto refresh picker should exist"
         )
     }
@@ -102,8 +98,7 @@ final class SettingsUITests: XCTestCase {
             usleep(300_000)
         }
         XCTAssertTrue(
-            settingsScreen.highLatencyThresholdStepper.waitForExistence(timeout: 5) ||
-            app.staticTexts["High Latency Threshold"].waitForExistence(timeout: 3),
+            settingsScreen.highLatencyThresholdStepper.waitForExistence(timeout: 5),
             "High latency threshold stepper should exist"
         )
     }
@@ -123,8 +118,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.themePicker.waitForExistence(timeout: 5) ||
-            settingsScreen.themeText.waitForExistence(timeout: 3),
+            settingsScreen.themePicker.waitForExistence(timeout: 5),
             "Theme picker should exist"
         )
     }
@@ -132,8 +126,7 @@ final class SettingsUITests: XCTestCase {
     func testAccentColorPickerExists() {
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.accentColorPicker.waitForExistence(timeout: 5) ||
-            settingsScreen.accentColorText.waitForExistence(timeout: 3),
+            settingsScreen.accentColorPicker.waitForExistence(timeout: 5),
             "Accent color picker should exist"
         )
     }
@@ -144,8 +137,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.dataRetentionPicker.waitForExistence(timeout: 5) ||
-            settingsScreen.dataRetentionText.waitForExistence(timeout: 3),
+            settingsScreen.dataRetentionPicker.waitForExistence(timeout: 5),
             "Data retention picker should exist"
         )
     }
@@ -154,8 +146,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.showDetailedResultsToggle.waitForExistence(timeout: 5) ||
-            app.staticTexts["Show Detailed Results"].waitForExistence(timeout: 3),
+            settingsScreen.showDetailedResultsToggle.waitForExistence(timeout: 5),
             "Show detailed results toggle should exist"
         )
     }
@@ -257,8 +248,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.appVersionRow.waitForExistence(timeout: 5) ||
-            settingsScreen.appVersionText.waitForExistence(timeout: 3),
+            settingsScreen.appVersionRow.waitForExistence(timeout: 5),
             "App version row should exist"
         )
     }
@@ -268,8 +258,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.buildNumberRow.waitForExistence(timeout: 5) ||
-            settingsScreen.buildNumberText.waitForExistence(timeout: 3),
+            settingsScreen.buildNumberRow.waitForExistence(timeout: 5),
             "Build number row should exist"
         )
     }
@@ -279,8 +268,7 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         XCTAssertTrue(
-            settingsScreen.iosVersionRow.waitForExistence(timeout: 5) ||
-            settingsScreen.iosVersionText.waitForExistence(timeout: 3),
+            settingsScreen.iosVersionRow.waitForExistence(timeout: 5),
             "iOS version row should exist"
         )
     }
@@ -299,11 +287,8 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
         settingsScreen.swipeUp()
-        // SwiftUI Link may render as app.links or app.buttons depending on iOS version
         XCTAssertTrue(
-            settingsScreen.supportLink.waitForExistence(timeout: 5) ||
-            settingsScreen.supportLinkAsButton.waitForExistence(timeout: 3) ||
-            settingsScreen.supportLinkText.waitForExistence(timeout: 3),
+            settingsScreen.supportLink.waitForExistence(timeout: 5),
             "Support link should exist"
         )
     }
@@ -719,8 +704,7 @@ final class SettingsUITests: XCTestCase {
         exportButton.tap()
 
         XCTAssertTrue(
-            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
-            app.buttons["Export as CSV"].waitForExistence(timeout: 5),
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5),
             "Export format options (JSON/CSV) should appear after tapping Export Tool Results"
         )
     }
@@ -734,12 +718,9 @@ final class SettingsUITests: XCTestCase {
 
         exportButton.tap()
 
-        // Menu items appear as buttons; share sheet may appear immediately if data is empty
         XCTAssertTrue(
-            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
-            app.buttons["Export as CSV"].waitForExistence(timeout: 5) ||
-            app.sheets.firstMatch.waitForExistence(timeout: 5),
-            "Export format options or share sheet should appear after tapping Export Speed Tests"
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5),
+            "Export Speed Tests menu should show JSON export option"
         )
     }
 
@@ -752,12 +733,9 @@ final class SettingsUITests: XCTestCase {
 
         exportButton.tap()
 
-        // Menu items appear as buttons; share sheet may appear immediately if data is empty
         XCTAssertTrue(
-            app.buttons["Export as JSON"].waitForExistence(timeout: 5) ||
-            app.buttons["Export as CSV"].waitForExistence(timeout: 5) ||
-            app.sheets.firstMatch.waitForExistence(timeout: 5),
-            "Export format options or share sheet should appear after tapping Export Devices"
+            app.buttons["Export as JSON"].waitForExistence(timeout: 5),
+            "Export Devices menu should show JSON export option"
         )
     }
 
@@ -769,26 +747,15 @@ final class SettingsUITests: XCTestCase {
         settingsScreen.swipeUp()
 
         XCTAssertTrue(
-            settingsScreen.supportLink.waitForExistence(timeout: 5) ||
-            settingsScreen.supportLinkAsButton.waitForExistence(timeout: 3) ||
-            settingsScreen.supportLinkText.waitForExistence(timeout: 3),
+            settingsScreen.supportLink.waitForExistence(timeout: 5),
             "Contact Support link should exist"
         )
 
         // Verify the element is enabled (can be interacted with)
-        let supportElement: XCUIElement
-        if settingsScreen.supportLink.exists {
-            supportElement = settingsScreen.supportLink
-        } else {
-            supportElement = settingsScreen.supportLinkAsButton
-        }
-
-        if supportElement.exists {
-            XCTAssertTrue(
-                supportElement.isEnabled,
-                "Contact Support link should be enabled for mailto interaction"
-            )
-        }
+        XCTAssertTrue(
+            settingsScreen.supportLink.isEnabled,
+            "Contact Support link should be enabled for mailto interaction"
+        )
     }
 
     func testRateAppButtonIsEnabled() {

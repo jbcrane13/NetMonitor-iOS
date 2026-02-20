@@ -25,6 +25,12 @@ final class BonjourToolScreen: BaseScreen {
     var emptyStateNoServices: XCUIElement {
         app.descendants(matching: .any)["bonjour_emptystate_noservices"]
     }
+
+    var serviceRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'bonjour_service_'")
+        )
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -36,13 +42,23 @@ final class BonjourToolScreen: BaseScreen {
     // MARK: - Actions
     @discardableResult
     func startDiscovery() -> Self {
-        tapIfExists(runButton)
+        if runButton.waitForExistence(timeout: timeout) {
+            let label = runButton.label.lowercased()
+            if label.contains("start") || !label.contains("stop") {
+                runButton.tap()
+            }
+        }
         return self
     }
     
     @discardableResult
     func stopDiscovery() -> Self {
-        tapIfExists(runButton)
+        if runButton.waitForExistence(timeout: timeout) {
+            let label = runButton.label.lowercased()
+            if label.contains("stop") {
+                runButton.tap()
+            }
+        }
         return self
     }
     
@@ -55,6 +71,28 @@ final class BonjourToolScreen: BaseScreen {
     func waitForServices(timeout: TimeInterval = 15) -> Bool {
         servicesSection.waitForExistence(timeout: timeout)
     }
+
+    func waitForDiscoveringState(timeout: TimeInterval = 8) -> Bool {
+        let stopLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Stop Discovery'")).firstMatch
+        let discoveringText = app.staticTexts["Discovering services..."]
+        return stopLabel.waitForExistence(timeout: timeout) || discoveringText.waitForExistence(timeout: timeout)
+    }
+
+    func waitForIdleState(timeout: TimeInterval = 8) -> Bool {
+        let startLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Start Discovery'")).firstMatch
+        return startLabel.waitForExistence(timeout: timeout)
+    }
+
+    func waitForCompletedOutcome(timeout: TimeInterval = 25) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if servicesSection.exists || emptyStateNoServices.exists {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        return servicesSection.exists || emptyStateNoServices.exists
+    }
     
     func hasEmptyState() -> Bool {
         emptyStateNoServices.exists
@@ -62,7 +100,7 @@ final class BonjourToolScreen: BaseScreen {
     
     /// Get count of discovered services
     func getServiceCount() -> Int {
-        app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'bonjour_service_'")).count
+        serviceRows.count
     }
     
     /// Navigate back to Tools

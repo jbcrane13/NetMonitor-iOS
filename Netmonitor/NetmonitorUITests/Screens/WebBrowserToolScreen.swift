@@ -10,7 +10,7 @@ final class WebBrowserToolScreen: BaseScreen {
 
     // MARK: - Input Elements
     var urlInput: XCUIElement {
-        app.textFields["webBrowser_input_url"]
+        app.descendants(matching: .any)["webBrowser_input_url"]
     }
 
     // MARK: - Control Buttons
@@ -29,6 +29,16 @@ final class WebBrowserToolScreen: BaseScreen {
 
     var recentSection: XCUIElement {
         app.descendants(matching: .any)["webBrowser_section_recent"]
+    }
+
+    var recentRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier == 'webBrowser_recent_url'")
+        )
+    }
+
+    var safariDoneButton: XCUIElement {
+        app.buttons["Done"]
     }
 
     // MARK: - Bookmarks
@@ -108,6 +118,12 @@ final class WebBrowserToolScreen: BaseScreen {
 
     func getURLFieldValue() -> String {
         urlInput.value as? String ?? ""
+    }
+
+    func closeSafariIfVisible() {
+        if safariDoneButton.waitForExistence(timeout: 5) {
+            safariDoneButton.tap()
+        }
     }
 
     /// Navigate back to Tools

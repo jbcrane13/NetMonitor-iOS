@@ -81,16 +81,10 @@ final class PingToolUITests: XCTestCase {
             .enterHost("1.1.1.1")
             .startPing()
 
-        // In the simulator, ping may not succeed due to network restrictions.
-        // Accept either results appearing or the tool remaining functional.
-        let gotResults = pingScreen.resultsSection.waitForExistence(timeout: 15)
-        if !gotResults {
-            // Tool should still be functional even if ping failed
-            XCTAssertTrue(
-                pingScreen.runButton.waitForExistence(timeout: 5),
-                "Ping tool should remain functional after ping attempt"
-            )
-        }
+        XCTAssertTrue(
+            pingScreen.waitForRunningState(timeout: 8),
+            "Ping run button should transition to running state after tapping Start Ping"
+        )
     }
 
     func testPingShowsResults() {
@@ -98,15 +92,10 @@ final class PingToolUITests: XCTestCase {
             .enterHost("1.1.1.1")
             .startPing()
 
-        // In the simulator, ping may fail due to network restrictions.
-        // Accept either results or the tool remaining functional.
-        let gotResults = pingScreen.waitForResults(timeout: 30)
-        if !gotResults {
-            XCTAssertTrue(
-                pingScreen.runButton.waitForExistence(timeout: 5),
-                "Ping tool should remain functional after ping attempt"
-            )
-        }
+        XCTAssertTrue(
+            pingScreen.waitForResults(timeout: 30),
+            "Ping results section should appear after running a ping"
+        )
     }
     
     func testPingShowsStatistics() {
@@ -127,16 +116,17 @@ final class PingToolUITests: XCTestCase {
             .enterHost("1.1.1.1")
             .startPing()
 
-        // Wait briefly for ping to start
-        sleep(2)
+        XCTAssertTrue(
+            pingScreen.waitForRunningState(timeout: 8),
+            "Ping should enter running state before Stop is tapped"
+        )
 
         // Stop the ping
         pingScreen.stopPing()
 
-        // Tool should remain functional
         XCTAssertTrue(
-            pingScreen.isDisplayed(),
-            "Ping tool should remain displayed after stopping"
+            pingScreen.waitForIdleState(timeout: 8),
+            "Ping run button should return to idle state after stopping"
         )
     }
 
@@ -182,11 +172,12 @@ final class PingToolUITests: XCTestCase {
 
     func testHostInputPlaceholderText() {
         let value = pingScreen.hostInput.value as? String ?? ""
-        let placeholderValue = pingScreen.hostInput.placeholderValue ?? ""
+        let placeholder = pingScreen.hostInput.placeholderValue ?? ""
 
         XCTAssertTrue(
-            value.isEmpty || !placeholderValue.isEmpty,
-            "Host input should have placeholder text or be empty"
+            value.localizedCaseInsensitiveContains("hostname") ||
+            placeholder.localizedCaseInsensitiveContains("hostname"),
+            "Host input should expose the hostname/IP placeholder text"
         )
     }
 
@@ -198,13 +189,12 @@ final class PingToolUITests: XCTestCase {
             pingScreen.hostInput.typeText(deleteString)
         }
 
-        // Tap run button - tool should not crash
+        // Tap run button with empty host
         pingScreen.startPing()
 
-        // Tool should still be displayed
-        XCTAssertTrue(
-            pingScreen.isDisplayed(),
-            "Ping tool should remain displayed after tapping run with empty host"
+        XCTAssertFalse(
+            pingScreen.waitForRunningState(timeout: 3),
+            "Ping should not enter running state when host input is empty"
         )
     }
 
@@ -231,17 +221,9 @@ final class PingToolUITests: XCTestCase {
             }
         }
 
-        if selectedOption {
-            XCTAssertTrue(
-                pingScreen.countPicker.exists,
-                "Count picker should remain after selection"
-            )
-            let updatedLabel = pingScreen.countPicker.label
-            XCTAssertNotEqual(updatedLabel, initialLabel, "Picker label should reflect new selection")
-        } else {
-            app.tap() // dismiss
-            XCTAssertTrue(pingScreen.isDisplayed(), "Ping tool should remain functional")
-        }
+        XCTAssertTrue(selectedOption, "Count picker should expose at least one selectable alternative value")
+        let updatedLabel = pingScreen.countPicker.label
+        XCTAssertNotEqual(updatedLabel, initialLabel, "Picker label should reflect the new ping count")
     }
 
     func testPingStatisticsReasonableValues() {
@@ -249,28 +231,21 @@ final class PingToolUITests: XCTestCase {
             .enterHost("1.1.1.1")
             .startPing()
 
-        let gotStats = pingScreen.waitForStatistics(timeout: 30)
-        guard gotStats else {
-            // Simulator may not produce ping results — accept graceful degradation
-            XCTAssertTrue(
-                pingScreen.runButton.waitForExistence(timeout: 5),
-                "Ping tool should remain functional after ping attempt"
-            )
-            return
-        }
-
-        // Statistics card should contain min/avg/max labels
-        let hasMin = app.staticTexts["Min"].exists ||
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'min'")).count > 0
-        let hasAvg = app.staticTexts["Avg"].exists ||
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'avg'")).count > 0
-        let hasMax = app.staticTexts["Max"].exists ||
-            app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'max'")).count > 0
-
         XCTAssertTrue(
-            hasMin || hasAvg || hasMax || pingScreen.statisticsCard.exists,
-            "Statistics card should display min/avg/max values"
+            pingScreen.waitForStatistics(timeout: 30),
+            "Ping statistics card should appear after ping completion"
         )
+
+        let statsTexts = pingScreen.statisticsCard.staticTexts
+        let hasMin = statsTexts.matching(NSPredicate(format: "label CONTAINS[c] 'Min'")).count > 0
+        let hasAvg = statsTexts.matching(NSPredicate(format: "label CONTAINS[c] 'Avg'")).count > 0
+        let hasMax = statsTexts.matching(NSPredicate(format: "label CONTAINS[c] 'Max'")).count > 0
+        let hasLatencyValue = statsTexts.matching(NSPredicate(format: "label CONTAINS[c] 'ms'")).count > 0
+
+        XCTAssertTrue(hasMin, "Statistics should include Min latency label")
+        XCTAssertTrue(hasAvg, "Statistics should include Avg latency label")
+        XCTAssertTrue(hasMax, "Statistics should include Max latency label")
+        XCTAssertTrue(hasLatencyValue, "Statistics card should include at least one latency value in milliseconds")
     }
 
     func testHostPreFilledFromTarget() {

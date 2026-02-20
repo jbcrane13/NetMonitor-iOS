@@ -30,6 +30,12 @@ final class TracerouteToolScreen: BaseScreen {
     var hopsSection: XCUIElement {
         app.descendants(matching: .any)["tracerouteTool_section_hops"]
     }
+
+    var hopRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'tracerouteTool_hop_'")
+        )
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -67,9 +73,17 @@ final class TracerouteToolScreen: BaseScreen {
     }
     
     func waitForHops(timeout: TimeInterval = 60) -> Bool {
-        // Try otherElements first, fall back to checking for "Route" header text
-        hopsSection.waitForExistence(timeout: timeout) ||
-        app.staticTexts["Route"].waitForExistence(timeout: 2)
+        hopsSection.waitForExistence(timeout: timeout)
+    }
+
+    func waitForRunningState(timeout: TimeInterval = 8) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Stop Trace'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
+    }
+
+    func waitForIdleState(timeout: TimeInterval = 8) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Start Trace'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
     }
 
     /// Get count of hop rows

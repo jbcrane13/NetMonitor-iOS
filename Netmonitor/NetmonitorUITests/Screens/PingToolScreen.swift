@@ -38,6 +38,12 @@ final class PingToolScreen: BaseScreen {
     var packetsCard: XCUIElement {
         app.descendants(matching: .any)["pingTool_card_packets"]
     }
+
+    var resultRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'pingTool_result_'")
+        )
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -80,6 +86,16 @@ final class PingToolScreen: BaseScreen {
     
     func waitForStatistics(timeout: TimeInterval = 30) -> Bool {
         statisticsCard.waitForExistence(timeout: timeout)
+    }
+
+    func waitForRunningState(timeout: TimeInterval = 8) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Stop Ping'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
+    }
+
+    func waitForIdleState(timeout: TimeInterval = 8) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Start Ping'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
     }
     
     /// Get count of result rows

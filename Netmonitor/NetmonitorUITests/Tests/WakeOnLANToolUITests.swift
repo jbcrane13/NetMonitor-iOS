@@ -64,25 +64,18 @@ final class WakeOnLANToolUITests: XCTestCase {
     
     func testCanEnterMACAddress() {
         wolScreen.enterMACAddress("AA:BB:CC:DD:EE:FF")
-        
-        // MAC address may be formatted differently, just check it contains expected chars
+
         let value = wolScreen.macAddressInput.value as? String ?? ""
-        XCTAssertTrue(
-            value.contains("AA") || value.contains("aa"),
-            "MAC address input should contain entered text"
-        )
+        XCTAssertTrue(value.contains("AA:BB:CC"), "MAC address input should preserve entered MAC value")
     }
     
     // MARK: - Validation Tests
     
     func testInvalidMACAddressShowsError() {
         wolScreen.enterMACAddress("invalid")
-        
-        // Button should be disabled or validation should show
-        // The app validates MAC format before enabling send
-        let sendButton = wolScreen.sendButton
-        XCTAssertTrue(sendButton.exists, "Send button should exist")
-        // Note: Can't easily check if button is disabled in XCUITest without specific accessibility
+
+        XCTAssertTrue(wolScreen.hasInvalidMACIndicator(), "Invalid MAC entry should show validation error indicator")
+        XCTAssertFalse(wolScreen.sendButton.isEnabled, "Send button should stay disabled for invalid MAC input")
     }
     
     // MARK: - Send Tests
@@ -92,15 +85,12 @@ final class WakeOnLANToolUITests: XCTestCase {
             .enterMACAddress("AA:BB:CC:DD:EE:FF")
             .sendWakePacket()
 
-        // Should show success or error (depends on network).
-        // Also accept that the send button remains present as a sign the tool didn't crash.
         let success = wolScreen.waitForSuccess(timeout: 15)
         let error = wolScreen.hasError()
-        let toolStillFunctional = wolScreen.sendButton.exists
 
         XCTAssertTrue(
-            success || error || toolStillFunctional,
-            "Wake packet should either succeed, show error, or tool remains functional"
+            success || error,
+            "Wake packet attempt should end in a concrete success or error card"
         )
     }
     
@@ -136,15 +126,13 @@ final class WakeOnLANToolUITests: XCTestCase {
     func testMACValidationIndicatorChanges() {
         wolScreen.enterMACAddress("AA:BB:CC:DD:EE:FF")
 
-        // Valid MAC should trigger a checkmark or enable the send button
-        let hasCheckmark = app.images["checkmark"].exists ||
-                           app.images["checkmark.circle"].exists ||
-                           app.images["checkmark.circle.fill"].exists
-        let sendEnabled = wolScreen.sendButton.isEnabled
-
         XCTAssertTrue(
-            hasCheckmark || sendEnabled || wolScreen.isDisplayed(),
-            "Valid MAC address should show checkmark indicator or enable send button"
+            wolScreen.hasValidMACIndicator(),
+            "Valid MAC address should show the explicit valid-MAC indicator"
+        )
+        XCTAssertTrue(
+            wolScreen.sendButton.isEnabled,
+            "Valid MAC address should enable Send button"
         )
     }
 
@@ -167,10 +155,7 @@ final class WakeOnLANToolUITests: XCTestCase {
         wolScreen.broadcastAddressInput.typeText(newAddress)
 
         let fieldValue = wolScreen.broadcastAddressInput.value as? String ?? ""
-        XCTAssertTrue(
-            fieldValue.contains("10.0.0") || fieldValue.contains(newAddress),
-            "Broadcast address field should accept the new address"
-        )
+        XCTAssertEqual(fieldValue, newAddress, "Broadcast address field should accept the full edited address")
     }
 
     func testSuccessCardShowsMAC() {
@@ -182,23 +167,25 @@ final class WakeOnLANToolUITests: XCTestCase {
         let hasError = wolScreen.hasError()
 
         if success {
-            // Success card should reference the send action or MAC
+            XCTAssertTrue(
+                wolScreen.successMessage.exists,
+                "Successful wake packet attempt should display success card"
+            )
             let hasSuccessContent = app.staticTexts.matching(
                 NSPredicate(format: "label CONTAINS[c] 'sent' OR label CONTAINS[c] 'Wake' OR label CONTAINS[c] 'AA'")
             ).count > 0
 
             XCTAssertTrue(
-                hasSuccessContent || wolScreen.successMessage.exists,
+                hasSuccessContent,
                 "Success card should confirm wake packet was sent"
             )
         } else if hasError {
-            // Error is acceptable on simulator — no real network device
-            XCTAssertTrue(true, "Error state is acceptable in simulator environment")
-        } else {
             XCTAssertTrue(
-                wolScreen.sendButton.waitForExistence(timeout: 5),
-                "Tool should remain functional after send attempt"
+                wolScreen.errorMessage.exists,
+                "Failed wake packet attempts should display error card"
             )
+        } else {
+            XCTFail("Wake on LAN send attempt should produce success or error state")
         }
     }
 }

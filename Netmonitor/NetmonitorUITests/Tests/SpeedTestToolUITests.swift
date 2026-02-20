@@ -49,18 +49,10 @@ final class SpeedTestToolUITests: XCTestCase {
     func testCanStartSpeedTest() {
         speedTestScreen.startTest()
 
-        // The gauge should show activity or results should appear eventually.
-        // In the simulator, speed test may fail due to network restrictions.
-        // Accept results, an error message, or the tool remaining functional.
-        let gotResults = speedTestScreen.waitForResults(timeout: 60)
-        if !gotResults {
-            // Check for error text or tool still being functional
-            let hasError = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'error' OR label CONTAINS[c] 'failed'")).count > 0
-            XCTAssertTrue(
-                hasError || speedTestScreen.runButton.waitForExistence(timeout: 5),
-                "Speed test should show results, an error, or remain functional"
-            )
-        }
+        XCTAssertTrue(
+            speedTestScreen.waitForRunningState(timeout: 8),
+            "Speed test run button should transition to running state after Start Test"
+        )
     }
     
     // MARK: - Stop Tests
@@ -68,13 +60,16 @@ final class SpeedTestToolUITests: XCTestCase {
     func testCanStopSpeedTest() {
         speedTestScreen.startTest()
 
-        sleep(3)
+        XCTAssertTrue(
+            speedTestScreen.waitForRunningState(timeout: 8),
+            "Speed test should enter running state before Stop is tapped"
+        )
 
         speedTestScreen.stopTest()
 
         XCTAssertTrue(
-            speedTestScreen.isDisplayed(),
-            "Speed Test should remain displayed after stopping"
+            speedTestScreen.waitForIdleState(timeout: 8),
+            "Speed test run button should return to idle state after stopping"
         )
     }
 
@@ -91,17 +86,13 @@ final class SpeedTestToolUITests: XCTestCase {
         // Scroll to ensure history section is visible if present
         speedTestScreen.swipeUp()
 
-        // History section only renders when there are previous results.
-        // On a fresh simulator with no speed test history, it won't exist.
-        // Verify the screen remains functional regardless.
-        let hasHistory = speedTestScreen.historySection.exists || app.staticTexts["History"].exists
+        let hasHistory = speedTestScreen.historySection.exists
         if hasHistory {
-            XCTAssertTrue(true, "History section is present")
+            XCTAssertTrue(app.staticTexts["History"].exists, "History header should exist when history section exists")
         } else {
-            // No history is valid — just verify the screen is still displayed
             XCTAssertTrue(
-                speedTestScreen.isDisplayed(),
-                "Speed test screen should remain displayed when no history exists"
+                speedTestScreen.historySection.exists == false,
+                "History section should be absent when there are no saved speed test runs"
             )
         }
     }
@@ -118,36 +109,36 @@ final class SpeedTestToolUITests: XCTestCase {
     func testGaugeShowsActivityDuringTest() {
         speedTestScreen.startTest()
 
+        XCTAssertTrue(
+            speedTestScreen.waitForRunningState(timeout: 8),
+            "Speed test should enter running state during active test"
+        )
+
         // During test, gauge should be present
         XCTAssertTrue(
             speedTestScreen.verifyGaugePresent(),
             "Gauge should remain visible during speed test"
-        )
-
-        // Wait briefly and verify tool is still functional
-        sleep(3)
-        XCTAssertTrue(
-            speedTestScreen.isDisplayed(),
-            "Speed test screen should remain displayed during test"
         )
     }
 
     func testResultsSectionAfterTest() {
         speedTestScreen.startTest()
 
-        let gotResults = speedTestScreen.waitForResults(timeout: 90)
-        if gotResults {
+        XCTAssertTrue(
+            speedTestScreen.waitForCompletedOutcome(timeout: 95),
+            "Speed test should complete with either results or an explicit error"
+        )
+        if speedTestScreen.resultsSection.exists {
             // Results section should contain speed information
             let hasDownload = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'download' OR label CONTAINS[c] 'Mbps' OR label CONTAINS[c] 'MB'")).count > 0
             XCTAssertTrue(
-                hasDownload || speedTestScreen.resultsSection.exists,
+                hasDownload,
                 "Results should contain speed information"
             )
         } else {
-            // Network may not be available in simulator
             XCTAssertTrue(
-                speedTestScreen.isDisplayed(),
-                "Speed test should remain functional after timeout"
+                speedTestScreen.hasError(),
+                "When speed test results are absent, an explicit error should be shown"
             )
         }
     }
@@ -155,53 +146,27 @@ final class SpeedTestToolUITests: XCTestCase {
     // MARK: - Functional Verification Tests
 
     func testDurationPickerChangesValue() {
-        // Look for a duration picker — may use "speedTest_picker_duration" identifier or label
-        let durationPicker = app.buttons.matching(
-            NSPredicate(format: "identifier CONTAINS[c] 'duration' OR label CONTAINS[c] 'sec' OR label CONTAINS[c] 's)'")
-        ).firstMatch
+        let segment10 = speedTestScreen.durationSegment10s
+        XCTAssertTrue(segment10.waitForExistence(timeout: 5), "10s segment should exist in speed test duration control")
+        segment10.tap()
 
-        if durationPicker.waitForExistence(timeout: 5) {
-            let initialLabel = durationPicker.label
-            durationPicker.tap()
-
-            let durationOptions = ["10s", "15s", "20s", "30s", "10", "15", "20", "30"]
-            var tapped = false
-            for option in durationOptions {
-                let btn = app.buttons[option]
-                if btn.waitForExistence(timeout: 2) && btn.label != initialLabel {
-                    btn.tap()
-                    tapped = true
-                    break
-                }
-            }
-
-            if tapped {
-                XCTAssertTrue(
-                    speedTestScreen.isDisplayed(),
-                    "Speed test screen should remain displayed after duration change"
-                )
-            } else {
-                app.tap()
-                XCTAssertTrue(speedTestScreen.isDisplayed(), "Speed test tool should remain functional")
-            }
-        } else {
-            // Duration picker not present — verify tool is functional
-            XCTAssertTrue(
-                speedTestScreen.isDisplayed(),
-                "Speed test tool should be displayed (duration picker may not exist in this layout)"
-            )
-        }
+        XCTAssertTrue(
+            segment10.isSelected || segment10.value as? String == "1",
+            "10s duration segment should be selected after tapping it"
+        )
     }
 
     func testResultsShowNonZeroValues() {
         speedTestScreen.startTest()
 
-        let gotResults = speedTestScreen.waitForResults(timeout: 90)
-        guard gotResults else {
-            // Network not available in simulator
+        XCTAssertTrue(
+            speedTestScreen.waitForCompletedOutcome(timeout: 95),
+            "Speed test should complete with either results or error"
+        )
+        guard speedTestScreen.resultsSection.exists else {
             XCTAssertTrue(
-                speedTestScreen.isDisplayed(),
-                "Speed test should remain functional after timeout"
+                speedTestScreen.hasError(),
+                "When results are unavailable, speed test should present an explicit error"
             )
             return
         }
@@ -220,7 +185,7 @@ final class SpeedTestToolUITests: XCTestCase {
         ).count > 0
 
         XCTAssertTrue(
-            hasMbps || hasDownloadLabel || hasUploadLabel || speedTestScreen.resultsSection.exists,
+            hasMbps && hasDownloadLabel && hasUploadLabel,
             "Results section should show download/upload speed values"
         )
     }

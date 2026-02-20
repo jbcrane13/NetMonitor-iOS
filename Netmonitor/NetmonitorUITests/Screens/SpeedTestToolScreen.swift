@@ -26,6 +26,18 @@ final class SpeedTestToolScreen: BaseScreen {
     var historySection: XCUIElement {
         app.descendants(matching: .any)["speedTest_section_history"]
     }
+
+    var durationSegment5s: XCUIElement {
+        app.buttons["5s"]
+    }
+
+    var durationSegment10s: XCUIElement {
+        app.buttons["10s"]
+    }
+
+    var durationSegment30s: XCUIElement {
+        app.buttons["30s"]
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -56,11 +68,34 @@ final class SpeedTestToolScreen: BaseScreen {
     }
     
     func verifyGaugePresent() -> Bool {
-        // The gauge ZStack may not be found as otherElements in XCUITest.
-        // Fall back to checking for known gauge content like "Mbps" text or "0.0" text.
-        waitForElement(gauge) ||
-        app.staticTexts["Mbps"].waitForExistence(timeout: timeout) ||
-        app.staticTexts["0.0"].waitForExistence(timeout: timeout)
+        waitForElement(gauge)
+    }
+
+    func waitForRunningState(timeout: TimeInterval = 8) -> Bool {
+        let stopLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Stop Test'")).firstMatch
+        return stopLabel.waitForExistence(timeout: timeout)
+    }
+
+    func waitForIdleState(timeout: TimeInterval = 8) -> Bool {
+        let startLabel = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Start Test'")).firstMatch
+        return startLabel.waitForExistence(timeout: timeout)
+    }
+
+    func hasError() -> Bool {
+        app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS[c] 'error' OR label CONTAINS[c] 'failed'")
+        ).count > 0
+    }
+
+    func waitForCompletedOutcome(timeout: TimeInterval = 95) -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if resultsSection.exists || hasError() {
+                return true
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.2))
+        }
+        return resultsSection.exists || hasError()
     }
     
     /// Navigate back to Tools

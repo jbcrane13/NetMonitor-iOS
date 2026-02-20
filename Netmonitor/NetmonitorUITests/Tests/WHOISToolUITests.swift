@@ -62,69 +62,74 @@ final class WHOISToolUITests: XCTestCase {
             .enterDomain("google.com")
             .startLookup()
 
-        // WHOIS may succeed or fail depending on network and simulator.
-        // Accept domain info appearing, an error being shown, or the tool remaining functional.
-        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
-        let gotError = whoisScreen.hasError()
         XCTAssertTrue(
-            gotInfo || gotError || whoisScreen.runButton.waitForExistence(timeout: 5),
-            "WHOIS lookup should show domain info, an error, or remain functional"
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete with either domain info or error"
+        )
+        XCTAssertTrue(
+            whoisScreen.domainInfoCard.exists || whoisScreen.errorView.exists,
+            "WHOIS lookup should surface a concrete result or error card"
         )
     }
 
-    func testWHOISShowsDates() {
+    func testWHOISShowsDates() throws {
         whoisScreen
             .enterDomain("google.com")
             .startLookup()
 
-        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
-        guard gotInfo else {
-            // If lookup failed, skip the dates check -- the tool is still functional
-            XCTAssertTrue(
-                whoisScreen.hasError() || whoisScreen.runButton.exists,
-                "WHOIS tool should remain functional"
-            )
-            return
-        }
-        whoisScreen.swipeUp()
-        // Dates may or may not be present depending on the WHOIS response
-        let hasDates = whoisScreen.waitForDates(timeout: 5)
         XCTAssertTrue(
-            hasDates || whoisScreen.domainInfoCard.exists,
-            "WHOIS should show dates or at least domain info"
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before dates section is validated"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state for this run; dates section cannot be validated.")
+        }
+
+        whoisScreen.swipeUp()
+        XCTAssertTrue(
+            whoisScreen.waitForDates(timeout: 5),
+            "WHOIS results should include a domain-dates section for google.com"
         )
     }
 
-    func testWHOISShowsNameServers() {
+    func testWHOISShowsNameServers() throws {
         whoisScreen
             .enterDomain("google.com")
             .startLookup()
 
-        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
-        guard gotInfo else {
-            XCTAssertTrue(
-                whoisScreen.hasError() || whoisScreen.runButton.exists,
-                "WHOIS tool should remain functional"
-            )
-            return
-        }
-        whoisScreen.swipeUp()
-        // Name servers may or may not be present depending on the WHOIS response
-        let hasNameServers = whoisScreen.waitForNameServers(timeout: 5)
         XCTAssertTrue(
-            hasNameServers || whoisScreen.domainInfoCard.exists,
-            "WHOIS should show name servers or at least domain info"
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before nameserver section is validated"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state for this run; nameserver section cannot be validated.")
+        }
+
+        whoisScreen.swipeUp()
+        XCTAssertTrue(
+            whoisScreen.waitForNameServers(timeout: 5),
+            "WHOIS results should include a name-servers section for google.com"
         )
     }
     
     // MARK: - Clear Results Tests
     
-    func testCanClearResults() {
+    func testCanClearResults() throws {
         whoisScreen
             .enterDomain("google.com")
             .startLookup()
-        
-        _ = whoisScreen.waitForDomainInfo(timeout: 15)
+
+        XCTAssertTrue(
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before clear action is tested"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state; clear button only appears when result data exists.")
+        }
+        XCTAssertTrue(
+            whoisScreen.clearButton.waitForExistence(timeout: 5),
+            "Clear button should appear when WHOIS result cards are visible"
+        )
         
         whoisScreen.clearResults()
         
@@ -143,17 +148,23 @@ final class WHOISToolUITests: XCTestCase {
         XCTAssertTrue(toolsScreen.isDisplayed(), "Should return to Tools screen")
     }
 
-    func testClearButtonExists() {
+    func testClearButtonExists() throws {
         whoisScreen
             .enterDomain("google.com")
             .startLookup()
 
-        _ = whoisScreen.waitForDomainInfo(timeout: 15)
+        XCTAssertTrue(
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before clear button presence is evaluated"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state; clear button only appears for successful lookups.")
+        }
 
         let clearExists = whoisScreen.clearButton.waitForExistence(timeout: 5)
         XCTAssertTrue(
-            clearExists || whoisScreen.runButton.exists,
-            "Clear button should appear after lookup, or tool should remain functional"
+            clearExists,
+            "Clear button should appear after successful WHOIS lookup"
         )
     }
 
@@ -166,19 +177,18 @@ final class WHOISToolUITests: XCTestCase {
 
     // MARK: - Functional Verification Tests
 
-    func testDomainInfoCardContent() {
+    func testDomainInfoCardContent() throws {
         let testDomain = "example.com"
         whoisScreen
             .enterDomain(testDomain)
             .startLookup()
 
-        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
-        guard gotInfo else {
-            XCTAssertTrue(
-                whoisScreen.hasError() || whoisScreen.runButton.waitForExistence(timeout: 5),
-                "WHOIS tool should show error or remain functional"
-            )
-            return
+        XCTAssertTrue(
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before card content is validated"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state for this run; domain-info content cannot be validated.")
         }
 
         // Domain info card should reference the queried domain or show registrar info
@@ -191,36 +201,34 @@ final class WHOISToolUITests: XCTestCase {
         ).count > 0
 
         XCTAssertTrue(
-            domainInUI || hasDomainLabel || whoisScreen.domainInfoCard.exists,
+            domainInUI || hasDomainLabel,
             "Domain info card should show content related to the queried domain"
         )
     }
 
-    func testNameServersDisplay() {
+    func testNameServersDisplay() throws {
         whoisScreen
             .enterDomain("google.com")
             .startLookup()
 
-        let gotInfo = whoisScreen.waitForDomainInfo(timeout: 30)
-        guard gotInfo else {
-            XCTAssertTrue(
-                whoisScreen.hasError() || whoisScreen.runButton.waitForExistence(timeout: 5),
-                "WHOIS tool should remain functional"
-            )
-            return
+        XCTAssertTrue(
+            whoisScreen.waitForCompletedOutcome(timeout: 35),
+            "WHOIS lookup should complete before nameserver content is validated"
+        )
+        guard whoisScreen.domainInfoCard.exists else {
+            throw XCTSkip("WHOIS lookup ended in error state for this run; nameserver content cannot be validated.")
         }
 
         whoisScreen.swipeUp()
 
         let hasNameServersCard = whoisScreen.nameServersCard.waitForExistence(timeout: 5)
-        let hasNameServersText = whoisScreen.nameServersText.exists
         let hasNSContent = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS[c] 'ns' OR label CONTAINS[c] 'nameserver' OR label CONTAINS[c] '.NS'")
         ).count > 0
 
         XCTAssertTrue(
-            hasNameServersCard || hasNameServersText || hasNSContent || whoisScreen.domainInfoCard.exists,
-            "WHOIS result should include name servers section or at least domain info"
+            hasNameServersCard || hasNSContent,
+            "WHOIS result should include name servers section content"
         )
     }
 }

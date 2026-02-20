@@ -36,11 +36,6 @@ final class WakeOnLANToolScreen: BaseScreen {
     var infoCard: XCUIElement {
         app.descendants(matching: .any)["wol_info"]
     }
-
-    /// Fallback: check for the info card's known content text
-    var infoCardHeaderText: XCUIElement {
-        app.staticTexts["How it works"]
-    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -80,21 +75,23 @@ final class WakeOnLANToolScreen: BaseScreen {
     }
     
     func waitForSuccess(timeout: TimeInterval = 10) -> Bool {
-        // Check both otherElements and staticTexts for success indication
-        let otherSuccess = successMessage.waitForExistence(timeout: timeout)
-        if otherSuccess { return true }
-        // Fallback: check for the success text content
-        return app.staticTexts["Wake packet sent!"].waitForExistence(timeout: 2)
+        successMessage.waitForExistence(timeout: timeout)
     }
 
     func hasError() -> Bool {
-        // Check both otherElements and staticTexts for error indication
-        errorMessage.exists || app.staticTexts["Failed to send"].exists
+        errorMessage.exists
     }
 
     func verifyInfoCardPresent() -> Bool {
-        // Try otherElements first, fall back to checking for known content text
-        waitForElement(infoCard) || waitForElement(infoCardHeaderText)
+        waitForElement(infoCard)
+    }
+
+    func hasValidMACIndicator() -> Bool {
+        app.staticTexts["Valid MAC address"].exists
+    }
+
+    func hasInvalidMACIndicator() -> Bool {
+        app.staticTexts["Invalid MAC address format"].exists
     }
     
     /// Navigate back to Tools

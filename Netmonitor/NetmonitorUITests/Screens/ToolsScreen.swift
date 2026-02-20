@@ -59,39 +59,39 @@ final class ToolsScreen: BaseScreen {
     
     // MARK: - Tool Cards
     var pingToolCard: XCUIElement {
-        app.buttons["tools_card_ping"]
+        app.descendants(matching: .any)["tools_card_ping"]
     }
     
     var tracerouteToolCard: XCUIElement {
-        app.buttons["tools_card_traceroute"]
+        app.descendants(matching: .any)["tools_card_traceroute"]
     }
     
     var dnsLookupToolCard: XCUIElement {
-        app.buttons["tools_card_dns_lookup"]
+        app.descendants(matching: .any)["tools_card_dns_lookup"]
     }
     
     var portScannerToolCard: XCUIElement {
-        app.buttons["tools_card_port_scanner"]
+        app.descendants(matching: .any)["tools_card_port_scanner"]
     }
     
     var bonjourToolCard: XCUIElement {
-        app.buttons["tools_card_bonjour"]
+        app.descendants(matching: .any)["tools_card_bonjour"]
     }
     
     var speedTestToolCard: XCUIElement {
-        app.buttons["tools_card_speed_test"]
+        app.descendants(matching: .any)["tools_card_speed_test"]
     }
     
     var whoisToolCard: XCUIElement {
-        app.buttons["tools_card_whois"]
+        app.descendants(matching: .any)["tools_card_whois"]
     }
     
     var wakeOnLANToolCard: XCUIElement {
-        app.buttons["tools_card_wake_on_lan"]
+        app.descendants(matching: .any)["tools_card_wake_on_lan"]
     }
 
     var webBrowserToolCard: XCUIElement {
-        app.buttons["tools_card_web_browser"]
+        app.descendants(matching: .any)["tools_card_web_browser"]
     }
 
     // MARK: - Activity

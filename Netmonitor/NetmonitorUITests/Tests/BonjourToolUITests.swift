@@ -41,20 +41,9 @@ final class BonjourToolUITests: XCTestCase {
     func testCanStartDiscovery() {
         bonjourScreen.startDiscovery()
 
-        // In simulator environments, Bonjour discovery may not complete due to network restrictions.
-        // Verify the UI responds to the tap by checking for any of these states:
-        // 1. Services section appears (discovery succeeded)
-        // 2. Empty state appears (discovery completed with no results)
-        // 3. "Discovering services..." text appears (discovery is in progress)
-        // 4. Run button remains present (UI is still functional)
-        let servicesFound = bonjourScreen.servicesSection.waitForExistence(timeout: 10)
-        let emptyState = bonjourScreen.emptyStateNoServices.waitForExistence(timeout: 3)
-        let discoveringText = app.staticTexts["Discovering services..."].waitForExistence(timeout: 3)
-        let toolFunctional = bonjourScreen.runButton.waitForExistence(timeout: 3)
-
         XCTAssertTrue(
-            servicesFound || emptyState || discoveringText || toolFunctional,
-            "Bonjour discovery should show services, empty state, discovering indicator, or remain functional"
+            bonjourScreen.waitForDiscoveringState(timeout: 8),
+            "Bonjour discovery should enter discovering state after Start Discovery is tapped"
         )
     }
     
@@ -62,14 +51,16 @@ final class BonjourToolUITests: XCTestCase {
 
     func testCanStopDiscovery() {
         bonjourScreen.startDiscovery()
-
-        sleep(2)
+        XCTAssertTrue(
+            bonjourScreen.waitForDiscoveringState(timeout: 8),
+            "Discovery should enter running state before Stop is tapped"
+        )
 
         bonjourScreen.stopDiscovery()
 
         XCTAssertTrue(
-            bonjourScreen.isDisplayed(),
-            "Bonjour tool should remain displayed after stopping"
+            bonjourScreen.waitForIdleState(timeout: 8),
+            "Discovery button should return to idle state after stop"
         )
     }
 
@@ -89,66 +80,115 @@ final class BonjourToolUITests: XCTestCase {
         )
     }
 
-    func testClearButtonExists() {
+    func testClearButtonExists() throws {
         bonjourScreen.startDiscovery()
-
-        // Wait for discovery to complete or timeout
-        _ = bonjourScreen.waitForServices(timeout: 10)
-
-        let clearExists = bonjourScreen.clearButton.waitForExistence(timeout: 5)
         XCTAssertTrue(
-            clearExists || bonjourScreen.runButton.exists,
-            "Clear button should appear after discovery, or tool should remain functional"
+            bonjourScreen.waitForCompletedOutcome(timeout: 25),
+            "Discovery should complete before clear button presence is evaluated"
         )
+        bonjourScreen.stopDiscovery()
+        _ = bonjourScreen.waitForIdleState(timeout: 8)
+
+        if bonjourScreen.servicesSection.exists {
+            XCTAssertTrue(
+                bonjourScreen.clearButton.waitForExistence(timeout: 5),
+                "Clear button should appear when discovered-service results are visible"
+            )
+        } else {
+            XCTAssertTrue(
+                bonjourScreen.hasEmptyState(),
+                "Bonjour should show explicit empty state when no services are available"
+            )
+            XCTAssertFalse(
+                bonjourScreen.clearButton.exists,
+                "Clear button should be hidden when there are no discovered services"
+            )
+        }
     }
 
     // MARK: - Empty State Tests
 
     func testEmptyStateOrServicesShown() {
-        // Before starting discovery, check initial state
-        let hasEmptyState = bonjourScreen.hasEmptyState()
-        let hasServices = bonjourScreen.servicesSection.exists
-
-        // Should show either empty state or services (from previous session)
+        bonjourScreen.startDiscovery()
         XCTAssertTrue(
-            hasEmptyState || hasServices || bonjourScreen.runButton.exists,
-            "Should show empty state, services, or discovery button"
+            bonjourScreen.waitForCompletedOutcome(timeout: 25),
+            "Bonjour discovery should complete before terminal state is checked"
+        )
+        XCTAssertTrue(
+            bonjourScreen.hasEmptyState() || bonjourScreen.servicesSection.exists,
+            "Bonjour should finish in either empty-state or discovered-services state"
         )
     }
 
-    func testClearAfterDiscovery() {
+    func testClearAfterDiscovery() throws {
         bonjourScreen.startDiscovery()
 
-        // Wait for discovery to complete or timeout
-        _ = bonjourScreen.waitForServices(timeout: 10)
-        sleep(2)
+        XCTAssertTrue(
+            bonjourScreen.waitForCompletedOutcome(timeout: 25),
+            "Discovery should finish before clear behavior is validated"
+        )
 
         // Stop discovery if still running
         bonjourScreen.stopDiscovery()
-        sleep(1)
+        XCTAssertTrue(
+            bonjourScreen.waitForIdleState(timeout: 8),
+            "Discovery should be idle before clearing results"
+        )
 
-        // Try to clear
+        guard bonjourScreen.servicesSection.exists else {
+            throw XCTSkip("No discovered services in this environment; cannot validate clear-results transition.")
+        }
+        XCTAssertTrue(
+            bonjourScreen.clearButton.waitForExistence(timeout: 5),
+            "Clear button must be visible before invoking clear"
+        )
+
         bonjourScreen.clearResults()
-
-        // Tool should remain functional
+        XCTAssertTrue(
+            bonjourScreen.emptyStateNoServices.waitForExistence(timeout: 5),
+            "Clearing discovered services should return the view to the explicit empty state"
+        )
+        XCTAssertFalse(
+            bonjourScreen.servicesSection.exists,
+            "Service results section should disappear after clearing results"
+        )
+        XCTAssertFalse(
+            bonjourScreen.clearButton.exists,
+            "Clear button should disappear once results are cleared"
+        )
         XCTAssertTrue(
             bonjourScreen.isDisplayed(),
-            "Bonjour tool should remain displayed after clearing"
+            "Bonjour screen should remain visible after clear action"
         )
     }
 
     func testServiceCountAfterDiscovery() {
         bonjourScreen.startDiscovery()
 
-        let found = bonjourScreen.waitForServices(timeout: 15)
-        if found {
-            let count = bonjourScreen.getServiceCount()
-            XCTAssertGreaterThanOrEqual(count, 0, "Service count should be non-negative")
-        } else {
-            // Simulator may not find services - that's OK
+        XCTAssertTrue(
+            bonjourScreen.waitForCompletedOutcome(timeout: 25),
+            "Discovery should complete before terminal result state is validated"
+        )
+        bonjourScreen.stopDiscovery()
+        _ = bonjourScreen.waitForIdleState(timeout: 8)
+
+        if bonjourScreen.servicesSection.exists {
+            XCTAssertFalse(
+                bonjourScreen.hasEmptyState(),
+                "Empty state should not be visible when services section is present"
+            )
             XCTAssertTrue(
-                bonjourScreen.isDisplayed(),
-                "Tool should remain functional even without services"
+                bonjourScreen.clearButton.waitForExistence(timeout: 5),
+                "Clear button should be visible whenever discovered services are shown"
+            )
+        } else {
+            XCTAssertTrue(
+                bonjourScreen.hasEmptyState(),
+                "When no services are found, Bonjour should show the explicit empty state"
+            )
+            XCTAssertFalse(
+                bonjourScreen.clearButton.exists,
+                "Clear button should be hidden in empty-state outcome"
             )
         }
     }
@@ -158,28 +198,29 @@ final class BonjourToolUITests: XCTestCase {
     func testServiceGroupingByCategory() {
         bonjourScreen.startDiscovery()
 
-        let servicesFound = bonjourScreen.waitForServices(timeout: 15)
-        guard servicesFound else {
-            // Simulator may not discover Bonjour services — accept graceful degradation
-            let emptyState = bonjourScreen.hasEmptyState()
-            let toolFunctional = bonjourScreen.runButton.waitForExistence(timeout: 5)
+        let reachedTerminalState = bonjourScreen.waitForCompletedOutcome(timeout: 25)
+        XCTAssertTrue(
+            reachedTerminalState,
+            "Bonjour should reach a terminal state before grouping assertions are evaluated"
+        )
+        bonjourScreen.stopDiscovery()
+        _ = bonjourScreen.waitForIdleState(timeout: 8)
+
+        guard bonjourScreen.servicesSection.exists else {
             XCTAssertTrue(
-                emptyState || toolFunctional,
-                "Bonjour tool should show empty state or remain functional when no services found"
+                bonjourScreen.hasEmptyState(),
+                "Bonjour should show empty state when no services are discovered"
             )
             return
         }
 
-        // If services were found, the section or category groupings should be visible
-        let hasServiceSection = bonjourScreen.servicesSection.exists
-        let hasCategoryHeader = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS[c] 'HTTP' OR label CONTAINS[c] 'AirPlay' OR label CONTAINS[c] 'Printer' OR label CONTAINS[c] 'Apple TV' OR label CONTAINS[c] 'Services'")
-        ).count > 0
-        let hasAnyService = bonjourScreen.getServiceCount() > 0
-
         XCTAssertTrue(
-            hasServiceSection || hasCategoryHeader || hasAnyService,
-            "Bonjour results should show services section or category headers when services are found"
+            bonjourScreen.clearButton.exists,
+            "Discovered-services state should expose clear action for follow-up interactions"
+        )
+        XCTAssertFalse(
+            bonjourScreen.hasEmptyState(),
+            "Discovered-services state should not render the empty-state view"
         )
     }
 }

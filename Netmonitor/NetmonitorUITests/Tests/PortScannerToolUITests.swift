@@ -69,14 +69,12 @@ final class PortScannerToolUITests: XCTestCase {
             .enterHost("scanme.nmap.org")
             .startScan()
 
-        // Progress indicator should appear or results should appear.
-        // In the simulator, network may be restricted so also accept the tool remaining functional.
-        let hasProgress = portScanScreen.isScanning()
-        let hasResults = portScanScreen.resultsSection.waitForExistence(timeout: 30)
+        let hasProgress = portScanScreen.progressIndicator.waitForExistence(timeout: 8)
+        let enteredRunningState = portScanScreen.waitForRunningState(timeout: 8)
 
         XCTAssertTrue(
-            hasProgress || hasResults || portScanScreen.runButton.waitForExistence(timeout: 5),
-            "Port scan should show progress, results, or remain functional"
+            hasProgress || enteredRunningState,
+            "Port scan should enter an active scanning state after tapping Start Scan"
         )
     }
 
@@ -85,15 +83,14 @@ final class PortScannerToolUITests: XCTestCase {
             .enterHost("scanme.nmap.org")
             .startScan()
 
-        // In the simulator, port scan may time out or fail.
-        // Accept results appearing or the tool remaining functional.
-        let gotResults = portScanScreen.waitForResults(timeout: 60)
-        if !gotResults {
-            XCTAssertTrue(
-                portScanScreen.runButton.waitForExistence(timeout: 5),
-                "Port scanner should remain functional after scan attempt"
-            )
-        }
+        XCTAssertTrue(
+            portScanScreen.waitForRunningState(timeout: 8),
+            "Port scanner should start running after Start Scan is tapped"
+        )
+        XCTAssertTrue(
+            portScanScreen.waitForIdleState(timeout: 70),
+            "Port scanner should eventually return to idle state when scan completes"
+        )
     }
     
     // MARK: - Stop Tests
@@ -103,13 +100,16 @@ final class PortScannerToolUITests: XCTestCase {
             .enterHost("scanme.nmap.org")
             .startScan()
 
-        sleep(2)
+        XCTAssertTrue(
+            portScanScreen.waitForRunningState(timeout: 8),
+            "Port scanner should enter running state before Stop is tapped"
+        )
 
         portScanScreen.stopScan()
 
         XCTAssertTrue(
-            portScanScreen.isDisplayed(),
-            "Port Scanner should remain displayed after stopping"
+            portScanScreen.waitForIdleState(timeout: 8),
+            "Port scanner should return to idle state after stopping"
         )
     }
 
@@ -127,27 +127,30 @@ final class PortScannerToolUITests: XCTestCase {
 
         // Verify picker responds by checking if menu appears or picker still exists
         let hasMenu = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'Common' OR label CONTAINS[c] 'Well-Known' OR label CONTAINS[c] 'Custom'")).count > 0
-        let pickerStillExists = portScanScreen.portRangePicker.exists
 
         XCTAssertTrue(
-            hasMenu || pickerStillExists,
-            "Port range picker should respond to tap"
+            hasMenu,
+            "Port range picker should present menu options when tapped"
         )
     }
 
-    func testClearButtonExists() {
+    func testClearButtonExists() throws {
         portScanScreen
             .enterHost("scanme.nmap.org")
             .startScan()
 
-        // Wait for scan to produce results or timeout
-        _ = portScanScreen.waitForResults(timeout: 30)
-
-        // Clear button should appear after scan activity
-        let clearExists = portScanScreen.clearButton.waitForExistence(timeout: 5)
         XCTAssertTrue(
-            clearExists || portScanScreen.runButton.exists,
-            "Clear button should appear after scan, or tool should remain functional"
+            portScanScreen.waitForIdleState(timeout: 70),
+            "Port scan should complete before clear button is checked"
+        )
+
+        guard portScanScreen.resultsSection.exists else {
+            throw XCTSkip("No open ports were found in this run; clear button only appears when result rows exist.")
+        }
+
+        XCTAssertTrue(
+            portScanScreen.clearButton.waitForExistence(timeout: 5),
+            "Clear button should appear when port scan result rows are present"
         )
     }
 
@@ -159,22 +162,17 @@ final class PortScannerToolUITests: XCTestCase {
 
         // Look for "Custom" option in the menu
         let customOption = app.buttons["Custom"]
-        if customOption.waitForExistence(timeout: 3) {
-            customOption.tap()
+        XCTAssertTrue(customOption.waitForExistence(timeout: 3), "Custom option should be available in port range picker")
+        customOption.tap()
 
-            // Custom range fields should appear
-            let startPortExists = portScanScreen.startPortInput.waitForExistence(timeout: 5)
-            let endPortExists = portScanScreen.endPortInput.waitForExistence(timeout: 5)
-
-            XCTAssertTrue(
-                startPortExists || endPortExists || portScanScreen.isDisplayed(),
-                "Custom port range inputs should appear after selecting Custom range"
-            )
-        } else {
-            // If custom option doesn't appear, dismiss and verify tool is functional
-            app.tap()
-            XCTAssertTrue(portScanScreen.isDisplayed(), "Tool should remain functional")
-        }
+        XCTAssertTrue(
+            portScanScreen.startPortInput.waitForExistence(timeout: 5),
+            "Start port input should appear when Custom range is selected"
+        )
+        XCTAssertTrue(
+            portScanScreen.endPortInput.waitForExistence(timeout: 5),
+            "End port input should appear when Custom range is selected"
+        )
     }
 
     func testPortScannerScreenHasNavigationTitle() {
@@ -190,46 +188,22 @@ final class PortScannerToolUITests: XCTestCase {
         portScanScreen.portRangePicker.tap()
 
         let customOption = app.buttons["Custom"]
-        if customOption.waitForExistence(timeout: 3) {
-            customOption.tap()
+        XCTAssertTrue(customOption.waitForExistence(timeout: 3), "Custom option should be available in port range picker")
+        customOption.tap()
 
-            let startExists = portScanScreen.startPortInput.waitForExistence(timeout: 5)
-            let endExists = portScanScreen.endPortInput.waitForExistence(timeout: 5)
-
-            XCTAssertTrue(
-                startExists && endExists,
-                "Start and end port input fields should appear when Custom range is selected"
-            )
-        } else {
-            // Try broader search for Custom label
-            let customButton = app.buttons.matching(
-                NSPredicate(format: "label CONTAINS[c] 'Custom'")
-            ).firstMatch
-            if customButton.waitForExistence(timeout: 2) {
-                customButton.tap()
-                let startExists = portScanScreen.startPortInput.waitForExistence(timeout: 5)
-                let endExists = portScanScreen.endPortInput.waitForExistence(timeout: 5)
-                XCTAssertTrue(
-                    startExists || endExists || portScanScreen.isDisplayed(),
-                    "Custom port inputs should appear or tool should remain functional"
-                )
-            } else {
-                app.tap()
-                XCTAssertTrue(portScanScreen.isDisplayed(), "Tool should remain functional")
-            }
-        }
+        let startExists = portScanScreen.startPortInput.waitForExistence(timeout: 5)
+        let endExists = portScanScreen.endPortInput.waitForExistence(timeout: 5)
+        XCTAssertTrue(
+            startExists && endExists,
+            "Start and end port input fields should appear when Custom range is selected"
+        )
     }
 
     func testCustomPortRangeValidation() {
         portScanScreen.portRangePicker.tap()
         let customOption = app.buttons["Custom"]
-        if customOption.waitForExistence(timeout: 3) {
-            customOption.tap()
-        } else {
-            app.tap()
-            XCTAssertTrue(portScanScreen.isDisplayed(), "Tool should remain functional")
-            return
-        }
+        XCTAssertTrue(customOption.waitForExistence(timeout: 3), "Custom option should be available in port range picker")
+        customOption.tap()
 
         // Enter an invalid range: start > end
         if portScanScreen.startPortInput.waitForExistence(timeout: 5) {
@@ -244,16 +218,9 @@ final class PortScannerToolUITests: XCTestCase {
         portScanScreen.enterHost("scanme.nmap.org")
         portScanScreen.startScan()
 
-        // Tool should block the scan or show a validation error
-        let hasValidationError = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS[c] 'invalid' OR label CONTAINS[c] 'error' OR label CONTAINS[c] 'range'")
-        ).count > 0
-        let scanDidNotStart = !portScanScreen.isScanning()
-        let toolStillFunctional = portScanScreen.runButton.waitForExistence(timeout: 3)
-
-        XCTAssertTrue(
-            hasValidationError || scanDidNotStart || toolStillFunctional,
-            "Invalid port range should be blocked, show error, or tool remains functional"
+        XCTAssertFalse(
+            portScanScreen.waitForRunningState(timeout: 3),
+            "Invalid custom port range should not start a scan"
         )
     }
 
@@ -262,14 +229,13 @@ final class PortScannerToolUITests: XCTestCase {
             .enterHost("scanme.nmap.org")
             .startScan()
 
-        // Immediately check for progress indicator — accept results or functional tool
+        // Immediately check for progress indicator / running transition
         let hasProgress = portScanScreen.progressIndicator.waitForExistence(timeout: 5)
-        let hasResults = portScanScreen.resultsSection.exists
-        let toolFunctional = portScanScreen.runButton.waitForExistence(timeout: 5)
+        let isRunning = portScanScreen.waitForRunningState(timeout: 5)
 
         XCTAssertTrue(
-            hasProgress || hasResults || toolFunctional,
-            "Progress indicator should appear during scan, or results should show, or tool remains functional"
+            hasProgress || isRunning,
+            "Port scanner should show active-progress UI while a scan is running"
         )
     }
 }

@@ -5,20 +5,20 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.otherElements["screen_settings"]
+        app.descendants(matching: .any)["screen_settings"]
     }
 
     // MARK: - Network Tools Settings
     var pingCountStepper: XCUIElement {
-        app.otherElements["settings_stepper_pingCount"]
+        app.descendants(matching: .any)["settings_stepper_pingCount"]
     }
 
     var pingTimeoutStepper: XCUIElement {
-        app.otherElements["settings_stepper_pingTimeout"]
+        app.descendants(matching: .any)["settings_stepper_pingTimeout"]
     }
 
     var portScanTimeoutStepper: XCUIElement {
-        app.otherElements["settings_stepper_portScanTimeout"]
+        app.descendants(matching: .any)["settings_stepper_portScanTimeout"]
     }
 
     // Fallback text references for settings elements
@@ -34,12 +34,12 @@ final class SettingsScreen: BaseScreen {
     var iosVersionText: XCUIElement { app.staticTexts["iOS Version"] }
     
     var dnsServerTextField: XCUIElement {
-        app.textFields["settings_textfield_dnsServer"]
+        app.descendants(matching: .any)["settings_textfield_dnsServer"]
     }
     
     // MARK: - Monitoring Settings
     var autoRefreshPicker: XCUIElement {
-        app.otherElements["settings_picker_autoRefreshInterval"]
+        app.descendants(matching: .any)["settings_picker_autoRefreshInterval"]
     }
 
     var backgroundRefreshToggle: XCUIElement {
@@ -52,7 +52,7 @@ final class SettingsScreen: BaseScreen {
     }
 
     var highLatencyThresholdStepper: XCUIElement {
-        app.otherElements["settings_stepper_highLatencyThreshold"]
+        app.descendants(matching: .any)["settings_stepper_highLatencyThreshold"]
     }
 
     var highLatencyAlertToggle: XCUIElement {
@@ -65,16 +65,16 @@ final class SettingsScreen: BaseScreen {
 
     // MARK: - Appearance Settings
     var themePicker: XCUIElement {
-        app.otherElements["settings_picker_theme"]
+        app.descendants(matching: .any)["settings_picker_theme"]
     }
 
     var accentColorPicker: XCUIElement {
-        app.otherElements["settings_picker_accentColor"]
+        app.descendants(matching: .any)["settings_picker_accentColor"]
     }
 
     // MARK: - Data & Privacy
     var dataRetentionPicker: XCUIElement {
-        app.otherElements["settings_picker_dataRetention"]
+        app.descendants(matching: .any)["settings_picker_dataRetention"]
     }
     
     var showDetailedResultsToggle: XCUIElement {
@@ -91,15 +91,15 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - About
     var appVersionRow: XCUIElement {
-        app.otherElements["settings_row_appVersion"]
+        app.descendants(matching: .any)["settings_row_appVersion"]
     }
 
     var buildNumberRow: XCUIElement {
-        app.otherElements["settings_row_buildNumber"]
+        app.descendants(matching: .any)["settings_row_buildNumber"]
     }
 
     var iosVersionRow: XCUIElement {
-        app.otherElements["settings_row_iosVersion"]
+        app.descendants(matching: .any)["settings_row_iosVersion"]
     }
     
     var acknowledgementsLink: XCUIElement {
@@ -107,11 +107,11 @@ final class SettingsScreen: BaseScreen {
     }
     
     var supportLink: XCUIElement {
-        app.links["settings_link_support"]
+        app.descendants(matching: .any)["settings_link_support"]
     }
 
     var supportLinkAsButton: XCUIElement {
-        app.buttons["settings_link_support"]
+        app.descendants(matching: .any)["settings_link_support"]
     }
 
     // Fallback text reference for support link

@@ -69,23 +69,14 @@ final class DNSLookupToolUITests: XCTestCase {
             .enterDomain("google.com")
             .startLookup()
 
-        // In the simulator, DNS lookup may fail or timeout due to network restrictions.
-        // Verify the UI responds by checking for any of these states:
-        // 1. Query info appears (lookup succeeded)
-        // 2. Error view appears (lookup failed gracefully)
-        // 3. "Looking up..." text appears (lookup is in progress)
-        // 4. Run button remains present (UI is still functional)
-        let gotInfo = dnsScreen.waitForQueryInfo(timeout: 10)
-        if !gotInfo {
-            let gotError = dnsScreen.hasError()
-            let lookingUpText = app.staticTexts["Looking up..."].waitForExistence(timeout: 3)
-            let toolFunctional = dnsScreen.runButton.waitForExistence(timeout: 3)
-
-            XCTAssertTrue(
-                gotError || lookingUpText || toolFunctional,
-                "DNS lookup should show query info, an error, lookup indicator, or remain functional"
-            )
-        }
+        XCTAssertTrue(
+            dnsScreen.waitForCompletedOutcome(timeout: 20),
+            "DNS lookup should complete with either query info or a visible error state"
+        )
+        XCTAssertTrue(
+            dnsScreen.queryInfoCard.exists || dnsScreen.errorView.exists,
+            "DNS lookup outcome should be query info or error card"
+        )
     }
 
     func testDNSLookupShowsRecords() {
@@ -93,35 +84,40 @@ final class DNSLookupToolUITests: XCTestCase {
             .enterDomain("google.com")
             .startLookup()
 
-        // In the simulator, DNS lookup may fail or timeout due to network restrictions.
-        // Verify the action was triggered by checking for any of these states:
-        // 1. Records card appears (lookup succeeded with records)
-        // 2. Query info appears without records (lookup succeeded but no records)
-        // 3. Error view appears (lookup failed gracefully)
-        // 4. DNS-related static text appears (lookup is in progress or completed)
-        // 5. Run button remains present (UI is still functional)
-        let gotRecords = dnsScreen.waitForRecords(timeout: 10)
-        if !gotRecords {
-            let hasQueryInfo = dnsScreen.queryInfoCard.exists
-            let hasError = dnsScreen.hasError()
-            let hasDNSContent = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] 'DNS' OR label CONTAINS[c] 'query' OR label CONTAINS[c] 'lookup'")).firstMatch.exists
-            let toolFunctional = dnsScreen.runButton.waitForExistence(timeout: 3)
+        XCTAssertTrue(
+            dnsScreen.waitForCompletedOutcome(timeout: 20),
+            "DNS lookup should complete before checking records output"
+        )
 
+        if dnsScreen.errorView.exists {
+            XCTAssertTrue(dnsScreen.errorView.exists, "Failed DNS lookups should render the DNS error card")
+        } else {
             XCTAssertTrue(
-                hasQueryInfo || hasError || hasDNSContent || toolFunctional,
-                "DNS lookup should show records, query info, error, DNS content, or remain functional"
+                dnsScreen.recordsCard.exists || dnsScreen.recordRows.count > 0,
+                "Successful DNS lookups should render records content"
             )
         }
     }
     
     // MARK: - Clear Results Tests
     
-    func testCanClearResults() {
+    func testCanClearResults() throws {
         dnsScreen
             .enterDomain("google.com")
             .startLookup()
-        
-        _ = dnsScreen.waitForQueryInfo(timeout: 15)
+
+        XCTAssertTrue(
+            dnsScreen.waitForCompletedOutcome(timeout: 20),
+            "DNS lookup should complete before clear is tested"
+        )
+        guard dnsScreen.queryInfoCard.exists else {
+            throw XCTSkip("Lookup ended in error state; clear button only appears when result data exists.")
+        }
+
+        XCTAssertTrue(
+            dnsScreen.clearButton.waitForExistence(timeout: 5),
+            "Clear button should appear when DNS query info is visible"
+        )
         
         dnsScreen.clearResults()
         
@@ -143,28 +139,31 @@ final class DNSLookupToolUITests: XCTestCase {
     func testRecordTypePickerInteraction() {
         dnsScreen.recordTypePicker.tap()
 
-        // Verify picker responds by checking if menu or picker appears
-        // In iOS, tapping a picker/menu button typically shows menu items
         let hasMenu = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'A' OR label CONTAINS[c] 'AAAA' OR label CONTAINS[c] 'MX'")).count > 0
-        let pickerStillExists = dnsScreen.recordTypePicker.exists
 
         XCTAssertTrue(
-            hasMenu || pickerStillExists,
-            "Record type picker should respond to tap"
+            hasMenu,
+            "Record type picker should present record options when tapped"
         )
     }
 
-    func testClearButtonExists() {
+    func testClearButtonExists() throws {
         dnsScreen
             .enterDomain("google.com")
             .startLookup()
 
-        _ = dnsScreen.waitForQueryInfo(timeout: 15)
+        XCTAssertTrue(
+            dnsScreen.waitForCompletedOutcome(timeout: 20),
+            "DNS lookup should complete before clear button presence is evaluated"
+        )
+        guard dnsScreen.queryInfoCard.exists else {
+            throw XCTSkip("Lookup ended in error state; clear button only appears for successful lookups.")
+        }
 
         let clearExists = dnsScreen.clearButton.waitForExistence(timeout: 5)
         XCTAssertTrue(
-            clearExists || dnsScreen.runButton.exists,
-            "Clear button should appear after lookup, or tool should remain functional"
+            clearExists,
+            "Clear button should appear after successful DNS lookup"
         )
     }
 
@@ -191,33 +190,27 @@ final class DNSLookupToolUITests: XCTestCase {
             }
         }
 
-        if tapped {
-            XCTAssertTrue(
-                dnsScreen.recordTypePicker.exists,
-                "Record type picker should remain after selection"
-            )
-            let newLabel = dnsScreen.recordTypePicker.label
-            XCTAssertNotEqual(newLabel, initialLabel, "Picker label should update to new record type")
-        } else {
-            app.tap()
-            XCTAssertTrue(dnsScreen.isDisplayed(), "DNS Lookup tool should remain functional")
-        }
+        XCTAssertTrue(tapped, "Record type picker should expose selectable menu items")
+        XCTAssertTrue(
+            dnsScreen.recordTypePicker.exists,
+            "Record type picker should remain after selecting a record type"
+        )
+        let newLabel = dnsScreen.recordTypePicker.label
+        XCTAssertNotEqual(newLabel, initialLabel, "Picker label should update to the selected record type")
     }
 
-    func testQueryInfoCardContent() {
+    func testQueryInfoCardContent() throws {
         let testDomain = "example.com"
         dnsScreen
             .enterDomain(testDomain)
             .startLookup()
 
-        let gotInfo = dnsScreen.waitForQueryInfo(timeout: 15)
-        guard gotInfo else {
-            // Network unavailable in simulator — accept graceful degradation
-            XCTAssertTrue(
-                dnsScreen.hasError() || dnsScreen.runButton.waitForExistence(timeout: 5),
-                "DNS tool should show error or remain functional"
-            )
-            return
+        XCTAssertTrue(
+            dnsScreen.waitForCompletedOutcome(timeout: 20),
+            "DNS lookup should complete before query-info content is validated"
+        )
+        guard dnsScreen.queryInfoCard.exists else {
+            throw XCTSkip("Lookup ended in error state for this run; query-info content cannot be validated.")
         }
 
         // Query info card should reference the domain we looked up
@@ -226,7 +219,7 @@ final class DNSLookupToolUITests: XCTestCase {
         ).count > 0
 
         XCTAssertTrue(
-            domainInUI || dnsScreen.queryInfoCard.exists,
+            domainInUI,
             "Query info card should contain content matching the queried domain"
         )
     }

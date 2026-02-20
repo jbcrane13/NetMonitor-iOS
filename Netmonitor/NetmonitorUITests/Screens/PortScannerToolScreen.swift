@@ -43,6 +43,12 @@ final class PortScannerToolScreen: BaseScreen {
     var resultsSection: XCUIElement {
         app.descendants(matching: .any)["portScanner_section_results"]
     }
+
+    var resultRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'portScanner_result_'")
+        )
+    }
     
     // MARK: - Verification
     func isDisplayed() -> Bool {
@@ -94,6 +100,16 @@ final class PortScannerToolScreen: BaseScreen {
     
     func isScanning() -> Bool {
         progressIndicator.exists
+    }
+
+    func waitForRunningState(timeout: TimeInterval = 8) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Stop Scan'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
+    }
+
+    func waitForIdleState(timeout: TimeInterval = 15) -> Bool {
+        let predicate = NSPredicate(format: "label CONTAINS[c] 'Start Scan'")
+        return app.buttons.matching(predicate).firstMatch.waitForExistence(timeout: timeout)
     }
     
     /// Get count of port result rows
