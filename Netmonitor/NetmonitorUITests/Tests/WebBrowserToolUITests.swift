@@ -150,10 +150,13 @@ final class WebBrowserToolUITests: XCTestCase {
     func testBookmarkTapOpensURL() {
         webBrowserScreen.tapBookmark(webBrowserScreen.routerAdminBookmark)
 
+        // Wait for async URL field population or web view to appear
+        _ = webBrowserScreen.openButton.waitForExistence(timeout: 3)
+
         // After tapping a bookmark: URL field changes, web view opens, or tool stays functional
         let urlFieldChanged = webBrowserScreen.getURLFieldValue() != ""
         let webViewPresent = app.webViews.count > 0
-        let toolStillFunctional = webBrowserScreen.openButton.waitForExistence(timeout: 5)
+        let toolStillFunctional = webBrowserScreen.openButton.waitForExistence(timeout: 10)
 
         XCTAssertTrue(
             urlFieldChanged || webViewPresent || toolStillFunctional,

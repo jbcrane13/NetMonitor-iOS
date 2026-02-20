@@ -5,20 +5,20 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - Screen Identifier
     var screen: XCUIElement {
-        app.descendants(matching: .any)["screen_settings"]
+        app.otherElements["screen_settings"]
     }
 
     // MARK: - Network Tools Settings
     var pingCountStepper: XCUIElement {
-        app.descendants(matching: .any)["settings_stepper_pingCount"]
+        app.otherElements["settings_stepper_pingCount"]
     }
 
     var pingTimeoutStepper: XCUIElement {
-        app.descendants(matching: .any)["settings_stepper_pingTimeout"]
+        app.otherElements["settings_stepper_pingTimeout"]
     }
 
     var portScanTimeoutStepper: XCUIElement {
-        app.descendants(matching: .any)["settings_stepper_portScanTimeout"]
+        app.otherElements["settings_stepper_portScanTimeout"]
     }
 
     // Fallback text references for settings elements
@@ -39,7 +39,7 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - Monitoring Settings
     var autoRefreshPicker: XCUIElement {
-        app.descendants(matching: .any)["settings_picker_autoRefreshInterval"]
+        app.otherElements["settings_picker_autoRefreshInterval"]
     }
 
     var backgroundRefreshToggle: XCUIElement {
@@ -52,7 +52,7 @@ final class SettingsScreen: BaseScreen {
     }
 
     var highLatencyThresholdStepper: XCUIElement {
-        app.descendants(matching: .any)["settings_stepper_highLatencyThreshold"]
+        app.otherElements["settings_stepper_highLatencyThreshold"]
     }
 
     var highLatencyAlertToggle: XCUIElement {
@@ -65,16 +65,16 @@ final class SettingsScreen: BaseScreen {
 
     // MARK: - Appearance Settings
     var themePicker: XCUIElement {
-        app.descendants(matching: .any)["settings_picker_theme"]
+        app.otherElements["settings_picker_theme"]
     }
 
     var accentColorPicker: XCUIElement {
-        app.descendants(matching: .any)["settings_picker_accentColor"]
+        app.otherElements["settings_picker_accentColor"]
     }
 
     // MARK: - Data & Privacy
     var dataRetentionPicker: XCUIElement {
-        app.descendants(matching: .any)["settings_picker_dataRetention"]
+        app.otherElements["settings_picker_dataRetention"]
     }
     
     var showDetailedResultsToggle: XCUIElement {
@@ -91,15 +91,15 @@ final class SettingsScreen: BaseScreen {
     
     // MARK: - About
     var appVersionRow: XCUIElement {
-        app.descendants(matching: .any)["settings_row_appVersion"]
+        app.otherElements["settings_row_appVersion"]
     }
 
     var buildNumberRow: XCUIElement {
-        app.descendants(matching: .any)["settings_row_buildNumber"]
+        app.otherElements["settings_row_buildNumber"]
     }
 
     var iosVersionRow: XCUIElement {
-        app.descendants(matching: .any)["settings_row_iosVersion"]
+        app.otherElements["settings_row_iosVersion"]
     }
     
     var acknowledgementsLink: XCUIElement {

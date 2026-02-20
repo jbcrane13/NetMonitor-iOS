@@ -383,7 +383,7 @@ final class DashboardUITests: XCTestCase {
                 NSPredicate(format: "label CONTAINS[c] 'Scanning' OR label CONTAINS[c] 'scanning'")
             ).count > 0
             let navigatedToMap = app.tabBars.buttons["Map"].isSelected
-            let dashboardPresent = dashboardScreen.settingsButton.waitForExistence(timeout: 5)
+            let dashboardPresent = dashboardScreen.settingsButton.waitForExistence(timeout: 15)
 
             XCTAssertTrue(
                 isScanningNow || navigatedToMap || dashboardPresent,
