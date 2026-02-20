@@ -6,7 +6,7 @@ final class SetTargetScreen: BaseScreen {
     // MARK: - Quick Action (on Tools Screen)
 
     var setTargetQuickActionButton: XCUIElement {
-        app.buttons["quickAction_set_target"]
+        app.descendants(matching: .any)["quickAction_set_target"]
     }
 
     // MARK: - Sheet Navigation Bar

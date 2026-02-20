@@ -25,7 +25,7 @@ final class ToolsScreen: BaseScreen {
     
     // MARK: - Quick Action Buttons
     var scanNetworkButton: XCUIElement {
-        app.buttons["quickAction_monitor_network"]
+        app.buttons["quickAction_set_target"]
     }
 
     var speedTestQuickButton: XCUIElement {
@@ -180,7 +180,7 @@ final class ToolsScreen: BaseScreen {
 
     func verifyQuickActionsPresent() -> Bool {
         scrollToTop()
-        return quickActionExists(scanNetworkButton, labelText: "Monitor Network") &&
+        return quickActionExists(scanNetworkButton, labelText: "Set Target") &&
         quickActionExists(speedTestQuickButton, labelText: "Speed Test") &&
         quickActionExists(pingGatewayButton, labelText: "Ping Gateway")
     }
