@@ -1,7 +1,7 @@
 # NetMonitor iOS UI Flow Coverage Expansion Plan
 
 **Date:** 2026-02-20  
-**Status:** Draft (Execution Started)  
+**Status:** In Progress (Execution Ongoing)  
 **Owner:** AI agent session
 
 ## Motivation
@@ -35,6 +35,31 @@ Largest uncovered files (app code):
 - `Netmonitor/Netmonitor/Views/DeviceDetail/DeviceDetailView.swift` (`1683` uncovered lines)
 - `Netmonitor/Netmonitor/Views/Tools/ToolsView.swift` (`1472`)
 - `Netmonitor/Netmonitor/Views/Settings/SettingsView.swift` (`1250`)
+- `Netmonitor/Netmonitor/Views/Settings/MacPairingView.swift` (`1016`)
+- `Netmonitor/Netmonitor/Views/Tools/SpeedTestToolView.swift` (`731`)
+- `Netmonitor/Netmonitor/Views/NetworkMap/NetworkMapView.swift` (`697`)
+
+### Latest Coverage Re-Measurement (2026-02-21)
+Collected from:
+- `/tmp/netmonitor-unit-coverage-20260221-0010.xcresult`
+- Command: `xcodebuild test -scheme Netmonitor -only-testing:NetmonitorTests -enableCodeCoverage YES ...`
+
+Targets:
+- `Netmonitor.app`: `25.61%` (`5876/22940`) - passed
+- `NetmonitorWidget.appex`: `5.38%` (`28/520`) - passed
+- `NetmonitorTests.xctest`: `92.16%` (`7311/7933`) - passed
+
+`Netmonitor.app` by layer (latest):
+- `Views`: `9.84%` (`1430/14530`)
+- `Services`: `38.11%` (`2060/5406`)
+- `ViewModels`: `70.42%` (`1131/1606`)
+- `Utilities`: `82.91%` (`393/474`)
+- `Models`: `92.02%` (`703/764`)
+
+Largest uncovered files (latest app run):
+- `Netmonitor/Netmonitor/Views/DeviceDetail/DeviceDetailView.swift` (`1683` uncovered lines)
+- `Netmonitor/Netmonitor/Views/Settings/SettingsView.swift` (`1556`)
+- `Netmonitor/Netmonitor/Views/Tools/ToolsView.swift` (`1472`)
 - `Netmonitor/Netmonitor/Views/Settings/MacPairingView.swift` (`1016`)
 - `Netmonitor/Netmonitor/Views/Tools/SpeedTestToolView.swift` (`731`)
 - `Netmonitor/Netmonitor/Views/NetworkMap/NetworkMapView.swift` (`697`)
@@ -127,6 +152,26 @@ Largest uncovered files (app code):
 
 ## Plan of Record
 
+## Execution Update (2026-02-21)
+
+Completed in this execution slice:
+- Hardened Settings toggle interaction tests for deterministic outcome checks:
+  - `Background Refresh`
+  - `Target Down Alerts`
+  - `New Device Alerts`
+  - state transition and persistence verification
+- Added deterministic Credits/Acknowledgements identifiers and strict UI assertions for:
+  - intro text
+  - each credits card (`Swift`, `SwiftUI`, `Network.framework`, `SwiftData`)
+  - card-level fields (name/license/description)
+  - `Special Thanks` heading/details
+- Removed `SettingsViewModel` default-value test flakiness by isolating and restoring settings keys per test.
+
+Validated results:
+- `NetmonitorTests/SettingsViewModelTests`: passed (9/9)
+- Targeted settings UI tests for toggles + credits: passed (4/4)
+- Full `NetmonitorTests` run with coverage: passed (638 tests, 109 suites)
+
 ## Phase 1 - Stabilize UI Selectors and Core Flows (In Progress)
 Deliverables:
 - Align page objects with current accessibility IDs.
@@ -208,4 +253,3 @@ All discovered work should be linked via `discovered-from:<parent-id>`.
 - Updated page objects match current accessibility identifiers.
 - Coverage baseline is re-measured and improved after changes.
 - Beads are up to date for completed and remaining tasks.
-

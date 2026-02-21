@@ -350,61 +350,107 @@ struct NetworkMapViewModelCacheTests {
 @Suite("SettingsViewModel Tests")
 @MainActor
 struct SettingsViewModelTests {
+    private var settingKeys: [String] {
+        [
+            AppSettings.Keys.defaultPingCount,
+            AppSettings.Keys.pingTimeout,
+            AppSettings.Keys.portScanTimeout,
+            AppSettings.Keys.dnsServer,
+            AppSettings.Keys.dataRetentionDays,
+            AppSettings.Keys.showDetailedResults,
+            AppSettings.Keys.autoRefreshInterval,
+            AppSettings.Keys.backgroundRefreshEnabled,
+            AppSettings.Keys.targetDownAlertEnabled,
+            AppSettings.Keys.highLatencyAlertEnabled,
+            AppSettings.Keys.highLatencyThreshold,
+            AppSettings.Keys.newDeviceAlertEnabled,
+            AppSettings.Keys.selectedTheme
+        ]
+    }
+
+    private func withCleanSettingsDefaults(_ body: () -> Void) {
+        let defaults = UserDefaults.standard
+        let originals = Dictionary(uniqueKeysWithValues: settingKeys.map { ($0, defaults.object(forKey: $0)) })
+
+        for key in settingKeys {
+            defaults.removeObject(forKey: key)
+        }
+
+        defer {
+            for key in settingKeys {
+                if let value = originals[key] {
+                    defaults.set(value, forKey: key)
+                } else {
+                    defaults.removeObject(forKey: key)
+                }
+            }
+        }
+
+        body()
+    }
 
     @Test("defaultPingCount has sensible default")
     func defaultPingCount() {
-        let testDefaults = UserDefaults(suiteName: "test.settings.pingcount")!
-        testDefaults.removePersistentDomain(forName: "test.settings.pingcount")
-
-        let vm = SettingsViewModel()
-        #expect(vm.defaultPingCount == 4)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            #expect(vm.defaultPingCount == 4)
+        }
     }
 
     @Test("setting defaultPingCount persists to UserDefaults")
     func pingCountPersistence() {
-        let vm = SettingsViewModel()
-        vm.defaultPingCount = 10
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            vm.defaultPingCount = 10
 
-        let saved = UserDefaults.standard.integer(forKey: AppSettings.Keys.defaultPingCount)
-        #expect(saved == 10)
-
-        // Reset
-        vm.defaultPingCount = 4
+            let saved = UserDefaults.standard.integer(forKey: AppSettings.Keys.defaultPingCount)
+            #expect(saved == 10)
+        }
     }
 
     @Test("pingTimeout has default 5.0")
     func pingTimeoutDefault() {
-        let vm = SettingsViewModel()
-        let timeout = vm.pingTimeout
-        #expect(timeout == 5.0)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let timeout = vm.pingTimeout
+            #expect(timeout == 5.0)
+        }
     }
 
     @Test("portScanTimeout has default 2.0")
     func portScanTimeoutDefault() {
-        let vm = SettingsViewModel()
-        let timeout = vm.portScanTimeout
-        #expect(timeout == 2.0)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let timeout = vm.portScanTimeout
+            #expect(timeout == 2.0)
+        }
     }
 
     @Test("backgroundRefreshEnabled defaults to true")
     func backgroundRefreshDefault() {
-        let vm = SettingsViewModel()
-        let enabled = vm.backgroundRefreshEnabled
-        #expect(enabled == true)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let enabled = vm.backgroundRefreshEnabled
+            #expect(enabled == true)
+        }
     }
 
     @Test("dataRetentionDays defaults to 30")
     func dataRetentionDefault() {
-        let vm = SettingsViewModel()
-        let days = vm.dataRetentionDays
-        #expect(days == 30)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let days = vm.dataRetentionDays
+            #expect(days == 30)
+        }
     }
 
     @Test("highLatencyThreshold defaults to 100")
     func highLatencyThresholdDefault() {
-        let vm = SettingsViewModel()
-        let threshold = vm.highLatencyThreshold
-        #expect(threshold == 100)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let threshold = vm.highLatencyThreshold
+            #expect(threshold == 100)
+        }
     }
 
     @Test("selectedAccentColor reads from ThemeManager")
@@ -417,9 +463,11 @@ struct SettingsViewModelTests {
 
     @Test("autoRefreshInterval defaults to 60")
     func autoRefreshIntervalDefault() {
-        let vm = SettingsViewModel()
-        let interval = vm.autoRefreshInterval
-        #expect(interval == 60)
+        withCleanSettingsDefaults {
+            let vm = SettingsViewModel()
+            let interval = vm.autoRefreshInterval
+            #expect(interval == 60)
+        }
     }
 }
 
