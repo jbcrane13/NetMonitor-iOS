@@ -21,7 +21,9 @@ final class WiFiInfoService: NSObject {
     }
     
     func requestLocationPermission() {
-        locationManager.requestWhenInUseAuthorization()
+        Task { @MainActor in
+            locationManager.requestWhenInUseAuthorization()
+        }
     }
     
     func refreshWiFiInfo() {

@@ -114,6 +114,7 @@ final class DashboardViewModel {
         await publicIPService.fetchPublicIP(forceRefresh: true)
     }
     
+    @MainActor
     func requestLocationPermission() {
         wifiService.requestLocationPermission()
     }
