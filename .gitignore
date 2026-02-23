@@ -78,6 +78,6 @@ fastlane/test_output
 test_fixes.swift
 
 # Beads issue tracker (local)
-.beads/
 beads/
 .beads/dolt/
+!.beads/issues.jsonl
