@@ -24,7 +24,6 @@ An iOS 18+ network monitoring companion app built with SwiftUI, SwiftData, and N
 | `Screenshots/` | App screenshots for documentation and App Store |
 | `tasks/` | Task tracking files (legacy, now using beads) |
 | `.beads/` | Beads issue tracking database (JSONL format) |
-| `.omc/` | OMC (oh-my-claudecode) state and session data |
 | `.claude/` | Claude Code configuration and project memory |
 
 ## For AI Agents
