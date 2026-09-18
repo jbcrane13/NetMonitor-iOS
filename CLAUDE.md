@@ -4,34 +4,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## ⚠️ Beads Task Tracking — MANDATORY
+## Issue Tracking with GitHub Issues
 
-This project uses **beads** (`bd` CLI) for issue tracking. You MUST use it for every piece of work:
+Use GitHub Issues through the `gh` CLI as the single task tracker.
 
 ```bash
-# Before starting ANY fix or feature:
-bd create --title "Short description" --type bug --priority 1
-bd update <BEAD-ID> --status in_progress
-
-# When done with a fix:
-bd close <BEAD-ID> --reason "What was done"
-
-# Check open issues:
-bd list --status open
-
-# Sync state after commits:
-bd sync
+gh issue list --state open --json number,title,labels,assignees
+gh issue create --title "Issue title" --body "Scope and acceptance criteria"
+gh issue edit <number> --add-assignee "@me"
+gh issue close <number> --comment "Done: <verified result>"
 ```
 
-**Rules:**
-1. **Every bug fix or feature gets a bead.** No exceptions.
-2. **Set status to `in_progress` when you start working on it.**
-3. **Close with `--reason` when verified fixed.** Not when code compiles — when it actually works.
-4. **Check for existing open beads before creating duplicates:** `bd list --status open`
-5. **Include bead IDs in commit messages:** `git commit -m "Fix accent color reactivity (NetMonitor-iOS-xyz)"`
-6. **Run `bd sync` after pushing.**
-
-If you skip beads, your work is untracked and unverifiable. Use them.
+Read the complete issue and comments before starting. Use native sub-issues and blocking relationships for dependencies. Link delivery PRs with `Closes #<number>` when the work is complete.
 
 ## Key Documents
 

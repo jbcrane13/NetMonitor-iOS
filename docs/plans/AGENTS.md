@@ -21,6 +21,6 @@ Dated design and planning documents for major features and refactors. Contains h
 ### Document Lifecycle
 - Plans are snapshots at a point in time — actual implementation may evolve
 - Check `IMPLEMENTATION_PLAN.md` in parent directory for current architecture
-- Cross-reference with beads (`bd list`) for related implementation work
+- Cross-reference live GitHub issues with `gh issue list` for related implementation work
 
 <!-- MANUAL: -->
