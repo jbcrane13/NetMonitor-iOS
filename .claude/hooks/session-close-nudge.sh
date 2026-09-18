@@ -11,8 +11,8 @@ git rev-parse --is-inside-work-tree &>/dev/null || exit 0
 
 REMINDERS=""
 
-# Check for uncommitted changes (staged or unstaged, excluding .beads/)
-DIRTY=$(git status --porcelain 2>/dev/null | grep -v '^\s*[?!]' | grep -v '.beads/' | head -5)
+# Check for uncommitted changes (staged or unstaged)
+DIRTY=$(git status --porcelain 2>/dev/null | grep -v '^\s*[?!]' | head -5)
 if [ -n "$DIRTY" ]; then
   REMINDERS="${REMINDERS}\n- Uncommitted code changes detected. Run /session-close before ending."
 fi
@@ -40,11 +40,11 @@ if [ -f "$ADR_FILE" ]; then
   fi
 fi
 
-# Check for open beads
-if command -v bd &>/dev/null; then
-  IN_PROGRESS=$(bd list --status=in_progress 2>/dev/null | grep -c "●" || true)
+# Check for assigned GitHub issues marked in progress
+if command -v gh &>/dev/null; then
+  IN_PROGRESS=$(gh issue list --state open --label "status:in-progress" --json number --jq 'length' 2>/dev/null || echo 0)
   if [ "$IN_PROGRESS" -gt 0 ]; then
-    REMINDERS="${REMINDERS}\n- $IN_PROGRESS bead(s) still in_progress. Close or update them."
+    REMINDERS="${REMINDERS}\n- $IN_PROGRESS GitHub issue(s) still marked in progress. Close, update, or leave a handoff comment."
   fi
 fi
 
